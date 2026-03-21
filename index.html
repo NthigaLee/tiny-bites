@@ -314,14 +314,15 @@ body{min-height:100vh;min-height:100dvh;}
         <span id="ai-status-text">No API key</span>
       </div>
     </div>
-    <div class="nav-section-label">Plan</div>
-    <div class="nav-item active" onclick="gotoPage('discover')" id="nav-discover">
+    <div class="nav-section-label">DISCOVER & PLAN</div>
+    <div class="nav-item active" onclick="gotoPage('home')" id="nav-home">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Discover
+      Home
     </div>
-    <div class="nav-item" onclick="gotoPage('ai')" id="nav-ai">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>
-      Claude AI
+    <div class="nav-item" onclick="gotoPage('favorites')" id="nav-favorites">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3.5 3.5.5-2.5 2.5.5 3.5L8 10l-3 1.5.5-3.5L2.5 6l3.5-.5z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>
+      Favorites
+      <span class="nav-badge" id="fav-badge" style="display:none">0</span>
     </div>
     <div class="nav-item" onclick="gotoPage('week')" id="nav-week">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.3"/><path d="M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -332,15 +333,19 @@ body{min-height:100vh;min-height:100dvh;}
       Shopping list
       <span class="nav-badge" id="shop-badge" style="display:none">0</span>
     </div>
-    <div class="nav-section-label">Track</div>
     <div class="nav-item" onclick="gotoPage('nutrition')" id="nav-nutrition">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Nutrition
     </div>
-    <div class="nav-section-label">Settings</div>
+    <div class="nav-section-label">SETTINGS</div>
     <div class="nav-item" onclick="gotoPage('prefs')" id="nav-prefs">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Preferences
+    </div>
+    <div style="height:1px;background:var(--border);margin:6px 0;"></div>
+    <div class="nav-item" onclick="gotoPage('ai')" id="nav-ai">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>
+      Claude AI
     </div>
     <div class="nav-item" onclick="gotoPage('apikey')" id="nav-apikey">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="9" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 5.5l5 5M12 5l1.5-1.5M10.5 6.5L12 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -366,9 +371,10 @@ body{min-height:100vh;min-height:100dvh;}
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ST = {
-  age:'baby', page:'discover', search:'',
+  age:'baby', page:'home', search:'',
   avoidAllergens:[], activeTypes:[],
   selectedRecipes:[], shopChecked:[], shopRemoved:[],
+  favorites:[],
   prefs:{favFoods:[], dislikedFoods:[], favMealTypes:[], notes:''},
   apiKey:'', aiMessages:[], aiSuggestedIds:[],
 };
@@ -433,6 +439,61 @@ const RECIPES=[
   {id:53,age:'toddler',name:'Baked oat bites',emoji:'🌾',type:'Snack',time:20,cal:95,carbs:14,protein:3,fat:3,allergens:['Gluten','Nuts'],desc:'No refined sugar. Portable nutritious snack.',ingredients:[{name:'Oats',qty:'1 cup'},{name:'Ripe banana',qty:'1, mashed'},{name:'Almond butter',qty:'2 tbsp'},{name:'Raisins',qty:'2 tbsp'}],steps:['Mix all together.','Roll into balls.','Bake 180°C 12 min.']},
   {id:54,age:'toddler',name:'Chicken noodle soup',emoji:'🍜',type:'Soup',time:25,cal:195,carbs:22,protein:16,fat:4,allergens:['Gluten'],desc:'Warm and comforting. Use thin noodles.',ingredients:[{name:'Chicken breast',qty:'100g'},{name:'Thin noodles',qty:'½ cup'},{name:'Carrot',qty:'1, diced'},{name:'Celery',qty:'1 stick'},{name:'Low-sodium stock',qty:'500ml'}],steps:['Simmer chicken in stock 12 min.','Shred chicken.','Add veg 5 min.','Add noodles per pack.']},
   {id:55,age:'toddler',name:'Spinach smoothie bowl',emoji:'🌿',type:'Breakfast',time:5,cal:145,carbs:26,protein:5,fat:3,allergens:['Dairy'],desc:'Sneaky greens — banana completely masks the spinach.',ingredients:[{name:'Baby spinach',qty:'1 cup'},{name:'Frozen banana',qty:'1'},{name:'Greek yogurt',qty:'3 tbsp'},{name:'Whole milk',qty:'3 tbsp'},{name:'Berries',qty:'for topping'}],steps:['Blend spinach, banana, yogurt and milk.','Pour into bowl.','Top with berries.']},
+  {id:56,age:'baby',name:'Parsnip & pear puree',emoji:'🍐',type:'Puree',time:20,cal:95,carbs:22,protein:1,fat:0,allergens:[],desc:'Naturally sweet combination perfect for introducing parsnip.',ingredients:[{name:'Parsnip',qty:'1 medium, peeled'},{name:'Pear',qty:'1, peeled & cored'},{name:'Water',qty:'100ml'}],steps:['Cube parsnip and pear.','Steam 15 minutes until tender.','Blend with cooking water until smooth.']},
+  {id:57,age:'baby',name:'Celery & apple puree',emoji:'🍎',type:'Puree',time:18,cal:70,carbs:17,protein:1,fat:0,allergens:[],desc:'Mild veggie flavor balanced with natural apple sweetness.',ingredients:[{name:'Celery',qty:'2 sticks, chopped'},{name:'Apple',qty:'1 medium, peeled'},{name:'Water',qty:'150ml'}],steps:['Chop vegetables finely.','Steam 12 minutes.','Blend until completely smooth.']},
+  {id:58,age:'baby',name:'Prune & apple puree',emoji:'🍑',type:'Puree',time:15,cal:105,carbs:25,protein:1,fat:0,allergens:[],desc:'Gentle way to address constipation with natural fruit sugars.',ingredients:[{name:'Prunes',qty:'¼ cup'},{name:'Apple',qty:'1, peeled'},{name:'Water',qty:'150ml'}],steps:['Soak prunes 5 minutes.','Steam with apple 8 minutes.','Blend until smooth.']},
+  {id:59,age:'baby',name:'Green bean & potato',emoji:'🫘',type:'Puree',time:20,cal:75,carbs:17,protein:2,fat:0,allergens:[],desc:'Mild flavor combination, easy to digest.',ingredients:[{name:'Green beans',qty:'½ cup'},{name:'Potato',qty:'1 small, peeled'},{name:'Water',qty:'150ml'}],steps:['Cube vegetables.','Steam 15 minutes.','Blend with cooking water.']},
+  {id:60,age:'baby',name:'Millet & vegetable puree',emoji:'🌾',type:'Puree',time:25,cal:100,carbs:21,protein:3,fat:1,allergens:[],desc:'Nutritious grain mixed with carrots and spinach.',ingredients:[{name:'Millet',qty:'¼ cup'},{name:'Carrot',qty:'1, diced'},{name:'Spinach',qty:'handful'},{name:'Water',qty:'250ml'}],steps:['Rinse millet.','Combine all ingredients.','Simmer 20 minutes.','Blend until smooth.']},
+  {id:61,age:'baby',name:'Peach & oat puree',emoji:'🍑',type:'Puree',time:10,cal:90,carbs:20,protein:2,fat:1,allergens:['Gluten'],desc:'Soft fruit with digestible oats.',ingredients:[{name:'Fresh peach',qty:'1, peeled'},{name:'Baby oats',qty:'2 tbsp'},{name:'Water',qty:'100ml'}],steps:['Chop peach.','Cook oats in water.','Add peach and blend.']},
+  {id:62,age:'baby',name:'Beet & sweet potato',emoji:'🍠',type:'Puree',time:25,cal:95,carbs:22,protein:2,fat:0,allergens:[],desc:'Iron-rich beet combined with beta-carotene from sweet potato.',ingredients:[{name:'Beet',qty:'1 small, peeled'},{name:'Sweet potato',qty:'1 small, peeled'},{name:'Water',qty:'150ml'}],steps:['Cube both vegetables.','Steam 20 minutes until very tender.','Blend with cooking water.']},
+  {id:63,age:'baby',name:'Poached pear with yogurt',emoji:'🍐',type:'Breakfast',time:10,cal:85,carbs:18,protein:2,fat:1,allergens:['Dairy'],desc:'Soft poached fruit with creamy yogurt.',ingredients:[{name:'Pear',qty:'1, peeled & sliced'},{name:'Plain yogurt',qty:'2 tbsp'},{name:'Cinnamon',qty:'pinch'},{name:'Water',qty:'50ml'}],steps:['Poach pear slices 5 minutes.','Cool and puree.','Mix with yogurt and cinnamon.']},
+  {id:64,age:'baby',name:'Rutabaga puree',emoji:'🌰',type:'Puree',time:30,cal:80,carbs:19,protein:2,fat:0,allergens:[],desc:'Often overlooked root vegetable with mild sweet flavor.',ingredients:[{name:'Rutabaga',qty:'1 small, peeled'},{name:'Water',qty:'200ml'}],steps:['Cube rutabaga.','Steam 25 minutes until completely soft.','Blend until smooth.']},
+  {id:65,age:'baby',name:'Papaya & banana mash',emoji:'🍌',type:'Breakfast',time:5,cal:100,carbs:24,protein:1,fat:0,allergens:[],desc:'Tropical fruits, enzyme-rich papaya aids digestion.',ingredients:[{name:'Ripe papaya',qty:'½ cup chunks'},{name:'Ripe banana',qty:'½'}],steps:['Mash both fruits together.','Serve immediately.']},
+  {id:66,age:'toddler',name:'Tomato & lentil soup',emoji:'🍅',type:'Soup',time:30,cal:165,carbs:25,protein:8,fat:2,allergens:[],desc:'Classic comfort soup with iron and lycopene.',ingredients:[{name:'Red lentils',qty:'⅓ cup'},{name:'Canned tomatoes',qty:'½ tin'},{name:'Carrot',qty:'1, diced'},{name:'Onion',qty:'¼, minced'},{name:'Stock',qty:'400ml'}],steps:['Soften onion and carrot.','Add lentils, tomatoes, stock.','Simmer 20 minutes.','Blend partially for texture.']},
+  {id:67,age:'toddler',name:'Spaghetti bolognese (mild)',emoji:'🍝',type:'Pasta',time:30,cal:310,carbs:38,protein:18,fat:9,allergens:['Gluten'],desc:'Kid-friendly classic with hidden vegetables.',ingredients:[{name:'Spaghetti',qty:'½ cup'},{name:'Lean ground beef',qty:'100g'},{name:'Carrot',qty:'1, grated'},{name:'Zucchini',qty:'½, grated'},{name:'Tomato sauce',qty:'¼ cup'},{name:'Tomato puree',qty:'1 tbsp'}],steps:['Brown beef.','Add veggies, cook 5 minutes.','Add sauces, simmer 10 minutes.','Serve over pasta.']},
+  {id:68,age:'toddler',name:'Baked sweet potato fries',emoji:'🍟',type:'Snack',time:25,cal:130,carbs:29,protein:2,fat:1,allergens:[],desc:'Crispy outside, soft inside. No added oil needed.',ingredients:[{name:'Sweet potatoes',qty:'2 medium'},{name:'Paprika',qty:'light sprinkle'}],steps:['Cut into thin fries.','Arrange on baking sheet.','Bake 200°C 20 minutes.','Sprinkle paprika.']},
+  {id:69,age:'toddler',name:'Pork & apple meatballs',emoji:'🍖',type:'Meat',time:25,cal:220,carbs:10,protein:19,fat:12,allergens:['Gluten','Eggs'],desc:'Tender meatballs with natural sweetness.',ingredients:[{name:'Ground pork',qty:'150g'},{name:'Apple',qty:'½, grated'},{name:'Breadcrumbs',qty:'2 tbsp'},{name:'Egg',qty:'½'}],steps:['Mix all ingredients.','Form into balls.','Bake 200°C 20 minutes.']},
+  {id:70,age:'toddler',name:'Baked cod with herbs',emoji:'🐟',type:'Fish',time:20,cal:185,carbs:8,protein:24,fat:8,allergens:['Fish'],desc:'Flaky white fish with mild herbs.',ingredients:[{name:'Cod fillet',qty:'150g'},{name:'Dill',qty:'pinch'},{name:'Lemon',qty:'squeeze'},{name:'Butter',qty:'1 tsp'}],steps:['Place fish on foil.','Add dill and lemon.','Bake 200°C 15 minutes.']},
+  {id:71,age:'toddler',name:'Chickpea curry (mild)',emoji:'🔶',type:'Vegetarian',time:25,cal:245,carbs:32,protein:9,fat:9,allergens:['Gluten'],desc:'First introduction to mild spices, served with rice.',ingredients:[{name:'Canned chickpeas',qty:'¾ cup'},{name:'Coconut milk',qty:'¼ cup'},{name:'Sweet potato',qty:'½, cubed'},{name:'Mild curry powder',qty:'¼ tsp'}],steps:['Warm coconut milk.','Add curry powder.','Add chickpeas and sweet potato.','Simmer 15 minutes.']},
+  {id:72,age:'toddler',name:'Buttered egg noodles with peas',emoji:'🍜',type:'Pasta',time:15,cal:280,carbs:36,protein:10,fat:11,allergens:['Eggs','Gluten'],desc:'Simple, comforting, with hidden vegetables.',ingredients:[{name:'Egg noodles',qty:'½ cup'},{name:'Frozen peas',qty:'¼ cup'},{name:'Butter',qty:'1 tbsp'},{name:'Parmesan',qty:'1 tbsp'}],steps:['Cook noodles per package.','Add frozen peas during last 2 minutes.','Drain and toss with butter and cheese.']},
+  {id:73,age:'toddler',name:'Mini beef patties',emoji:'🍔',type:'Meat',time:20,cal:250,carbs:2,protein:22,fat:18,allergens:['Gluten'],desc:'Lean beef cooked flat for quick heat-through.',ingredients:[{name:'Ground beef',qty:'150g'},{name:'Onion',qty:'¼, minced'},{name:'Egg',qty:'½'},{name:'Breadcrumbs',qty:'1 tbsp'}],steps:['Mix all ingredients gently.','Form thin patties.','Pan-fry 3–4 minutes per side.']},
+  {id:74,age:'toddler',name:'Corn fritters',emoji:'🌽',type:'Vegetarian',time:20,cal:160,carbs:18,protein:5,fat:8,allergens:['Eggs','Gluten'],desc:'Sweet corn in a savory batter.',ingredients:[{name:'Frozen corn',qty:'¾ cup'},{name:'Egg',qty:'1'},{name:'Self-raising flour',qty:'¼ cup'},{name:'Cheddar',qty:'2 tbsp'}],steps:['Mix egg and flour.','Fold in corn and cheese.','Fry spoonfuls 2–3 minutes each side.']},
+  {id:75,age:'toddler',name:'Lentil bolognese pasta',emoji:'🍝',type:'Pasta',time:30,cal:295,carbs:40,protein:15,fat:6,allergens:['Gluten'],desc:'Plant-based protein-packed sauce.',ingredients:[{name:'Penne',qty:'½ cup'},{name:'Red lentils',qty:'¼ cup'},{name:'Canned tomatoes',qty:'½ tin'},{name:'Carrot',qty:'1, grated'},{name:'Onion',qty:'¼, minced'}],steps:['Soften onion and carrot.','Add lentils and tomatoes.','Simmer 20 minutes.','Serve over pasta.']},
+  {id:76,age:'toddler',name:'Turkey meatballs with sweet potato',emoji:'🍖',type:'Meat',time:30,cal:230,carbs:16,protein:20,fat:10,allergens:['Eggs','Gluten'],desc:'Leaner than beef with side of natural carbs.',ingredients:[{name:'Ground turkey',qty:'150g'},{name:'Mashed sweet potato',qty:'3 tbsp'},{name:'Egg',qty:'½'},{name:'Breadcrumbs',qty:'1 tbsp'}],steps:['Mix all ingredients.','Shape into balls.','Bake 200°C 20 minutes.']},
+  {id:77,age:'toddler',name:'Baked salmon with dill',emoji:'🐟',type:'Fish',time:20,cal:240,carbs:2,protein:26,fat:14,allergens:['Fish'],desc:'Omega-3 rich with aromatic herbs.',ingredients:[{name:'Salmon fillet',qty:'150g'},{name:'Dill',qty:'½ tsp'},{name:'Lemon',qty:'1 wedge'},{name:'Olive oil',qty:'1 tsp'}],steps:['Place on foil with dill.','Drizzle oil and lemon.','Bake 200°C 15–18 minutes.']},
+  {id:78,age:'toddler',name:'Veggie fried rice with egg',emoji:'🍚',type:'Quick & easy',time:15,cal:260,carbs:32,protein:11,fat:10,allergens:['Eggs','Soy'],desc:'Great way to use leftover rice and vegetables.',ingredients:[{name:'Cooked rice',qty:'1 cup'},{name:'Eggs',qty:'2'},{name:'Mixed frozen vegetables',qty:'½ cup'},{name:'Low-sodium soy',qty:'½ tsp'}],steps:['Fry rice and veggies 3 minutes.','Push to side, scramble eggs.','Mix together with soy sauce.']},
+  {id:79,age:'toddler',name:'Carrot cake muffins',emoji:'🧁',type:'Snack',time:25,cal:180,carbs:24,protein:3,fat:8,allergens:['Eggs','Gluten','Dairy','Nuts'],desc:'Hidden vegetables in a sweet treat.',ingredients:[{name:'Self-raising flour',qty:'1 cup'},{name:'Grated carrot',qty:'½ cup'},{name:'Oil',qty:'¼ cup'},{name:'Egg',qty:'1'},{name:'Raisins',qty:'¼ cup'}],steps:['Mix flour, carrot, oil, egg.','Fold in raisins.','Bake muffin cases 180°C 18 minutes.']},
+  {id:80,age:'toddler',name:'Polenta with roasted vegetables',emoji:'🌽',type:'Vegetarian',time:20,cal:190,carbs:28,protein:5,fat:6,allergens:[],desc:'Creamy polenta base with roasted veggie medley.',ingredients:[{name:'Polenta',qty:'½ cup'},{name:'Vegetable stock',qty:'200ml'},{name:'Roasted vegetables',qty:'½ cup, mixed'},{name:'Butter',qty:'1 tsp'}],steps:['Prepare polenta per instructions.','Toss in butter.','Serve with warm roasted veggies.']},
+  {id:81,age:'toddler',name:'Mini cottage pie',emoji:'🥔',type:'Meat',time:35,cal:280,carbs:26,protein:20,fat:10,allergens:[],desc:'Layered beef and vegetable base under creamy mash.',ingredients:[{name:'Ground beef',qty:'100g'},{name:'Carrot & pea mix',qty:'⅓ cup'},{name:'Mashed potato',qty:'⅓ cup'},{name:'Cheese',qty:'1 tbsp'}],steps:['Brown beef, add veggies.','Place in small dish.','Top with mash and cheese.','Bake 200°C 15 minutes.']},
+  {id:82,age:'toddler',name:'Creamy tomato pasta',emoji:'🍝',type:'Pasta',time:20,cal:300,carbs:38,protein:12,fat:10,allergens:['Gluten','Dairy'],desc:'Rich sauce with hidden vegetables.',ingredients:[{name:'Penne',qty:'½ cup'},{name:'Canned tomatoes',qty:'½ tin'},{name:'Cream',qty:'3 tbsp'},{name:'Zucchini',qty:'½, grated'}],steps:['Cook pasta.','Simmer tomatoes and zucchini 5 min.','Stir in cream.','Toss with pasta.']},
+  {id:83,age:'toddler',name:'Baked cod with vegetables',emoji:'🐟',type:'Fish',time:25,cal:200,carbs:14,protein:22,fat:8,allergens:['Fish'],desc:'Flaky fish baked with soft vegetables.',ingredients:[{name:'Cod fillet',qty:'150g'},{name:'Carrot',qty:'1, sliced'},{name:'Zucchini',qty:'½, sliced'},{name:'Butter',qty:'1 tsp'}],steps:['Arrange vegetables in dish.','Place cod on top.','Dot with butter.','Bake 200°C 18 minutes.']},
+  {id:84,age:'toddler',name:'Bean & vegetable burrito',emoji:'🌯',type:'Vegetarian',time:15,cal:280,carbs:36,protein:11,fat:10,allergens:['Gluten','Dairy'],desc:'Soft tortilla stuffed with protein-rich filling.',ingredients:[{name:'Flour tortilla',qty:'1'},{name:'Canned black beans',qty:'¼ cup'},{name:'Rice',qty:'¼ cup'},{name:'Cheddar',qty:'2 tbsp'},{name:'Avocado',qty:'¼'}],steps:['Warm tortilla.','Mix beans and rice.','Add to tortilla with cheese and avocado.','Roll and serve.']},
+  {id:85,age:'toddler',name:'Herb chicken thighs',emoji:'🍗',type:'Meat',time:35,cal:260,carbs:0,protein:28,fat:15,allergens:[],desc:'Tender thighs with aromatic herbs.',ingredients:[{name:'Chicken thighs',qty:'2, boneless'},{name:'Thyme',qty:'sprig'},{name:'Garlic',qty:'½ clove'},{name:'Olive oil',qty:'1 tsp'}],steps:['Rub chicken with herbs and oil.','Bake 200°C 30 minutes.','Cool and cut into pieces.']},
+  {id:86,age:'toddler',name:'Spinach & cheese pasta',emoji:'🍝',type:'Pasta',time:20,cal:320,carbs:36,protein:14,fat:14,allergens:['Gluten','Dairy','Eggs'],desc:'Iron and calcium in creamy sauce.',ingredients:[{name:'Fusilli',qty:'½ cup'},{name:'Baby spinach',qty:'1 cup'},{name:'Cream cheese',qty:'2 tbsp'},{name:'Parmesan',qty:'1 tbsp'}],steps:['Cook pasta.','Wilt spinach in cream cheese.','Toss with pasta and parmesan.']},
+  {id:87,age:'toddler',name:'Prune & oat smoothie',emoji:'🍌',type:'Breakfast',time:5,cal:175,carbs:32,protein:6,fat:4,allergens:['Dairy','Gluten'],desc:'Natural sweetness with digestive support.',ingredients:[{name:'Prunes',qty:'¼ cup'},{name:'Banana',qty:'½'},{name:'Oat milk',qty:'100ml'},{name:'Greek yogurt',qty:'2 tbsp'}],steps:['Blend prunes, banana, milk.','Stir in yogurt.','Serve immediately.']},
+  {id:88,age:'toddler',name:'Beef taco filling',emoji:'🌮',type:'Meat',time:15,cal:220,carbs:8,protein:20,fat:11,allergens:[],desc:'Soft meat mixture for tortillas or nachos.',ingredients:[{name:'Ground beef',qty:'100g'},{name:'Tomato sauce',qty:'2 tbsp'},{name:'Mild spice blend',qty:'pinch'},{name:'Corn',qty:'2 tbsp'}],steps:['Brown beef.','Add sauce, spice, corn.','Simmer 5 minutes.']},
+  {id:89,age:'toddler',name:'Baked tilapia with lemon',emoji:'🐟',type:'Fish',time:18,cal:195,carbs:2,protein:24,fat:10,allergens:['Fish'],desc:'Mild white fish, simple preparation.',ingredients:[{name:'Tilapia fillet',qty:'150g'},{name:'Lemon',qty:'½'},{name:'Olive oil',qty:'1 tsp'},{name:'Parsley',qty:'pinch'}],steps:['Place on parchment.','Squeeze lemon, drizzle oil.','Bake 200°C 15 minutes.']},
+  {id:90,age:'toddler',name:'Broccoli & cheddar bake',emoji:'🥦',type:'Vegetarian',time:25,cal:230,carbs:18,protein:14,fat:12,allergens:['Dairy','Gluten'],desc:'Soft vegetables in creamy cheese sauce.',ingredients:[{name:'Broccoli florets',qty:'1 cup'},{name:'Cheddar sauce mix',qty:'1 packet'},{name:'Breadcrumbs',qty:'2 tbsp'},{name:'Butter',qty:'1 tsp'}],steps:['Cook broccoli.','Make cheese sauce.','Combine in dish, top with crumbs.','Bake 180°C 15 minutes.']},
+  {id:91,age:'toddler',name:'Apple & walnut bars',emoji:'🍎',type:'Snack',time:25,cal:160,carbs:20,protein:4,fat:8,allergens:['Nuts','Gluten','Dairy'],desc:'Chewy bars with natural sweetness.',ingredients:[{name:'Oats',qty:'1 cup'},{name:'Applesauce',qty:'½ cup'},{name:'Walnuts',qty:'¼ cup, chopped'},{name:'Butter',qty:'2 tbsp'}],steps:['Mix all ingredients.','Press into baking pan.','Bake 180°C 18 minutes.','Cool and cut into bars.']},
+  {id:92,age:'toddler',name:'Minestrone soup',emoji:'🥣',type:'Soup',time:35,cal:175,carbs:26,protein:8,fat:4,allergens:['Gluten'],desc:'Italian vegetable soup with pasta and beans.',ingredients:[{name:'Mixed vegetables',qty:'1 cup, diced'},{name:'Canned tomatoes',qty:'½ tin'},{name:'Pasta shells',qty:'3 tbsp'},{name:'Cannellini beans',qty:'¼ cup'},{name:'Vegetable stock',qty:'400ml'}],steps:['Add all to pot.','Simmer 25 minutes.','Vegetables and pasta should be soft.']},
+  {id:93,age:'toddler',name:'Turkey & vegetable patties',emoji:'🍖',type:'Meat',time:20,cal:210,carbs:8,protein:22,fat:10,allergens:['Gluten','Eggs'],desc:'Lean meat with hidden vegetables.',ingredients:[{name:'Ground turkey',qty:'150g'},{name:'Carrot',qty:'½, grated'},{name:'Zucchini',qty:'¼, grated'},{name:'Breadcrumbs',qty:'1 tbsp'},{name:'Egg',qty:'½'}],steps:['Mix all ingredients.','Form into patties.','Pan-fry 4–5 minutes per side.']},
+  {id:94,age:'toddler',name:'Tuna & sweetcorn pasta',emoji:'🐟',type:'Fish',time:20,cal:310,carbs:38,protein:18,fat:8,allergens:['Fish','Gluten'],desc:'Protein-rich with sweet corn.',ingredients:[{name:'Penne',qty:'½ cup'},{name:'Canned tuna',qty:'½ tin'},{name:'Canned sweetcorn',qty:'¼ cup'},{name:'Tomato sauce',qty:'3 tbsp'},{name:'Cheese',qty:'1 tbsp'}],steps:['Cook pasta.','Mix tuna, corn, sauce.','Combine with pasta and cheese.']},
+  {id:95,age:'toddler',name:'Vegetable & rice cakes',emoji:'🍚',type:'Vegetarian',time:25,cal:200,carbs:28,protein:6,fat:8,allergens:['Eggs','Dairy'],desc:'Soft rice cakes with vegetables.',ingredients:[{name:'Cooked rice',qty:'½ cup'},{name:'Carrot',qty:'½, finely diced'},{name:'Peas',qty:'2 tbsp'},{name:'Egg',qty:'½'},{name:'Cheddar',qty:'2 tbsp'}],steps:['Mix all ingredients.','Form into patties.','Pan-fry 3 minutes each side.']},
+  {id:96,age:'toddler',name:'Baked haddock with herbs',emoji:'🐟',type:'Fish',time:20,cal:205,carbs:4,protein:25,fat:10,allergens:['Fish'],desc:'Mild white fish with gentle seasonings.',ingredients:[{name:'Haddock fillet',qty:'150g'},{name:'Rosemary',qty:'sprig'},{name:'Lemon zest',qty:'pinch'},{name:'Olive oil',qty:'1 tsp'}],steps:['Place on foil.','Add rosemary and zest.','Drizzle oil and bake 200°C 15 min.']},
+  {id:97,age:'toddler',name:'Chickpea & vegetable curry',emoji:'🔶',type:'Vegetarian',time:25,cal:260,carbs:34,protein:10,fat:10,allergens:['Gluten'],desc:'Plant-based protein with aromatic spices.',ingredients:[{name:'Chickpeas',qty:'¾ cup'},{name:'Coconut milk',qty:'¼ cup'},{name:'Cauliflower',qty:'½ cup, florets'},{name:'Mild curry paste',qty:'¼ tsp'}],steps:['Warm coconut milk.','Add curry paste.','Add chickpeas and cauliflower.','Simmer 15 minutes.']},
+  {id:98,age:'toddler',name:'Pork & vegetable stir-fry',emoji:'🍖',type:'Meat',time:20,cal:245,carbs:14,protein:22,fat:12,allergens:['Soy','Gluten'],desc:'Quick cooking preserves nutrients.',ingredients:[{name:'Pork tenderloin',qty:'100g, sliced'},{name:'Broccoli',qty:'½ cup'},{name:'Carrot',qty:'½, sliced'},{name:'Low-sodium soy',qty:'1 tsp'}],steps:['Heat oil in wok.','Cook pork 5 minutes.','Add veggies, cook 5 more.','Add soy sauce and serve.']},
+  {id:99,age:'toddler',name:'Banana & berry yogurt',emoji:'🍌',type:'Breakfast',time:3,cal:150,carbs:28,protein:6,fat:2,allergens:['Dairy'],desc:'Protein-rich breakfast with natural fruit.',ingredients:[{name:'Greek yogurt',qty:'¾ cup'},{name:'Banana',qty:'½, sliced'},{name:'Mixed berries',qty:'¼ cup'}],steps:['Layer yogurt in bowl.','Top with banana and berries.','Serve immediately.']},
+  {id:100,age:'toddler',name:'Lentil & vegetable patties',emoji:'🫘',type:'Vegetarian',time:30,cal:180,carbs:22,protein:9,fat:7,allergens:['Gluten','Eggs'],desc:'Plant-based patties, packed with protein.',ingredients:[{name:'Cooked lentils',qty:'¾ cup'},{name:'Carrot',qty:'½, grated'},{name:'Onion',qty:'¼, minced'},{name:'Egg',qty:'1'},{name:'Oat flour',qty:'3 tbsp'}],steps:['Mix all ingredients.','Form patties.','Pan-fry 4 minutes per side.']},
+  {id:101,age:'toddler',name:'Salmon & vegetable rice bowl',emoji:'🐟',type:'Fish',time:25,cal:320,carbs:32,protein:22,fat:14,allergens:['Fish'],desc:'Complete meal with omega-3 and vegetables.',ingredients:[{name:'Cooked rice',qty:'¾ cup'},{name:'Salmon fillet',qty:'100g'},{name:'Steamed vegetables',qty:'½ cup'},{name:'Sesame oil',qty:'½ tsp'}],steps:['Bake salmon 15 minutes at 200°C.','Layer rice and vegetables in bowl.','Top with flaked salmon.','Drizzle with sesame oil.']},
+  {id:102,age:'toddler',name:'Cheese & apple quesadilla',emoji:'🍎',type:'Quick & easy',time:10,cal:240,carbs:28,protein:10,fat:11,allergens:['Dairy','Gluten'],desc:'Warm, melty, with natural fruit sweetness.',ingredients:[{name:'Flour tortilla',qty:'1'},{name:'Cheddar',qty:'2 tbsp'},{name:'Apple',qty:'¼, thinly sliced'}],steps:['Layer cheese and apple on tortilla.','Fold in half.','Pan-fry 2–3 minutes per side.']},
+  {id:103,age:'toddler',name:'Vegetable & lentil bolognese',emoji:'🍝',type:'Pasta',time:30,cal:285,carbs:38,protein:14,fat:7,allergens:['Gluten'],desc:'Plant-based protein sauce.',ingredients:[{name:'Penne',qty:'½ cup'},{name:'Red lentils',qty:'⅓ cup'},{name:'Tomato puree',qty:'2 tbsp'},{name:'Mushroom',qty:'½, minced'},{name:'Celery',qty:'1 stick, minced'}],steps:['Soften celery and mushroom.','Add lentils, tomato puree, water.','Simmer 20 minutes.','Serve over pasta.']},
+  {id:104,age:'toddler',name:'Baked white fish with vegetables',emoji:'🐟',type:'Fish',time:25,cal:210,carbs:12,protein:24,fat:9,allergens:['Fish'],desc:'Simple preparation highlights fish flavor.',ingredients:[{name:'White fish fillet',qty:'150g'},{name:'Broccoli',qty:'½ cup, florets'},{name:'Carrot',qty:'½, sliced'},{name:'Butter',qty:'1 tsp'}],steps:['Arrange vegetables in baking dish.','Place fish on top.','Dot with butter.','Bake 200°C 18 minutes.']},
+  {id:105,age:'toddler',name:'Sweet potato & black bean tacos',emoji:'🌮',type:'Vegetarian',time:20,cal:270,carbs:38,protein:10,fat:8,allergens:['Gluten'],desc:'Plant-based, naturally sweet filling.',ingredients:[{name:'Small tortillas',qty:'2'},{name:'Roasted sweet potato',qty:'½ cup'},{name:'Black beans',qty:'¼ cup'},{name:'Cheese',qty:'2 tbsp'},{name:'Avocado',qty:'¼'}],steps:['Warm tortillas.','Fill with sweet potato and beans.','Top with cheese and avocado.','Serve.']},
+  {id:106,age:'toddler',name:'Pork & apple rice',emoji:'🍚',type:'Meat',time:25,cal:310,carbs:36,protein:20,fat:10,allergens:['Soy'],desc:'Complete meal with protein and carbs.',ingredients:[{name:'Cooked rice',qty:'¾ cup'},{name:'Pork tenderloin',qty:'100g, diced'},{name:'Apple',qty:'¼, diced'},{name:'Low-sodium soy',qty:'½ tsp'}],steps:['Stir-fry pork 8 minutes.','Add apple and rice.','Cook 5 minutes, add soy sauce.']},
+  {id:107,age:'toddler',name:'Vegetable fritters with yogurt',emoji:'🥕',type:'Vegetarian',time:20,cal:175,carbs:16,protein:8,fat:8,allergens:['Eggs','Gluten','Dairy'],desc:'Crispy fritters with cooling yogurt dip.',ingredients:[{name:'Courgette',qty:'½, grated'},{name:'Carrot',qty:'½, grated'},{name:'Egg',qty:'1'},{name:'Flour',qty:'4 tbsp'},{name:'Plain yogurt',qty:'3 tbsp'}],steps:['Squeeze water from vegetables.','Mix with egg and flour.','Fry spoonfuls until golden.','Serve with yogurt.']},
+  {id:108,age:'toddler',name:'Mild tuna curry',emoji:'🐟',type:'Fish',time:20,cal:245,carbs:18,protein:22,fat:10,allergens:['Fish','Gluten'],desc:'Gentle spice introduction.',ingredients:[{name:'Canned tuna',qty:'1 tin, drained'},{name:'Coconut milk',qty:'¼ cup'},{name:'Potato',qty:'½, diced'},{name:'Mild curry paste',qty:'¼ tsp'}],steps:['Warm coconut milk.','Add curry paste and potato.','Add tuna, simmer 12 minutes.','Serve with rice.']},
+  {id:109,age:'toddler',name:'Chicken & vegetable soup',emoji:'🍲',type:'Soup',time:30,cal:185,carbs:20,protein:18,fat:5,allergens:[],desc:'Comforting and nourishing.',ingredients:[{name:'Chicken breast',qty:'80g'},{name:'Mixed vegetables',qty:'½ cup'},{name:'Low-sodium stock',qty:'400ml'},{name:'Rice noodles',qty:'2 tbsp'}],steps:['Simmer chicken 12 minutes.','Add vegetables 5 minutes.','Add noodles per package.']},
+  {id:110,age:'toddler',name:'Beef & vegetable meatballs',emoji:'🍔',type:'Meat',time:25,cal:240,carbs:8,protein:22,fat:13,allergens:['Gluten','Eggs'],desc:'Tender meatballs loaded with vegetables.',ingredients:[{name:'Ground beef',qty:'150g'},{name:'Carrot',qty:'¼, grated'},{name:'Zucchini',qty:'¼, grated'},{name:'Breadcrumbs',qty:'1 tbsp'},{name:'Egg',qty:'½'}],steps:['Mix all ingredients.','Form into balls.','Bake 200°C 20 minutes.']},
 ];
 
 const MEAL_TYPES=[...new Set(RECIPES.map(r=>r.type))].sort();
@@ -474,6 +535,23 @@ function prefsCtx(){
   if(ST.avoidAllergens.length)parts.push('allergies/avoid: '+ST.avoidAllergens.join(', '));
   if(p.notes.trim())parts.push('notes: '+p.notes.trim());
   return parts.join('; ')||'no preferences set yet';
+}
+
+// ── Favorites system ─────────────────────────────────────────────
+function toggleFavorite(id){
+  if(ST.favorites.includes(id)){
+    ST.favorites=ST.favorites.filter(f=>f!==id);
+  }else{
+    ST.favorites.push(id);
+  }
+  save();
+  renderPage();
+  updateFavoriteBadge();
+}
+function isFavorited(id){return ST.favorites.includes(id);}
+function updateFavoriteBadge(){
+  const b=document.getElementById('fav-badge');
+  if(b){if(ST.favorites.length){b.textContent=ST.favorites.length;b.style.display='';}else{b.style.display='none';}}
 }
 
 function updateAIStatus(){
@@ -675,7 +753,7 @@ function highlightAISuggestions(text){
   save();
 }
 
-function renderDiscoverPage(){
+function renderHomePage(){
   const recipes=filtered();
   const aiSuggested=ST.aiSuggestedIds.filter(id=>recipes.some(r=>r.id===id));
   return`<div class="page-header">
@@ -707,13 +785,19 @@ function renderDiscoverPage(){
 
 function renderCard(r,aiHighlight){
   const added=ST.selectedRecipes.includes(r.id);
+  const fav=isFavorited(r.id);
   return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}" onclick="openRecipe(${r.id})">
     <div class="recipe-emoji">${r.emoji}</div>
     <div class="recipe-card-top">
       <div><div class="recipe-card-name">${esc(r.name)}</div><div class="recipe-card-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal} kcal</div></div>
-      <button class="add-btn${added?' added':''}" onclick="event.stopPropagation();toggleRecipe(${r.id})">
-        ${added?`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`+`}
-      </button>
+      <div style="display:flex;gap:6px;">
+        <button class="add-btn${fav?' added':''}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Add to favorites" style="background:${fav?'#e91e63':'transparent'};border:1px solid ${fav?'#e91e63':'#ccc'};padding:5px 8px;border-radius:6px;cursor:pointer;font-size:14px;">
+          ${fav?'❤️':'🤍'}
+        </button>
+        <button class="add-btn${added?' added':''}" onclick="event.stopPropagation();toggleRecipe(${r.id})">
+          ${added?`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`+`}
+        </button>
+      </div>
     </div>
     <div class="recipe-desc">${r.desc.slice(0,80)}${r.desc.length>80?'…':''}</div>
     <div class="recipe-tags">
@@ -725,6 +809,16 @@ function renderCard(r,aiHighlight){
       ${[['Carbs',r.carbs,'g'],['Protein',r.protein,'g'],['Fat',r.fat,'g']].map(([l,v,u])=>`<div class="nutr-item"><div class="nutr-val">${v}${u}</div><div class="nutr-lbl">${l}</div></div>`).join('')}
     </div>
   </div>`;
+}
+
+function renderFavoritesPage(){
+  const favRecipes=RECIPES.filter(r=>ST.favorites.includes(r.id)&&r.age===ST.age);
+  return`<div class="page-header">
+    <div class="page-title">Your Favorites</div>
+    <div class="page-sub">${favRecipes.length} recipe${favRecipes.length!==1?'s':''} saved</div>
+  </div>
+  ${favRecipes.length===0?`<div style="text-align:center;padding:2rem;color:var(--text2);"><div style="font-size:36px;margin-bottom:12px;">❤️</div><div style="font-size:15px;font-weight:600;margin-bottom:6px;">No favorites yet</div><div style="font-size:13px;">Tap the heart on any recipe to save it here</div><button class="btn btn-teal" onclick="gotoPage('home')" style="margin-top:1.5rem;">Browse recipes</button></div>`:`
+  <div class="recipe-grid">${favRecipes.map(r=>renderCard(r,false)).join('')}</div>`}`;
 }
 
 function renderWeekPage(){
@@ -956,7 +1050,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElement
 // ── Router ────────────────────────────────────────────────────
 function gotoPage(page){
   ST.page=page;
-  ['discover','ai','week','shopping','nutrition','prefs','apikey'].forEach(id=>{
+  ['home','favorites','ai','week','shopping','nutrition','prefs','apikey'].forEach(id=>{
     const el=document.getElementById('nav-'+id);if(el)el.className='nav-item'+(id===page?' active':'');
   });
   save();renderPage();window.scrollTo(0,0);
@@ -964,18 +1058,19 @@ function gotoPage(page){
 
 function renderPage(){
   const el=document.getElementById('main-content');
-  if(ST.page==='discover')el.innerHTML=renderDiscoverPage();
+  if(ST.page==='home')el.innerHTML=renderHomePage();
+  else if(ST.page==='favorites')el.innerHTML=renderFavoritesPage();
   else if(ST.page==='ai')el.innerHTML=renderAIPage();
   else if(ST.page==='week')el.innerHTML=renderWeekPage();
   else if(ST.page==='shopping')el.innerHTML=renderShoppingPage();
   else if(ST.page==='nutrition')el.innerHTML=renderNutritionPage();
   else if(ST.page==='prefs')el.innerHTML=renderPrefsPage();
   else if(ST.page==='apikey')el.innerHTML=renderApiKeyPage();
-  updateBadge();updateAIStatus();
+  updateBadge();updateFavoriteBadge();updateAIStatus();
 }
 
 setAge(ST.age);
-gotoPage(ST.page||'discover');
+gotoPage(ST.page||'home');
 
 // ── PWA: Inline Manifest ──────────────────────────────────────
 // We build the manifest as a Blob URL so it works for both
