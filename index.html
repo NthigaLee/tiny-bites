@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Tiny Bites — AI Meal Planner</title>
+
+<!-- PWA: Theme & status bar -->
+<meta name="theme-color" content="#0F6E56"/>
+<meta name="background-color" content="#f6f5f1"/>
+
+<!-- PWA: iOS Safari specific -->
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Tiny Bites"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+
+<!-- PWA: Apple touch icons (inline SVG as data URI) -->
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxODAgMTgwIj48cmVjdCB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgcng9IjQwIiBmaWxsPSIjMEY2RTU2Ii8+PHRleHQgeD0iOTAiIHk9IjExMCIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjkwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSI+8J+NvDwvdGV4dD48dGV4dCB4PSI5MCIgeT0iMTQ4IiBmb250LWZhbWlseT0ic3lzdGVtLXVpLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTciIGZvbnQtd2VpZ2h0PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC45KSIgbGV0dGVyLXNwYWNpbmc9IjEiPlRJTlkgQklURVM8L3RleHQ+PC9zdmc+"/>
+<link rel="apple-touch-icon" sizes="152x152" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxNTIgMTUyIj48cmVjdCB3aWR0aD0iMTUyIiBoZWlnaHQ9IjE1MiIgcng9IjM0IiBmaWxsPSIjMEY2RTU2Ii8+PHRleHQgeD0iNzYiIHk9IjkzIiBmb250LWZhbWlseT0ic3lzdGVtLXVpLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iNzYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IndoaXRlIj7wn42sPC90ZXh0Pjx0ZXh0IHg9Ijc2IiB5PSIxMjYiIGZvbnQtZmFtaWx5PSJzeXN0ZW0tdWksc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9IjcwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjkpIiBsZXR0ZXItc3BhY2luZz0iMSI+VElOWSBCSVRFUzwvdGV4dD48L3N2Zz4="/>
+
+<!-- PWA: Splash screen color for iOS -->
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+
+<!-- PWA: Manifest injected via JS below (works for local files + hosted) -->
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f6f5f1;--bg3:#eeece6;
+  --text:#1a1a18;--text2:#666660;--text3:#99998f;
+  --border:rgba(0,0,0,0.10);--border2:rgba(0,0,0,0.18);
+  --teal:#0F6E56;--teal-bg:#E1F5EE;--teal-mid:#5DCAA5;
+  --amber:#854F0B;--amber-bg:#FAEEDA;--amber-mid:#FAC775;
+  --red:#A32D2D;--red-bg:#FCEBEB;
+  --purple:#3C3489;--purple-bg:#EEEDFE;--purple-mid:#7F77DD;
+  --green:#27500A;--green-bg:#EAF3DE;
+  --r:8px;--rl:12px;--rxl:16px;
+  --shadow:0 1px 4px rgba(0,0,0,0.07),0 0 0 0.5px rgba(0,0,0,0.08);
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --text:#f0f0ea;--text2:#aaa9a0;--text3:#66665e;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
+  --teal:#5DCAA5;--teal-bg:#04342C;--teal-mid:#1D9E75;
+  --amber:#EF9F27;--amber-bg:#412402;--amber-mid:#BA7517;
+  --red:#F09595;--red-bg:#501313;
+  --purple:#AFA9EC;--purple-bg:#26215C;--purple-mid:#7F77DD;
+  --green:#97C459;--green-bg:#173404;
+  --shadow:0 1px 4px rgba(0,0,0,0.3),0 0 0 0.5px rgba(255,255,255,0.06);
+}}
+html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg2);color:var(--text);font-size:15px;line-height:1.5;}
+body{min-height:100vh;min-height:100dvh;}
+
+/* PWA safe area support (iPhone notch / home bar) */
+@supports (padding: max(0px)) {
+  .sidebar { padding-top: max(0px, env(safe-area-inset-top)); }
+  .main { padding-bottom: max(4rem, calc(env(safe-area-inset-bottom) + 2rem)); }
+}
+
+/* PWA standalone mode tweaks */
+@media (display-mode: standalone) {
+  .sidebar-logo { padding-top: max(1.5rem, env(safe-area-inset-top)); }
+  html { background: var(--bg); }
+}
+
+/* Layout */
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:240px;flex-shrink:0;background:var(--bg);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.main{flex:1;min-width:0;padding:2rem 2rem 4rem;}
+@media(max-width:720px){
+  .shell{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:0.5px solid var(--border);}
+  .sidebar-logo,.nav-section-label{display:none;}
+  .nav-item{padding:10px 14px;border-radius:0;border-bottom:2px solid transparent;white-space:nowrap;}
+  .nav-item.active{border-bottom-color:var(--teal);background:transparent;color:var(--teal);}
+  .main{padding:1.25rem 1rem 3rem;}
+  .sidebar-bottom{display:none;}
+}
+
+/* Sidebar */
+.sidebar-logo{padding:1.5rem 1.25rem 1rem;}
+.logo-mark{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em;}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.ai-status{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:8px;padding:5px 8px;border-radius:var(--r);background:var(--bg2);}
+.ai-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;}
+.ai-dot.connected{background:#22c55e;}
+.ai-dot.error{background:#ef4444;}
+.nav-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:.75rem 1.25rem .25rem;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 1.25rem;font-size:13px;color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.nav-item svg{flex-shrink:0;opacity:.7;}
+.nav-item:hover{background:var(--bg2);color:var(--text);}
+.nav-item.active{background:var(--teal-bg);color:var(--teal);font-weight:500;}
+.nav-item.active svg{opacity:1;}
+.nav-badge{margin-left:auto;background:var(--teal);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;min-width:18px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding:1rem 1.25rem;border-top:0.5px solid var(--border);}
+.age-toggle{display:flex;gap:6px;}
+.age-pill{flex:1;text-align:center;font-size:11px;font-weight:500;padding:5px 8px;border-radius:999px;border:1.5px solid var(--border2);cursor:pointer;color:var(--text2);background:var(--bg2);transition:all .12s;}
+.age-pill.active-baby{background:var(--teal-bg);border-color:var(--teal-mid);color:var(--teal);}
+.age-pill.active-toddler{background:var(--amber-bg);border-color:var(--amber-mid);color:var(--amber);}
+
+/* Page header */
+.page-header{margin-bottom:1.5rem;}
+.page-title{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
+.page-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+
+/* API key setup screen */
+.setup-wrap{max-width:500px;margin:3rem auto;text-align:center;}
+.setup-icon{width:64px;height:64px;border-radius:50%;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;}
+.setup-title{font-size:20px;font-weight:600;margin-bottom:8px;}
+.setup-sub{font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:1.5rem;}
+.setup-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.5rem;text-align:left;margin-bottom:1rem;}
+.setup-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.setup-input{width:100%;padding:10px 12px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);font-size:14px;font-family:monospace;outline:none;letter-spacing:.04em;}
+.setup-input:focus{border-color:var(--teal);}
+.setup-hint{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5;}
+.setup-hint a{color:var(--teal);}
+.setup-btn{width:100%;padding:12px;border-radius:var(--rl);background:var(--teal);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;margin-top:1rem;transition:opacity .12s;}
+.setup-btn:hover{opacity:.9;}
+.setup-btn:disabled{opacity:.5;cursor:not-allowed;}
+.setup-security{background:var(--bg2);border-radius:var(--r);padding:10px 12px;font-size:12px;color:var(--text2);line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin-top:8px;}
+.setup-security svg{flex-shrink:0;margin-top:1px;}
+
+/* AI Chat panel */
+.ai-panel{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.25rem;}
+.ai-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid var(--border);background:var(--purple-bg);}
+.ai-panel-title{font-size:13px;font-weight:600;color:var(--purple);display:flex;align-items:center;gap:8px;}
+.ai-panel-actions{display:flex;gap:6px;}
+.ai-btn{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--purple-mid);background:var(--purple);color:#fff;cursor:pointer;transition:opacity .12s;white-space:nowrap;}
+.ai-btn:hover{opacity:.85;}
+.ai-btn.outline{background:transparent;color:var(--purple);}
+.ai-btn.outline:hover{background:var(--purple-bg);}
+.ai-messages{padding:16px;min-height:120px;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;}
+.ai-msg{display:flex;gap:10px;align-items:flex-start;}
+.ai-msg-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:700;}
+.ai-msg-avatar.claude{background:var(--purple);color:#fff;}
+.ai-msg-avatar.user{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-mid);}
+.ai-msg-bubble{flex:1;font-size:13px;line-height:1.6;color:var(--text);}
+.ai-msg-bubble.claude{background:var(--bg2);border-radius:0 var(--rl) var(--rl) var(--rl);padding:10px 14px;}
+.ai-msg-bubble.streaming::after{content:'▋';animation:blink .8s infinite;color:var(--purple);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.ai-msg-bubble pre{font-family:inherit;white-space:pre-wrap;font-size:13px;}
+.ai-msg-bubble .meal-day{font-weight:600;color:var(--text);margin-top:8px;margin-bottom:2px;font-size:13px;}
+.ai-msg-bubble .meal-item{color:var(--text2);font-size:12px;margin-left:8px;margin-bottom:1px;}
+.ai-input-row{display:flex;gap:8px;padding:12px 16px;border-top:0.5px solid var(--border);}
+.ai-input{flex:1;font-size:13px;padding:8px 12px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);outline:none;font-family:inherit;}
+.ai-input:focus{border-color:var(--purple-mid);}
+.ai-send-btn{padding:8px 16px;border-radius:var(--r);background:var(--purple);color:#fff;border:none;font-size:13px;cursor:pointer;font-weight:500;transition:opacity .12s;white-space:nowrap;}
+.ai-send-btn:hover{opacity:.9;}
+.ai-send-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* Quick action chips */
+.quick-chips{display:flex;gap:6px;flex-wrap:wrap;padding:0 16px 12px;}
+.quick-chip{font-size:11px;padding:5px 12px;border-radius:999px;border:1px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.quick-chip:hover{border-color:var(--purple-mid);color:var(--purple);background:var(--purple-bg);}
+
+/* Thinking indicator */
+.thinking{display:flex;gap:4px;align-items:center;padding:10px 14px;background:var(--bg2);border-radius:0 var(--rl) var(--rl) var(--rl);}
+.thinking span{width:6px;height:6px;border-radius:50%;background:var(--purple-mid);animation:bounce .6s infinite;}
+.thinking span:nth-child(2){animation-delay:.15s;}
+.thinking span:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* Search & filter */
+.search-wrap{position:relative;margin-bottom:1.25rem;}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);}
+.search-input{width:100%;padding:10px 12px 10px 38px;border-radius:var(--rl);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:14px;outline:none;transition:border .15s;}
+.search-input:focus{border-color:var(--teal);}
+.search-input::placeholder{color:var(--text3);}
+.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:2px 6px;}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center;}
+.filter-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;}
+.filter-chip{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.filter-chip:hover{border-color:var(--teal);color:var(--teal);}
+.filter-chip.active-avoid{border-color:#E24B4A;background:var(--red-bg);color:var(--red);}
+.filter-chip.active-type{border-color:var(--teal-mid);background:var(--teal-bg);color:var(--teal);}
+
+/* Recipe grid */
+.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
+.recipe-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1rem;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.recipe-card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.10),0 0 0 0.5px rgba(0,0,0,0.08);}
+.recipe-card.selected{box-shadow:0 0 0 2px var(--teal),0 4px 14px rgba(0,0,0,0.08);}
+.recipe-card.ai-suggested{box-shadow:0 0 0 2px var(--purple-mid),0 4px 14px rgba(0,0,0,0.08);}
+.recipe-emoji{font-size:28px;line-height:1;margin-bottom:4px;}
+.recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.recipe-card-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3;}
+.recipe-card-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+.recipe-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
+.tag{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:500;}
+.add-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
+.add-btn:hover{background:var(--teal-bg);border-color:var(--teal);color:var(--teal);}
+.add-btn.added{background:var(--teal);border-color:var(--teal);color:#fff;}
+.recipe-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-top:6px;}
+.recipe-nutrition{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);}
+.nutr-item{flex:1;text-align:center;}
+.nutr-val{font-size:13px;font-weight:600;color:var(--text);}
+.nutr-lbl{font-size:10px;color:var(--text3);}
+.no-results{text-align:center;padding:3rem 1rem;color:var(--text2);}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:flex-end;justify-content:center;}
+.modal{background:var(--bg);border-radius:var(--rxl) var(--rxl) 0 0;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:1.5rem;}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 1.25rem;}
+.modal-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:1rem;}
+.modal-emoji{font-size:40px;line-height:1;}
+.modal-title{font-size:18px;font-weight:600;color:var(--text);}
+.modal-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.modal-section{margin-top:1.25rem;}
+.modal-section-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:8px;}
+.ingredient-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.ingredient-list li{display:flex;justify-content:space-between;font-size:13px;color:var(--text);padding:6px 0;border-bottom:0.5px solid var(--border);}
+.ingredient-list li span{color:var(--text2);}
+.step-list{list-style:none;counter-reset:steps;}
+.step-list li{counter-increment:steps;display:flex;gap:10px;font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.5;}
+.step-list li::before{content:counter(steps);min-width:22px;height:22px;border-radius:50%;background:var(--teal-bg);color:var(--teal);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.modal-nutr{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;}
+.modal-nutr-card{background:var(--bg2);border-radius:var(--r);padding:8px;text-align:center;}
+.modal-add-btn{width:100%;padding:12px;border-radius:var(--rl);background:var(--teal);color:#fff;border:none;font-size:14px;font-weight:600;cursor:pointer;margin-top:1.25rem;transition:opacity .12s;}
+.modal-add-btn:hover{opacity:.9;}
+.modal-add-btn.added{background:var(--bg2);color:var(--text2);}
+
+/* Shopping */
+.shopping-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px;}
+.export-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.export-btn{display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 14px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg);color:var(--text2);cursor:pointer;transition:all .12s;font-weight:500;}
+.export-btn:hover{background:var(--bg2);color:var(--text);}
+.export-btn.keep{border-color:#F9AB00;color:#B06000;}
+.export-btn.keep:hover{background:#FFFAEB;}
+.export-btn.ios{border-color:#007AFF;color:#0055CC;}
+.export-btn.ios:hover{background:#EBF3FF;}
+.export-btn.copy{border-color:var(--teal-mid);color:var(--teal);}
+.export-btn.copy:hover{background:var(--teal-bg);}
+.shop-section{margin-bottom:1.5rem;}
+.shop-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);}
+.shop-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);background:var(--bg);box-shadow:var(--shadow);margin-bottom:6px;cursor:pointer;transition:all .12s;}
+.shop-item:hover{background:var(--bg2);}
+.shop-item.done{opacity:.5;}
+.shop-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
+.shop-check.done{background:var(--teal);border-color:var(--teal);}
+.shop-item-name{flex:1;font-size:13px;color:var(--text);}
+.shop-item.done .shop-item-name{text-decoration:line-through;color:var(--text3);}
+.shop-item-qty{font-size:12px;color:var(--text3);}
+.shop-item-remove{background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px;padding:2px 4px;opacity:0;transition:opacity .12s;}
+.shop-item:hover .shop-item-remove{opacity:1;}
+.selected-recipes-bar{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:12px 14px;margin-bottom:1.25rem;}
+.selected-recipe-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;background:var(--teal-bg);color:var(--teal);border-radius:999px;padding:4px 10px;margin:2px 4px 2px 0;border:1px solid var(--teal-mid);}
+.selected-recipe-chip button{background:none;border:none;cursor:pointer;color:var(--teal);font-size:14px;line-height:1;padding:0;}
+.empty-shop{text-align:center;padding:3rem 1rem;color:var(--text2);}
+
+/* Preferences */
+.pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:600px){.pref-grid{grid-template-columns:1fr;}}
+.pref-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.25rem;}
+.pref-card-full{grid-column:1/-1;}
+.pref-card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.pref-card-sub{font-size:12px;color:var(--text2);margin-bottom:12px;}
+.chips-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.pref-chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:4px 10px;border-radius:999px;}
+.pref-chip-fav{background:var(--teal-bg);color:var(--teal);border:1px solid var(--teal-mid);}
+.pref-chip-dis{background:var(--red-bg);color:var(--red);border:1px solid #F7C1C1;}
+.pref-chip button{background:none;border:none;cursor:pointer;font-size:14px;line-height:1;padding:0;color:inherit;}
+.input-row{display:flex;gap:6px;}
+.pref-input{flex:1;font-size:13px;padding:8px 10px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);outline:none;}
+.pref-input:focus{border-color:var(--teal);}
+.pref-textarea{width:100%;font-size:13px;padding:8px 10px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);color:var(--text);resize:vertical;min-height:80px;outline:none;font-family:inherit;}
+.pref-textarea:focus{border-color:var(--teal);}
+.meal-type-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.mt-pill{font-size:12px;padding:5px 12px;border-radius:999px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .12s;}
+.mt-pill.active{background:var(--teal-bg);border-color:var(--teal-mid);color:var(--teal);}
+.context-box{background:var(--teal-bg);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--teal);line-height:1.6;margin-top:10px;}
+
+/* Nutrition */
+.nutr-big-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:1.5rem;}
+.nutr-big-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.25rem;}
+.nutr-big-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:4px;}
+.nutr-big-val{font-size:28px;font-weight:700;color:var(--text);}
+.nutr-big-unit{font-size:13px;font-weight:400;color:var(--text3);}
+.nutr-big-target{font-size:11px;color:var(--text3);margin-top:2px;}
+.bar-track{background:var(--bg2);border-radius:4px;height:6px;margin-top:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s;}
+.tips-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.25rem;margin-bottom:1rem;}
+.tips-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;}
+.tip-item{display:flex;gap:8px;font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
+.tip-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
+
+/* Week plan */
+.week-grid{overflow-x:auto;}
+.week-table{width:100%;border-collapse:separate;border-spacing:3px;min-width:560px;}
+.week-th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text3);padding:6px 8px;text-align:center;}
+.week-label{font-size:11px;font-weight:600;padding:6px 8px;white-space:nowrap;}
+.week-cell{border-radius:6px;padding:6px 8px;font-size:11px;line-height:1.4;cursor:pointer;transition:opacity .12s;vertical-align:top;}
+.week-cell:hover{opacity:.8;}
+
+/* Shared */
+.btn{font-size:13px;padding:8px 16px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;transition:all .12s;font-family:inherit;}
+.btn:hover{background:var(--bg2);}
+.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal);}
+.btn-teal:hover{opacity:.9;}
+.btn-purple{background:var(--purple);color:#fff;border-color:var(--purple);}
+.btn-purple:hover{opacity:.9;}
+.section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px;flex-wrap:wrap;}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(8px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.divider{height:0.5px;background:var(--border);margin:1.25rem 0;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">Tiny Bites</div>
+      <div class="logo-sub">AI-powered meal planner</div>
+      <div class="ai-status" id="ai-status">
+        <div class="ai-dot" id="ai-dot"></div>
+        <span id="ai-status-text">No API key</span>
+      </div>
+    </div>
+    <div class="nav-section-label">Plan</div>
+    <div class="nav-item active" onclick="gotoPage('discover')" id="nav-discover">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Discover
+    </div>
+    <div class="nav-item" onclick="gotoPage('ai')" id="nav-ai">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 3 3.5.5-2.5 2.5.5 3.5L8 9l-3 1.5.5-3.5L3 4.5 6.5 4z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>
+      Claude AI
+    </div>
+    <div class="nav-item" onclick="gotoPage('week')" id="nav-week">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M1.5 6.5h13" stroke="currentColor" stroke-width="1.3"/><path d="M5 1.5v3M11 1.5v3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Weekly plan
+    </div>
+    <div class="nav-item" onclick="gotoPage('shopping')" id="nav-shopping">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2 8h7l1.5-5.5H5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="11.5" cy="13" r="1" fill="currentColor"/></svg>
+      Shopping list
+      <span class="nav-badge" id="shop-badge" style="display:none">0</span>
+    </div>
+    <div class="nav-section-label">Track</div>
+    <div class="nav-item" onclick="gotoPage('nutrition')" id="nav-nutrition">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Nutrition
+    </div>
+    <div class="nav-section-label">Settings</div>
+    <div class="nav-item" onclick="gotoPage('prefs')" id="nav-prefs">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Preferences
+    </div>
+    <div class="nav-item" onclick="gotoPage('apikey')" id="nav-apikey">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="9" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 5.5l5 5M12 5l1.5-1.5M10.5 6.5L12 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      API key
+    </div>
+    <div class="sidebar-bottom">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;">Age group</div>
+      <div class="age-toggle">
+        <div class="age-pill active-baby" id="age-baby" onclick="setAge('baby')">Baby 6–12m</div>
+        <div class="age-pill" id="age-toddler" onclick="setAge('toddler')">Toddler 1–3y</div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main" id="main-content"></main>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow='';}">
+  <div class="modal"><div class="modal-handle"></div><div id="modal-content"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────
+let ST = {
+  age:'baby', page:'discover', search:'',
+  avoidAllergens:[], activeTypes:[],
+  selectedRecipes:[], shopChecked:[], shopRemoved:[],
+  prefs:{favFoods:[], dislikedFoods:[], favMealTypes:[], notes:''},
+  apiKey:'', aiMessages:[], aiSuggestedIds:[],
+};
+(()=>{try{const s=localStorage.getItem('tb_v3');if(s)Object.assign(ST,JSON.parse(s));}catch(e){}})();
+const save=()=>{try{localStorage.setItem('tb_v3',JSON.stringify(ST));}catch(e){}};
+
+// ── Recipe DB (55 recipes) ──────────────────────────────────────
+const ALLERGENS_ALL=['Dairy','Eggs','Nuts','Gluten','Soy','Fish','Shellfish'];
+const RECIPES=[
+  {id:1,age:'baby',name:'Sweet potato puree',emoji:'🍠',type:'Puree',time:15,cal:90,carbs:21,protein:2,fat:0,allergens:[],desc:'Silky-smooth and naturally sweet. A perfect first food packed with beta-carotene.',ingredients:[{name:'Sweet potato',qty:'1 medium (200g)'},{name:'Water or formula',qty:'2–3 tbsp'}],steps:['Peel and cube the sweet potato into 2cm pieces.','Steam for 12–15 minutes until completely tender.','Blend until silky smooth, adding liquid to adjust consistency.','Cool before serving. Freeze extras in ice cube trays.']},
+  {id:2,age:'baby',name:'Banana oat mash',emoji:'🍌',type:'Puree',time:5,cal:70,carbs:16,protein:2,fat:1,allergens:['Gluten'],desc:'Zero cooking required. Creamy banana with iron-rich oat cereal.',ingredients:[{name:'Ripe banana',qty:'½ medium'},{name:'Baby oat cereal',qty:'2 tbsp'},{name:'Water',qty:'2 tbsp'}],steps:['Mash banana until no lumps.','Stir in oat cereal.','Add water to reach desired consistency.']},
+  {id:3,age:'baby',name:'Carrot & lentil puree',emoji:'🥕',type:'Puree',time:25,cal:110,carbs:20,protein:6,fat:0,allergens:[],desc:'Iron-rich red lentils with naturally sweet carrots.',ingredients:[{name:'Carrots',qty:'2 medium, peeled'},{name:'Red lentils',qty:'¼ cup rinsed'},{name:'Water',qty:'300ml'}],steps:['Combine lentils, carrots and water.','Bring to boil then simmer 20 minutes.','Blend until completely smooth.']},
+  {id:4,age:'baby',name:'Butternut squash & apple',emoji:'🎃',type:'Puree',time:20,cal:80,carbs:19,protein:1,fat:0,allergens:[],desc:'Naturally sweet combination loaded with Vitamin A and C.',ingredients:[{name:'Butternut squash',qty:'200g, cubed'},{name:'Apple',qty:'1 small, peeled & cored'}],steps:['Steam squash and apple 15–18 minutes.','Blend until smooth.','Add cooking water to adjust thickness.']},
+  {id:5,age:'baby',name:'Avocado & pear mash',emoji:'🥑',type:'Puree',time:5,cal:120,carbs:12,protein:2,fat:8,allergens:[],desc:'Healthy fats from avocado, sweetness from ripe pear. No cooking needed.',ingredients:[{name:'Ripe avocado',qty:'¼'},{name:'Ripe pear',qty:'½, peeled'}],steps:['Mash avocado until smooth.','Grate or mash pear.','Combine and mix well.']},
+  {id:6,age:'baby',name:'Pea & spinach puree',emoji:'🟢',type:'Puree',time:12,cal:65,carbs:9,protein:5,fat:1,allergens:[],desc:'Vibrant green packed with iron, folate, and protein.',ingredients:[{name:'Frozen peas',qty:'½ cup'},{name:'Baby spinach',qty:'1 large handful'},{name:'Water',qty:'3 tbsp'}],steps:['Steam peas for 5 minutes.','Add spinach, steam 2 more minutes.','Blend with water until smooth.']},
+  {id:7,age:'baby',name:'Salmon & sweet potato',emoji:'🐟',type:'Puree',time:20,cal:140,carbs:16,protein:10,fat:5,allergens:['Fish'],desc:'Omega-3 rich salmon with creamy sweet potato. Excellent for brain development.',ingredients:[{name:'Salmon fillet',qty:'80g, skinless'},{name:'Sweet potato',qty:'150g, cooked'},{name:'Formula or breast milk',qty:'1 tbsp'}],steps:['Steam salmon 8–10 minutes.','Flake and remove any bones.','Blend with sweet potato and milk until smooth.']},
+  {id:8,age:'baby',name:'Chicken & carrot puree',emoji:'🍗',type:'Puree',time:25,cal:105,carbs:8,protein:12,fat:3,allergens:[],desc:'Gentle first meat. Chicken provides iron and zinc for growing babies.',ingredients:[{name:'Chicken breast',qty:'80g'},{name:'Carrot',qty:'1 large'},{name:'Low-sodium stock',qty:'100ml'}],steps:['Simmer chicken in stock with carrot 20 minutes.','Ensure chicken is fully cooked.','Blend everything until smooth.']},
+  {id:9,age:'baby',name:'Broccoli & potato mash',emoji:'🥦',type:'Puree',time:18,cal:85,carbs:15,protein:4,fat:1,allergens:[],desc:'Mild and creamy with a hidden veggie boost.',ingredients:[{name:'Potato',qty:'1 small, peeled'},{name:'Broccoli',qty:'4 small florets'},{name:'Water',qty:'4 tbsp'}],steps:['Boil potato 10 minutes.','Add broccoli, cook 5 more minutes.','Drain and blend with water.']},
+  {id:10,age:'baby',name:'Apple & cinnamon oats',emoji:'🍎',type:'Breakfast',time:10,cal:95,carbs:19,protein:2,fat:1,allergens:['Gluten'],desc:'Warming and aromatic. A gentle introduction to spices.',ingredients:[{name:'Baby oats',qty:'3 tbsp'},{name:'Apple',qty:'½, grated'},{name:'Cinnamon',qty:'tiny pinch'},{name:'Water',qty:'100ml'}],steps:['Cook oats in water 3–4 minutes.','Stir in grated apple and cinnamon.','Cool before serving.']},
+  {id:11,age:'baby',name:'Courgette & pea puree',emoji:'🟩',type:'Puree',time:12,cal:55,carbs:8,protein:4,fat:1,allergens:[],desc:'Light and refreshing. Courgette adds hydration while peas provide protein.',ingredients:[{name:'Courgette',qty:'½, chopped'},{name:'Frozen peas',qty:'¼ cup'},{name:'Mint leaf',qty:'1 small'}],steps:['Steam courgette and peas 8 minutes.','Blend with mint until smooth.']},
+  {id:12,age:'baby',name:'Mango & banana puree',emoji:'🥭',type:'Puree',time:5,cal:85,carbs:21,protein:1,fat:0,allergens:[],desc:'No cooking. Tropical flavours packed with Vitamins C and B6.',ingredients:[{name:'Ripe mango',qty:'½ cup chunks'},{name:'Ripe banana',qty:'½'}],steps:['Blend mango and banana until smooth.','Serve immediately or refrigerate 24 hours.']},
+  {id:13,age:'baby',name:'Lentil & spinach soup',emoji:'🫘',type:'Soup',time:30,cal:115,carbs:18,protein:7,fat:1,allergens:[],desc:'Warming iron-packed blend. Easy to batch cook and freeze.',ingredients:[{name:'Red lentils',qty:'¼ cup'},{name:'Baby spinach',qty:'1 cup'},{name:'Carrot',qty:'1 small'},{name:'Onion',qty:'¼'},{name:'Water',qty:'400ml'}],steps:['Soften onion and carrot in oil 5 min.','Add lentils and water, simmer 20 min.','Add spinach 2 min.','Blend smooth.']},
+  {id:14,age:'baby',name:'Cauliflower & cheese',emoji:'🤍',type:'Puree',time:18,cal:100,carbs:10,protein:6,fat:4,allergens:['Dairy'],desc:'Mild and creamy with a calcium boost.',ingredients:[{name:'Cauliflower',qty:'4 florets'},{name:'Mild cheddar',qty:'1 tbsp, grated'},{name:'Whole milk',qty:'2 tbsp'}],steps:['Steam cauliflower 12 minutes.','Blend with milk and cheddar until smooth.']},
+  {id:15,age:'baby',name:'Beef & root veg mash',emoji:'🥩',type:'Puree',time:35,cal:130,carbs:14,protein:10,fat:4,allergens:[],desc:'Rich in iron and zinc.',ingredients:[{name:'Lean beef mince',qty:'60g'},{name:'Parsnip',qty:'½'},{name:'Carrot',qty:'1 small'},{name:'Water',qty:'150ml'}],steps:['Brown mince.','Add veg and water, simmer 25 min.','Blend until smooth.']},
+  {id:16,age:'baby',name:'Steamed broccoli florets',emoji:'🥦',type:'Finger food',time:8,cal:30,carbs:5,protein:3,fat:0,allergens:[],desc:'Perfect first finger food. Soft enough to gum, easy to grip.',ingredients:[{name:'Broccoli',qty:'4–5 small florets'}],steps:['Steam broccoli 6–8 minutes until very soft.','Cool and serve.']},
+  {id:17,age:'baby',name:'Soft scrambled eggs',emoji:'🍳',type:'Breakfast',time:5,cal:90,carbs:1,protein:7,fat:7,allergens:['Eggs'],desc:'Introducing eggs early may reduce allergy risk.',ingredients:[{name:'Egg',qty:'1 large'},{name:'Butter',qty:'tiny knob'}],steps:['Beat egg.','Cook slowly in butter on low heat, stirring constantly until just set.']},
+  {id:18,age:'baby',name:'Avocado on toast',emoji:'🍞',type:'Breakfast',time:5,cal:140,carbs:18,protein:3,fat:7,allergens:['Gluten'],desc:'Loaded with healthy fats. Toast strips great for pincer grip.',ingredients:[{name:'Wholegrain toast',qty:'½ slice'},{name:'Avocado',qty:'¼'},{name:'Banana',qty:'¼'}],steps:['Mash avocado and banana.','Spread on toast.','Cut into finger strips.']},
+  {id:19,age:'baby',name:'Sweet potato wedges',emoji:'🍠',type:'Finger food',time:30,cal:100,carbs:23,protein:2,fat:1,allergens:[],desc:'Perfect for baby-led weaning. Natural sweetness is irresistible.',ingredients:[{name:'Sweet potato',qty:'1 small'},{name:'Olive oil',qty:'½ tsp'}],steps:['Cut into thick wedges.','Toss in oil.','Roast 200°C for 25 minutes.','Cool before serving.']},
+  {id:20,age:'baby',name:'Sardines on toast',emoji:'🐟',type:'Finger food',time:5,cal:120,carbs:10,protein:11,fat:4,allergens:['Fish','Gluten'],desc:'One of the best omega-3 and calcium sources for babies.',ingredients:[{name:'Sardines in spring water',qty:'1 small tin'},{name:'Toast fingers',qty:'2'}],steps:['Drain and mash sardines.','Check for bones.','Spread on toast fingers.']},
+  {id:21,age:'toddler',name:'Banana pancakes',emoji:'🥞',type:'Breakfast',time:10,cal:120,carbs:14,protein:7,fat:4,allergens:['Eggs'],desc:'2-ingredient, no added sugar, naturally sweet.',ingredients:[{name:'Ripe banana',qty:'1 large'},{name:'Eggs',qty:'2 large'}],steps:['Mash banana thoroughly.','Beat in eggs.','Cook small rounds on low heat 2 min per side.']},
+  {id:22,age:'toddler',name:'Scrambled eggs & soldiers',emoji:'🍳',type:'Breakfast',time:8,cal:200,carbs:16,protein:13,fat:8,allergens:['Eggs','Gluten','Dairy'],desc:'A protein-packed breakfast staple.',ingredients:[{name:'Eggs',qty:'2'},{name:'Wholegrain bread',qty:'1 slice'},{name:'Butter',qty:'½ tsp'},{name:'Whole milk',qty:'1 tbsp'}],steps:['Beat eggs with milk.','Scramble gently in butter on low heat.','Serve with toast soldiers.']},
+  {id:23,age:'toddler',name:'French toast fingers',emoji:'🍞',type:'Breakfast',time:12,cal:180,carbs:20,protein:8,fat:7,allergens:['Eggs','Gluten','Dairy'],desc:'A fun twist on toast that toddlers love to self-feed.',ingredients:[{name:'Thick bread',qty:'2 slices'},{name:'Egg',qty:'1'},{name:'Whole milk',qty:'3 tbsp'},{name:'Cinnamon',qty:'pinch'}],steps:['Beat egg, milk, cinnamon.','Dip bread both sides.','Fry in butter 2 min per side.','Cut into fingers.']},
+  {id:24,age:'toddler',name:'Berry yogurt bowl',emoji:'🫐',type:'Breakfast',time:3,cal:130,carbs:18,protein:8,fat:3,allergens:['Dairy'],desc:'No cooking. Probiotics, calcium and antioxidants.',ingredients:[{name:'Full-fat Greek yogurt',qty:'100g'},{name:'Mixed berries',qty:'¼ cup'},{name:'Baby granola',qty:'1 tbsp'}],steps:['Spoon yogurt into bowl.','Top with halved berries.','Add granola.']},
+  {id:25,age:'toddler',name:'Peanut butter oatmeal',emoji:'🥜',type:'Breakfast',time:8,cal:250,carbs:34,protein:9,fat:9,allergens:['Gluten','Nuts'],desc:'Filling and nutritious. Great way to introduce peanuts.',ingredients:[{name:'Oats',qty:'4 tbsp'},{name:'Whole milk',qty:'150ml'},{name:'Banana',qty:'½, sliced'},{name:'Smooth peanut butter',qty:'1 tsp'}],steps:['Cook oats in milk 4–5 minutes.','Top with banana and peanut butter.']},
+  {id:26,age:'toddler',name:'Cheesy veggie pasta',emoji:'🍝',type:'Pasta',time:20,cal:280,carbs:38,protein:12,fat:8,allergens:['Dairy','Gluten'],desc:'Hidden veg in every bite. A guaranteed crowd-pleaser.',ingredients:[{name:'Small pasta',qty:'½ cup dry'},{name:'Frozen peas',qty:'¼ cup'},{name:'Mild cheddar',qty:'2 tbsp, grated'},{name:'Butter',qty:'1 tsp'},{name:'Courgette',qty:'¼, grated'}],steps:['Cook pasta.','Steam peas 3 min.','Drain, mix in veg, butter and cheese.']},
+  {id:27,age:'toddler',name:'Mini turkey meatballs',emoji:'🍖',type:'Meat',time:28,cal:160,carbs:4,protein:18,fat:7,allergens:['Eggs','Gluten'],desc:'Soft, palm-sized bites great for self-feeding.',ingredients:[{name:'Turkey mince',qty:'200g'},{name:'Breadcrumbs',qty:'3 tbsp'},{name:'Egg',qty:'1 small'},{name:'Mixed herbs',qty:'½ tsp'}],steps:['Mix all together.','Roll into 2cm balls.','Bake 180°C for 18 minutes.']},
+  {id:28,age:'toddler',name:'Sweet potato lentil soup',emoji:'🍵',type:'Soup',time:30,cal:170,carbs:30,protein:8,fat:2,allergens:[],desc:'Thick, filling and nutritious. Great for batch cooking.',ingredients:[{name:'Sweet potato',qty:'1 large, cubed'},{name:'Red lentils',qty:'½ cup'},{name:'Onion',qty:'½'},{name:'Garlic',qty:'1 clove'},{name:'Low-sodium stock',qty:'600ml'},{name:'Cumin',qty:'¼ tsp'}],steps:['Soften onion and garlic 5 min.','Add remaining ingredients.','Simmer 20 min.','Blend smooth.']},
+  {id:29,age:'toddler',name:'Salmon & rice bowl',emoji:'🐟',type:'Fish',time:20,cal:260,carbs:30,protein:18,fat:7,allergens:['Fish'],desc:'Omega-3 rich salmon on fluffy rice.',ingredients:[{name:'Salmon fillet',qty:'100g'},{name:'Rice',qty:'¼ cup dry'},{name:'Cucumber',qty:'few slices'}],steps:['Cook rice.','Steam or bake salmon 10–12 min.','Flake and serve over rice.']},
+  {id:30,age:'toddler',name:'Grilled cheese & tomato',emoji:'🧀',type:'Quick & easy',time:8,cal:220,carbs:20,protein:10,fat:11,allergens:['Dairy','Gluten'],desc:'The ultimate toddler comfort food.',ingredients:[{name:'Wholegrain bread',qty:'2 slices'},{name:'Mild cheddar',qty:'3 tbsp'},{name:'Tomato',qty:'2 slices'}],steps:['Layer cheese and tomato.','Cook in dry pan 3 min per side.','Cut into triangles.']},
+  {id:31,age:'toddler',name:'Veggie quesadilla',emoji:'🫓',type:'Quick & easy',time:12,cal:230,carbs:25,protein:9,fat:10,allergens:['Dairy','Gluten'],desc:'Crispy outside, melty inside. Load with any leftover veg.',ingredients:[{name:'Small flour tortilla',qty:'1'},{name:'Cheddar',qty:'2 tbsp'},{name:'Red pepper',qty:'¼, diced'},{name:'Sweetcorn',qty:'1 tbsp'}],steps:['Scatter cheese and veg over half.','Fold, cook in dry pan 2–3 min per side.','Cut into wedges.']},
+  {id:32,age:'toddler',name:'Lentil & spinach dhal',emoji:'🫘',type:'Vegetarian',time:25,cal:190,carbs:28,protein:11,fat:3,allergens:[],desc:'Gently spiced dhal. Serve with soft rice.',ingredients:[{name:'Red lentils',qty:'½ cup'},{name:'Baby spinach',qty:'1 cup'},{name:'Tomato',qty:'1, chopped'},{name:'Onion',qty:'½'},{name:'Garlic',qty:'1 clove'},{name:'Turmeric',qty:'¼ tsp'},{name:'Cumin',qty:'¼ tsp'}],steps:['Soften onion and garlic.','Add tomato, lentils, spices and 400ml water.','Simmer 18 min.','Stir in spinach.']},
+  {id:33,age:'toddler',name:'Fish fingers & fries',emoji:'🐠',type:'Fish',time:30,cal:300,carbs:32,protein:18,fat:10,allergens:['Fish','Gluten','Eggs'],desc:'Homemade, healthier take on a toddler classic.',ingredients:[{name:'White fish fillet',qty:'150g'},{name:'Breadcrumbs',qty:'4 tbsp'},{name:'Egg',qty:'1, beaten'},{name:'Sweet potato',qty:'1, cut into fries'}],steps:['Roast fries 200°C 20 min.','Dip fish in egg then breadcrumbs.','Bake 15 min.']},
+  {id:34,age:'toddler',name:'Chicken stir-fry',emoji:'🍜',type:'Meat',time:18,cal:220,carbs:12,protein:22,fat:8,allergens:['Soy'],desc:'Quick and packed with protein and veg.',ingredients:[{name:'Chicken breast',qty:'100g, strips'},{name:'Broccoli',qty:'4 florets'},{name:'Carrot',qty:'½, julienned'},{name:'Low-sodium soy sauce',qty:'1 tsp'}],steps:['Cook chicken strips 5 min.','Add veg, stir-fry 4 min.','Add soy sauce. Serve with rice.']},
+  {id:35,age:'toddler',name:'Mac & cheese with broccoli',emoji:'🧀',type:'Pasta',time:20,cal:310,carbs:40,protein:14,fat:10,allergens:['Dairy','Gluten'],desc:'Homemade mac & cheese with hidden broccoli.',ingredients:[{name:'Macaroni',qty:'½ cup'},{name:'Whole milk',qty:'100ml'},{name:'Mild cheddar',qty:'3 tbsp'},{name:'Broccoli',qty:'3 florets, chopped'},{name:'Butter',qty:'1 tsp'},{name:'Plain flour',qty:'1 tsp'}],steps:['Cook macaroni, add broccoli last 4 min.','Make sauce: butter, flour, milk, cheese.','Mix together.']},
+  {id:36,age:'toddler',name:'Turkey & veggie rice bowl',emoji:'🍚',type:'Meat',time:20,cal:240,carbs:28,protein:18,fat:5,allergens:[],desc:'Lean turkey with colourful veg over fluffy rice.',ingredients:[{name:'Turkey mince',qty:'100g'},{name:'Rice',qty:'¼ cup dry'},{name:'Peas',qty:'2 tbsp'},{name:'Sweetcorn',qty:'2 tbsp'},{name:'Carrot',qty:'¼, grated'}],steps:['Cook rice.','Brown turkey 6–7 min.','Add veg 3 min.','Serve over rice.']},
+  {id:37,age:'toddler',name:'Salmon patties',emoji:'🍣',type:'Fish',time:20,cal:170,carbs:6,protein:16,fat:9,allergens:['Fish','Eggs','Gluten'],desc:'Crispy outside, flaky inside.',ingredients:[{name:'Canned salmon',qty:'1 tin, drained'},{name:'Mashed potato',qty:'3 tbsp'},{name:'Egg',qty:'½, beaten'},{name:'Breadcrumbs',qty:'2 tbsp'}],steps:['Mix salmon, potato and egg.','Shape into small patties.','Coat in breadcrumbs.','Fry 3 min per side.']},
+  {id:38,age:'toddler',name:'Lentil & veggie soup',emoji:'🥣',type:'Soup',time:30,cal:155,carbs:24,protein:9,fat:2,allergens:[],desc:'Hearty and filling. Serve with soft bread for dipping.',ingredients:[{name:'Red lentils',qty:'½ cup'},{name:'Potato',qty:'1 small, diced'},{name:'Carrot',qty:'1, diced'},{name:'Celery',qty:'1 stick'},{name:'Onion',qty:'½'},{name:'Stock',qty:'600ml'}],steps:['Soften onion and celery.','Add veg, lentils and stock.','Simmer 20 min.','Blend partially.']},
+  {id:39,age:'toddler',name:'Cheese & spinach muffins',emoji:'🧁',type:'Snack',time:25,cal:110,carbs:12,protein:5,fat:5,allergens:['Dairy','Eggs','Gluten'],desc:'Savoury muffins packed with calcium and iron.',ingredients:[{name:'Self-raising flour',qty:'1 cup'},{name:'Egg',qty:'1'},{name:'Whole milk',qty:'½ cup'},{name:'Cheddar',qty:'½ cup'},{name:'Baby spinach',qty:'1 handful'}],steps:['Mix flour, egg and milk.','Fold in cheese and spinach.','Bake mini muffin tin 180°C 15–18 min.']},
+  {id:40,age:'toddler',name:'Cucumber & hummus',emoji:'🥒',type:'Snack',time:2,cal:80,carbs:7,protein:3,fat:5,allergens:[],desc:'The simplest healthy snack.',ingredients:[{name:'Cucumber',qty:'½, cut into sticks'},{name:'Hummus',qty:'3 tbsp'}],steps:['Cut cucumber into sticks.','Serve with hummus.']},
+  {id:41,age:'toddler',name:'Apple & almond butter',emoji:'🍏',type:'Snack',time:3,cal:130,carbs:15,protein:3,fat:7,allergens:['Nuts'],desc:'Natural sugars, fibre and healthy fats.',ingredients:[{name:'Apple',qty:'1, sliced'},{name:'Almond butter',qty:'1 tbsp'}],steps:['Core and slice apple.','Serve with almond butter.']},
+  {id:42,age:'toddler',name:'Avocado rice cakes',emoji:'🥑',type:'Snack',time:3,cal:100,carbs:12,protein:2,fat:6,allergens:[],desc:'A light, healthy snack rich in healthy fats.',ingredients:[{name:'Plain rice cakes',qty:'2'},{name:'Ripe avocado',qty:'¼'},{name:'Lemon juice',qty:'tiny squeeze'}],steps:['Mash avocado with lemon.','Spread on rice cakes.']},
+  {id:43,age:'toddler',name:'Homemade chicken nuggets',emoji:'🍗',type:'Meat',time:25,cal:220,carbs:14,protein:20,fat:8,allergens:['Eggs','Gluten'],desc:'Baked, not fried. Much lower sodium than shop-bought.',ingredients:[{name:'Chicken breast',qty:'200g'},{name:'Breadcrumbs',qty:'¼ cup'},{name:'Egg',qty:'1, beaten'},{name:'Dried herbs',qty:'¼ tsp'}],steps:['Cut chicken into pieces.','Dip in egg then herbs and breadcrumbs.','Bake 200°C 18–20 min.']},
+  {id:44,age:'toddler',name:'Pizza toast',emoji:'🍕',type:'Quick & easy',time:10,cal:200,carbs:22,protein:9,fat:8,allergens:['Dairy','Gluten'],desc:'Mini pizzas on toast with hidden veg in the sauce.',ingredients:[{name:'Wholegrain toast',qty:'2 slices'},{name:'Passata',qty:'3 tbsp'},{name:'Mozzarella',qty:'30g'},{name:'Peas & sweetcorn',qty:'2 tbsp'}],steps:['Spread passata on toast.','Scatter veg and mozzarella.','Grill 4–5 min.']},
+  {id:45,age:'toddler',name:'Egg fried rice',emoji:'🍳',type:'Quick & easy',time:12,cal:240,carbs:32,protein:10,fat:7,allergens:['Eggs','Soy'],desc:'Great way to use leftover rice. Packed with protein.',ingredients:[{name:'Cooked rice',qty:'1 cup'},{name:'Eggs',qty:'2'},{name:'Frozen peas & corn',qty:'¼ cup'},{name:'Low-sodium soy sauce',qty:'1 tsp'}],steps:['Stir-fry rice and veg 3 min.','Scramble eggs alongside.','Mix together with soy sauce.']},
+  {id:46,age:'toddler',name:'Bean & cheese quesadilla',emoji:'🫘',type:'Vegetarian',time:10,cal:250,carbs:28,protein:12,fat:10,allergens:['Dairy','Gluten'],desc:'Plant protein plus calcium from cheese.',ingredients:[{name:'Small flour tortilla',qty:'1'},{name:'Black beans',qty:'3 tbsp'},{name:'Cheddar',qty:'2 tbsp'},{name:'Avocado',qty:'¼'}],steps:['Scatter beans and cheese.','Fold and cook 2–3 min per side.','Serve with avocado.']},
+  {id:47,age:'toddler',name:'Tuna pasta bake',emoji:'🐟',type:'Fish',time:30,cal:290,carbs:36,protein:18,fat:7,allergens:['Fish','Dairy','Gluten'],desc:'A classic family bake. Tuna provides omega-3 and protein.',ingredients:[{name:'Penne pasta',qty:'½ cup'},{name:'Canned tuna',qty:'1 tin'},{name:'Chopped tomatoes',qty:'1 small tin'},{name:'Cheddar',qty:'2 tbsp'},{name:'Peas',qty:'¼ cup'}],steps:['Cook pasta.','Mix tuna, tomatoes and peas.','Combine in dish, top with cheese.','Bake 200°C 15 min.']},
+  {id:48,age:'toddler',name:'Banana walnut muffins',emoji:'🫐',type:'Snack',time:25,cal:170,carbs:22,protein:4,fat:8,allergens:['Nuts','Eggs','Gluten','Dairy'],desc:'Naturally sweetened with banana.',ingredients:[{name:'Ripe bananas',qty:'2, mashed'},{name:'Egg',qty:'1'},{name:'Oat flour',qty:'1 cup'},{name:'Walnuts',qty:'¼ cup, chopped'},{name:'Butter',qty:'2 tbsp, melted'}],steps:['Mix banana, egg, butter.','Fold in flour and walnuts.','Bake muffin cases 180°C 18–20 min.']},
+  {id:49,age:'toddler',name:'Vegetable fritters',emoji:'🥕',type:'Vegetarian',time:18,cal:140,carbs:14,protein:6,fat:6,allergens:['Eggs','Gluten'],desc:'Great way to boost veg intake. Crispy outside.',ingredients:[{name:'Courgette',qty:'½, grated'},{name:'Carrot',qty:'1, grated'},{name:'Egg',qty:'1'},{name:'Self-raising flour',qty:'4 tbsp'},{name:'Cheddar',qty:'2 tbsp'}],steps:['Squeeze water from veg.','Mix with egg, flour and cheese.','Fry rounds in oil 3 min per side.']},
+  {id:50,age:'toddler',name:'Slow cooker chicken',emoji:'🍲',type:'Meat',time:240,cal:195,carbs:12,protein:24,fat:5,allergens:[],desc:'Set and forget. Tender chicken with soft vegetables.',ingredients:[{name:'Chicken thighs',qty:'2, boneless'},{name:'Sweet potato',qty:'1, diced'},{name:'Carrot',qty:'1, sliced'},{name:'Low-sodium stock',qty:'300ml'}],steps:['Place all in slow cooker.','Cook low 4h or high 2h.','Shred chicken and serve.']},
+  {id:51,age:'toddler',name:'Ricotta toast with berries',emoji:'🍓',type:'Breakfast',time:4,cal:160,carbs:18,protein:9,fat:5,allergens:['Dairy','Gluten'],desc:'Creamy ricotta is high in protein and calcium.',ingredients:[{name:'Wholegrain bread',qty:'1 slice'},{name:'Ricotta',qty:'3 tbsp'},{name:'Strawberries',qty:'4, sliced'},{name:'Blueberries',qty:'small handful'}],steps:['Toast bread.','Spread with ricotta.','Top with fruit.']},
+  {id:52,age:'toddler',name:'Avocado pasta',emoji:'🥑',type:'Pasta',time:15,cal:270,carbs:34,protein:8,fat:12,allergens:['Gluten'],desc:'Creamy avocado makes a rich no-cook sauce.',ingredients:[{name:'Short pasta',qty:'½ cup'},{name:'Ripe avocado',qty:'½'},{name:'Lemon juice',qty:'1 tsp'},{name:'Basil',qty:'few leaves'}],steps:['Cook pasta.','Blend avocado, lemon into sauce.','Toss drained pasta with sauce.']},
+  {id:53,age:'toddler',name:'Baked oat bites',emoji:'🌾',type:'Snack',time:20,cal:95,carbs:14,protein:3,fat:3,allergens:['Gluten','Nuts'],desc:'No refined sugar. Portable nutritious snack.',ingredients:[{name:'Oats',qty:'1 cup'},{name:'Ripe banana',qty:'1, mashed'},{name:'Almond butter',qty:'2 tbsp'},{name:'Raisins',qty:'2 tbsp'}],steps:['Mix all together.','Roll into balls.','Bake 180°C 12 min.']},
+  {id:54,age:'toddler',name:'Chicken noodle soup',emoji:'🍜',type:'Soup',time:25,cal:195,carbs:22,protein:16,fat:4,allergens:['Gluten'],desc:'Warm and comforting. Use thin noodles.',ingredients:[{name:'Chicken breast',qty:'100g'},{name:'Thin noodles',qty:'½ cup'},{name:'Carrot',qty:'1, diced'},{name:'Celery',qty:'1 stick'},{name:'Low-sodium stock',qty:'500ml'}],steps:['Simmer chicken in stock 12 min.','Shred chicken.','Add veg 5 min.','Add noodles per pack.']},
+  {id:55,age:'toddler',name:'Spinach smoothie bowl',emoji:'🌿',type:'Breakfast',time:5,cal:145,carbs:26,protein:5,fat:3,allergens:['Dairy'],desc:'Sneaky greens — banana completely masks the spinach.',ingredients:[{name:'Baby spinach',qty:'1 cup'},{name:'Frozen banana',qty:'1'},{name:'Greek yogurt',qty:'3 tbsp'},{name:'Whole milk',qty:'3 tbsp'},{name:'Berries',qty:'for topping'}],steps:['Blend spinach, banana, yogurt and milk.','Pour into bowl.','Top with berries.']},
+];
+
+const MEAL_TYPES=[...new Set(RECIPES.map(r=>r.type))].sort();
+
+// ── Shopping helpers ──────────────────────────────────────────
+function getShoppingItems(){
+  const selected=RECIPES.filter(r=>ST.selectedRecipes.includes(r.id));
+  const map={};
+  selected.forEach(r=>r.ingredients.forEach(ing=>{
+    const k=ing.name.toLowerCase();
+    if(!map[k])map[k]={name:ing.name,qtys:[],recipes:[]};
+    map[k].qtys.push(ing.qty);
+    if(!map[k].recipes.includes(r.name))map[k].recipes.push(r.name);
+  }));
+  const cats={Produce:['apple','banana','mango','pear','avocado','spinach','broccoli','carrot','courgette','potato','sweet potato','tomato','cucumber','celery','onion','garlic','cauliflower','pea','parsnip','pepper','berries','strawberr','blueberr','lemon','lime'],Protein:['chicken','turkey','salmon','fish','beef','sardine','tuna','egg','mince'],Dairy:['milk','cheese','cheddar','butter','yogurt','ricotta','mozzarella','formula','cream'],Grains:['oat','pasta','rice','bread','flour','noodle','tortilla','breadcrumb','cereal'],Pantry:['lentil','bean','hummus','peanut butter','almond butter','soy sauce','oil','stock','passata','raisin','cinnamon','turmeric','cumin','herb','walnut','nut'],Other:[]};
+  const grouped={Produce:[],Protein:[],Dairy:[],Grains:[],Pantry:[],Other:[]};
+  Object.values(map).forEach(item=>{
+    let placed=false;
+    for(const[cat,kws]of Object.entries(cats)){
+      if(cat==='Other')continue;
+      if(kws.some(k=>item.name.toLowerCase().includes(k))){grouped[cat].push(item);placed=true;break;}
+    }
+    if(!placed)grouped.Other.push(item);
+  });
+  return grouped;
+}
+const shopId=name=>'s_'+name.toLowerCase().replace(/[^a-z0-9]/g,'_');
+
+// ── Utilities ─────────────────────────────────────────────────
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function updateBadge(){const b=document.getElementById('shop-badge');if(ST.selectedRecipes.length){b.textContent=ST.selectedRecipes.length;b.style.display='';}else{b.style.display='none';}}
+
+function prefsCtx(){
+  const p=ST.prefs,parts=[];
+  if(p.favFoods.length)parts.push('loves: '+p.favFoods.join(', '));
+  if(p.dislikedFoods.length)parts.push('dislikes: '+p.dislikedFoods.join(', '));
+  if(p.favMealTypes.length)parts.push('preferred types: '+p.favMealTypes.join(', '));
+  if(ST.avoidAllergens.length)parts.push('allergies/avoid: '+ST.avoidAllergens.join(', '));
+  if(p.notes.trim())parts.push('notes: '+p.notes.trim());
+  return parts.join('; ')||'no preferences set yet';
+}
+
+function updateAIStatus(){
+  const dot=document.getElementById('ai-dot');
+  const txt=document.getElementById('ai-status-text');
+  if(!dot)return;
+  if(ST.apiKey){dot.className='ai-dot connected';txt.textContent='Claude connected';}
+  else{dot.className='ai-dot';txt.textContent='No API key';}
+}
+
+// ── Claude API ────────────────────────────────────────────────
+async function callClaude(messages, onChunk){
+  if(!ST.apiKey)throw new Error('No API key');
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':ST.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:2048,
+      system:`You are a friendly expert in baby and toddler nutrition. You help parents create personalised, safe, nutritious meal plans. You know the user's current context: ${prefsCtx()}. The child is ${ST.age==='baby'?'a baby aged 6–12 months':'a toddler aged 1–3 years'}. Keep responses concise and practical. When suggesting recipes from the app's library, mention them by name exactly. When listing a meal plan, use clear day-by-day formatting. Never recommend honey for babies under 1. Always flag any allergen concerns.`,
+      messages,
+      stream:true,
+    })
+  });
+  if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'API error');}
+  const reader=res.body.getReader();
+  const dec=new TextDecoder();
+  let full='';
+  while(true){
+    const{done,value}=await reader.read();
+    if(done)break;
+    const chunk=dec.decode(value);
+    for(const line of chunk.split('\n')){
+      if(!line.startsWith('data:'))continue;
+      const data=line.slice(5).trim();
+      if(data==='[DONE]')break;
+      try{
+        const j=JSON.parse(data);
+        if(j.type==='content_block_delta'&&j.delta?.text){
+          full+=j.delta.text;
+          if(onChunk)onChunk(full);
+        }
+      }catch(e){}
+    }
+  }
+  return full;
+}
+
+// ── Pages ─────────────────────────────────────────────────────
+function filtered(){
+  return RECIPES.filter(r=>{
+    if(r.age!==ST.age)return false;
+    if(ST.avoidAllergens.length&&ST.avoidAllergens.some(a=>r.allergens.includes(a)))return false;
+    if(ST.activeTypes.length&&!ST.activeTypes.includes(r.type))return false;
+    if(ST.search){const q=ST.search.toLowerCase();if(!r.name.toLowerCase().includes(q)&&!r.desc.toLowerCase().includes(q)&&!r.type.toLowerCase().includes(q)&&!r.ingredients.some(i=>i.name.toLowerCase().includes(q)))return false;}
+    return true;
+  });
+}
+
+function renderApiKeyPage(){
+  const connected=!!ST.apiKey;
+  return`<div class="setup-wrap">
+    <div class="setup-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="11" cy="16" r="7" stroke="var(--purple)" stroke-width="2"/><path d="M17 10l8 8M22 8l2.5-2.5M20 10l2-2" stroke="var(--purple)" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="setup-title">${connected?'Claude is connected':'Connect your Claude account'}</div>
+    <div class="setup-sub">${connected?'Your Anthropic API key is saved. Claude will generate personalised meal plans, recipe suggestions and shopping tips based on your child\'s preferences.':'Add your Anthropic API key to enable Claude AI — personalised meal plans, smart recipe suggestions and conversational help, all powered by your own Claude account.'}</div>
+    <div class="setup-card">
+      <div class="setup-label">Anthropic API key</div>
+      <input class="setup-input" type="password" id="api-key-input" placeholder="sk-ant-api03-…" value="${esc(ST.apiKey)}" autocomplete="off"/>
+      <div class="setup-hint">Get your free API key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a>. New accounts include free credits.</div>
+    </div>
+    <div class="setup-security">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-top:1px"><path d="M7 1L2 3.5v4C2 10.5 4.5 13 7 13s5-2.5 5-5.5v-4L7 1z" stroke="currentColor" stroke-width="1.2"/><path d="M5 7l1.5 1.5L9 5.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      <span>Your API key is stored only in your browser's local storage and sent directly to Anthropic's servers. It is never transmitted to any third party.</span>
+    </div>
+    <button class="setup-btn" onclick="saveApiKey()">${connected?'Update key':'Connect Claude'}</button>
+    ${connected?`<button class="btn" onclick="ST.apiKey='';save();renderPage();updateAIStatus();" style="width:100%;margin-top:8px;color:var(--red);">Disconnect</button>`:''}
+  </div>`;
+}
+
+function renderAIPage(){
+  if(!ST.apiKey)return`<div class="page-header"><div class="page-title">Claude AI</div></div>
+    <div style="text-align:center;padding:3rem 1rem;">
+      <div style="font-size:40px;margin-bottom:12px;">✨</div>
+      <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Connect Claude to get started</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;">Add your Anthropic API key to unlock personalised AI meal planning</div>
+      <button class="btn btn-purple" onclick="gotoPage('apikey')">Add API key →</button>
+    </div>`;
+
+  const msgs=ST.aiMessages;
+  const recipeNames=RECIPES.filter(r=>r.age===ST.age).map(r=>r.name);
+  const quickActions=[
+    `Generate my ${ST.age} meal plan for this week`,
+    `Suggest 3 recipes my ${ST.age} will love`,
+    `What foods should I introduce next?`,
+    `Tips for a ${ST.age} going through a food refusal phase`,
+    `Make a shopping list for my top recipes`,
+    `Give me allergen-safe recipe ideas`,
+  ];
+
+  return`<div class="page-header">
+    <div class="page-title">Claude AI</div>
+    <div class="page-sub">Personalised help powered by your Claude account</div>
+  </div>
+  <div class="ai-panel">
+    <div class="ai-panel-header">
+      <div class="ai-panel-title">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9 4 10.5l.5-3.5L2 4.5 5.5 4z" stroke="var(--purple)" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>
+        Claude · ${ST.age==='baby'?'Baby 6–12m':'Toddler 1–3y'} mode
+      </div>
+      <div class="ai-panel-actions">
+        <button class="ai-btn outline" onclick="ST.aiMessages=[];save();renderPage();">Clear chat</button>
+      </div>
+    </div>
+    <div class="ai-messages" id="ai-messages">
+      ${msgs.length===0?`<div style="text-align:center;padding:1.5rem;color:var(--text3);font-size:13px;">
+        Ask Claude anything about feeding your ${ST.age==='baby'?'baby':'toddler'}…
+        <br><br><span style="font-size:20px;">👶</span>
+      </div>`:''}
+      ${msgs.map(m=>`<div class="ai-msg">
+        <div class="ai-msg-avatar ${m.role}">${m.role==='assistant'?'C':'Y'}</div>
+        <div class="ai-msg-bubble ${m.role}">${formatAIText(esc(m.content))}</div>
+      </div>`).join('')}
+      <div id="ai-streaming" style="display:none;" class="ai-msg">
+        <div class="ai-msg-avatar claude">C</div>
+        <div class="ai-msg-bubble claude streaming" id="ai-stream-text"><div class="thinking"><span></span><span></span><span></span></div></div>
+      </div>
+    </div>
+    <div class="quick-chips" id="quick-chips">
+      ${quickActions.map(a=>`<span class="quick-chip" onclick="sendAI(${JSON.stringify(a)})">${a}</span>`).join('')}
+    </div>
+    <div class="ai-input-row">
+      <input class="ai-input" id="ai-input" type="text" placeholder="Ask about meal plans, nutrition, recipes…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIFromInput();}"/>
+      <button class="ai-send-btn" id="ai-send" onclick="sendAIFromInput()">Send</button>
+    </div>
+  </div>`;
+}
+
+function formatAIText(s){
+  return s
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^### (.+)$/gm,'<div class="meal-day">$1</div>')
+    .replace(/^## (.+)$/gm,'<div class="meal-day">$1</div>')
+    .replace(/^- (.+)$/gm,'<div class="meal-item">• $1</div>')
+    .replace(/\n/g,'<br>');
+}
+
+async function sendAIFromInput(){
+  const inp=document.getElementById('ai-input');
+  if(!inp)return;
+  const val=inp.value.trim();
+  if(!val)return;
+  inp.value='';
+  sendAI(val);
+}
+
+async function sendAI(text){
+  if(!ST.apiKey){toast('Add your API key first');gotoPage('apikey');return;}
+  ST.aiMessages.push({role:'user',content:text});
+  save();
+  renderPage();
+  // Show streaming
+  const streamEl=document.getElementById('ai-streaming');
+  const streamText=document.getElementById('ai-stream-text');
+  const sendBtn=document.getElementById('ai-send');
+  const input=document.getElementById('ai-input');
+  if(streamEl)streamEl.style.display='flex';
+  if(sendBtn)sendBtn.disabled=true;
+  if(input)input.disabled=true;
+  // scroll to bottom
+  const msgs=document.getElementById('ai-messages');
+  if(msgs)msgs.scrollTop=msgs.scrollHeight;
+  try{
+    const history=ST.aiMessages.map(m=>({role:m.role,content:m.content}));
+    let full='';
+    await callClaude(history,(chunk)=>{
+      full=chunk;
+      if(streamText)streamText.innerHTML=formatAIText(esc(chunk));
+      if(msgs)msgs.scrollTop=msgs.scrollHeight;
+    });
+    ST.aiMessages.push({role:'assistant',content:full});
+    save();
+    renderPage();
+    // Check if Claude mentioned recipes we have — highlight them
+    highlightAISuggestions(full);
+  }catch(err){
+    if(streamEl)streamEl.style.display='none';
+    ST.aiMessages.push({role:'assistant',content:`Sorry, I couldn't connect to Claude. Error: ${err.message}\n\nPlease check your API key in Settings.`});
+    save();
+    renderPage();
+  }
+}
+
+function highlightAISuggestions(text){
+  const ids=[];
+  RECIPES.forEach(r=>{
+    if(r.age===ST.age&&text.toLowerCase().includes(r.name.toLowerCase())){ids.push(r.id);}
+  });
+  ST.aiSuggestedIds=ids;
+  save();
+}
+
+function renderDiscoverPage(){
+  const recipes=filtered();
+  const aiSuggested=ST.aiSuggestedIds.filter(id=>recipes.some(r=>r.id===id));
+  return`<div class="page-header">
+    <div class="page-title">Discover recipes</div>
+    <div class="page-sub">${RECIPES.filter(r=>r.age===ST.age).length} recipes for ${ST.age==='baby'?'babies (6–12m)':'toddlers (1–3y)'}</div>
+  </div>
+  <div class="search-wrap">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    <input class="search-input" type="text" placeholder="Search recipes, ingredients, meal type…" value="${esc(ST.search)}" oninput="ST.search=this.value;save();renderPage()" id="search-inp"/>
+    ${ST.search?`<button class="search-clear" onclick="ST.search='';save();renderPage()">×</button>`:''}
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Avoid:</span>
+    ${ALLERGENS_ALL.map(a=>`<span class="filter-chip${ST.avoidAllergens.includes(a)?' active-avoid':''}" onclick="toggleAllergen('${a}')">${ST.avoidAllergens.includes(a)?'✕ ':'+'}${a}</span>`).join('')}
+  </div>
+  <div class="filter-row">
+    <span class="filter-label">Type:</span>
+    ${MEAL_TYPES.map(t=>`<span class="filter-chip${ST.activeTypes.includes(t)?' active-type':''}" onclick="toggleType('${t}')">${t}</span>`).join('')}
+    ${ST.activeTypes.length?`<span class="filter-chip" onclick="ST.activeTypes=[];save();renderPage()" style="opacity:.6">Clear</span>`:''}
+  </div>
+  ${aiSuggested.length?`<div style="background:var(--purple-bg);border-radius:var(--rl);padding:12px 16px;margin-bottom:1.25rem;font-size:13px;color:var(--purple);display:flex;align-items:center;gap:10px;">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9l-3 1.5.5-3.5L2 4.5 5.5 4z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>
+    Claude suggested ${aiSuggested.length} recipe${aiSuggested.length!==1?'s':''} — highlighted in purple below
+  </div>`:''}
+  ${recipes.length===0?`<div class="no-results"><div style="font-size:36px;margin-bottom:8px;">🔍</div><div style="font-size:15px;font-weight:600;margin-bottom:4px;">No recipes found</div><div style="font-size:13px;color:var(--text2);">Try adjusting filters or search term</div></div>`:`
+  <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">${recipes.length} recipe${recipes.length!==1?'s':''} shown</div>
+  <div class="recipe-grid">${recipes.map(r=>renderCard(r,aiSuggested.includes(r.id))).join('')}</div>`}`;
+}
+
+function renderCard(r,aiHighlight){
+  const added=ST.selectedRecipes.includes(r.id);
+  return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}" onclick="openRecipe(${r.id})">
+    <div class="recipe-emoji">${r.emoji}</div>
+    <div class="recipe-card-top">
+      <div><div class="recipe-card-name">${esc(r.name)}</div><div class="recipe-card-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal} kcal</div></div>
+      <button class="add-btn${added?' added':''}" onclick="event.stopPropagation();toggleRecipe(${r.id})">
+        ${added?`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`+`}
+      </button>
+    </div>
+    <div class="recipe-desc">${r.desc.slice(0,80)}${r.desc.length>80?'…':''}</div>
+    <div class="recipe-tags">
+      <span class="tag" style="background:var(--bg2);color:var(--text2);border:0.5px solid var(--border);">${r.type}</span>
+      ${r.allergens.length?r.allergens.slice(0,2).map(a=>`<span class="tag" style="background:var(--red-bg);color:var(--red);">${a}</span>`).join(''):`<span class="tag" style="background:var(--green-bg);color:var(--green);">Allergen-free</span>`}
+      ${aiHighlight?`<span class="tag" style="background:var(--purple-bg);color:var(--purple);">✨ Claude pick</span>`:''}
+    </div>
+    <div class="recipe-nutrition">
+      ${[['Carbs',r.carbs,'g'],['Protein',r.protein,'g'],['Fat',r.fat,'g']].map(([l,v,u])=>`<div class="nutr-item"><div class="nutr-val">${v}${u}</div><div class="nutr-lbl">${l}</div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderWeekPage(){
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const slots=['Breakfast','Lunch','Dinner','Snack'];
+  const recipes=RECIPES.filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
+  const byType={};
+  slots.forEach(s=>{
+    const m=recipes.filter(r=>{
+      if(s==='Breakfast')return r.type==='Breakfast';
+      if(s==='Lunch')return['Soup','Quick & easy','Finger food','Puree'].includes(r.type);
+      if(s==='Dinner')return['Meat','Fish','Pasta','Vegetarian','Puree'].includes(r.type);
+      return['Snack','Puree','Finger food'].includes(r.type);
+    });
+    byType[s]=m.length?m:recipes;
+  });
+  const wn=Math.floor(Date.now()/(7*24*60*60*1000));
+  const pick=(arr,seed)=>arr[seed%arr.length];
+  const colors={Breakfast:'#E1F5EE',Lunch:'#FAEEDA',Dinner:'#EEEDFE',Snack:'#EAF3DE'};
+  const tc={Breakfast:'#085041',Lunch:'#633806',Dinner:'#3C3489',Snack:'#27500A'};
+  return`<div class="page-header">
+    <div class="page-title">Weekly plan</div>
+    <div class="page-sub">Auto-generated · Ask Claude AI for a personalised version</div>
+  </div>
+  ${ST.apiKey?`<div class="ai-panel" style="margin-bottom:1.25rem;">
+    <div class="ai-panel-header">
+      <div class="ai-panel-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9l-3 1.5.5-3.5L2 4.5 5.5 4z" stroke="var(--purple)" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>Generate with Claude</div>
+    </div>
+    <div class="quick-chips" style="padding:12px 16px;">
+      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('Generate a personalised 7-day meal plan for my ${ST.age}. ${prefsCtx()}'),200)">✨ Personalised week plan</span>
+      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('What new foods should I introduce to my ${ST.age} this week?'),200)">New foods to try</span>
+      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('Create a batch cooking plan for my ${ST.age} for the week'),200)">Batch cooking plan</span>
+    </div>
+  </div>`:`<div style="background:var(--purple-bg);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--purple);cursor:pointer;" onclick="gotoPage('apikey')">✨ Connect Claude for AI-personalised weekly plans →</div>`}
+  <div class="week-grid">
+    <table class="week-table">
+      <thead><tr><th></th>${days.map(d=>`<th class="week-th">${d}</th>`).join('')}</tr></thead>
+      <tbody>${slots.map((slot,si)=>`<tr>
+        <td class="week-label" style="color:${tc[slot]};">${slot}</td>
+        ${days.map((d,di)=>{const r=pick(byType[slot],wn+si*7+di*13+si*3);return`<td><div class="week-cell" style="background:${colors[slot]};color:${tc[slot]};" onclick="openRecipe(${r.id})">${r.emoji} ${r.name}</div></td>`;}).join('')}
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>
+  <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-teal" onclick="addWeekToList()">Add all to shopping list</button>
+    <button class="btn" onclick="renderPage()">Regenerate</button>
+  </div>`;
+}
+
+function renderShoppingPage(){
+  const grouped=getShoppingItems();
+  const total=Object.values(grouped).reduce((s,a)=>s+a.length,0);
+  const selected=RECIPES.filter(r=>ST.selectedRecipes.includes(r.id));
+  return`<div class="page-header">
+    <div class="page-title">Shopping list</div>
+    <div class="page-sub">${total} items from ${selected.length} recipe${selected.length!==1?'s':''}</div>
+  </div>
+  ${selected.length?`<div class="selected-recipes-bar"><div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Recipes included</div>${selected.map(r=>`<span class="selected-recipe-chip">${r.emoji} ${r.name} <button onclick="toggleRecipe(${r.id})">×</button></span>`).join('')}</div>`:''}
+  ${total>0?`<div class="shopping-header">
+    <div style="font-size:13px;color:var(--text2);">${ST.shopChecked.length} of ${total} checked</div>
+    <div class="export-btns">
+      <button class="export-btn keep" onclick="exportKeep()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#F9AB00" stroke-width="1.2"/><path d="M7 4v3.5l2 1.5" stroke="#F9AB00" stroke-width="1.2" stroke-linecap="round"/></svg>Google Keep
+      </button>
+      <button class="export-btn ios" onclick="exportIOS()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="2" stroke="#007AFF" stroke-width="1.2"/><path d="M4.5 5h5M4.5 7.5h5M4.5 10h3" stroke="#007AFF" stroke-width="1.2" stroke-linecap="round"/></svg>iOS Reminders
+      </button>
+      <button class="export-btn copy" onclick="copyList()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="1" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="var(--bg)"/></svg>Copy
+      </button>
+      <button class="btn" onclick="ST.shopChecked=[];save();renderPage()" style="font-size:12px;padding:6px 12px;">Clear checked</button>
+    </div>
+  </div>
+  ${ST.apiKey?`<div style="margin-bottom:1rem;">
+    <span class="quick-chip" style="cursor:pointer;" onclick="gotoPage('ai');setTimeout(()=>sendAI('I have these ingredients: ${Object.values(grouped).flat().map(i=>i.name).join(', ')}. Can you suggest extra meals I can make for my ${ST.age}?'),200)">✨ Ask Claude for meal ideas with these ingredients</span>
+  </div>`:''}
+  ${Object.entries(grouped).filter(([,items])=>items.length).map(([cat,items])=>`<div class="shop-section">
+    <div class="shop-section-title">${cat} (${items.length})</div>
+    ${items.filter(i=>!ST.shopRemoved.includes(shopId(i.name))).map(i=>{
+      const id=shopId(i.name);const done=ST.shopChecked.includes(id);
+      return`<div class="shop-item${done?' done':''}" onclick="toggleShopItem('${id}')">
+        <div class="shop-check${done?' done':''}">
+          ${done?`<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>`:''}
+        </div>
+        <div class="shop-item-name">${esc(i.name)}</div>
+        <div class="shop-item-qty">${i.qtys.join(' + ')}</div>
+        <button class="shop-item-remove" onclick="event.stopPropagation();ST.shopRemoved.push('${id}');save();renderPage()">×</button>
+      </div>`;
+    }).join('')}
+  </div>`).join('')}`:`<div class="empty-shop">
+    <div style="font-size:40px;margin-bottom:10px;">🛒</div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:6px;">Your list is empty</div>
+    <div style="font-size:13px;margin-bottom:1.25rem;">Add recipes from Discover or Weekly plan</div>
+    <button class="btn btn-teal" onclick="gotoPage('discover')">Browse recipes</button>
+  </div>`}`;
+}
+
+function renderNutritionPage(){
+  const selected=RECIPES.filter(r=>ST.selectedRecipes.includes(r.id));
+  const pool=selected.length?selected:RECIPES.filter(r=>r.age===ST.age);
+  const avg=k=>pool.length?Math.round(pool.reduce((s,r)=>s+r[k],0)/pool.length):0;
+  const targets=ST.age==='baby'?{cal:500,carbs:60,protein:11,fat:30}:{cal:1000,carbs:130,protein:13,fat:35};
+  const barColors={cal:'#0F6E56',carbs:'#854F0B',protein:'#534AB7',fat:'#993C1D'};
+  const tips=ST.age==='baby'?['Iron-rich foods (lentils, meat, fortified cereals) are critical from 6 months.','Introduce one new food every 2–3 days to spot reactions.','Breast milk or formula remains primary until 12 months.','Avoid honey, whole nuts, added salt and sugar.','Vitamin D supplementation is recommended for breastfed babies.']:['3 meals and 2 snacks a day is the ideal pattern.','Full-fat dairy supports brain development until age 2.','Offer new foods repeatedly — 15+ exposures before acceptance is normal.','Limit fruit juice; offer water and full-fat milk.','Iron needs remain high — red meat, lentils or fortified foods regularly.'];
+  return`<div class="page-header"><div class="page-title">Nutrition</div><div class="page-sub">${selected.length?`Average across ${selected.length} selected recipes`:`Average across all ${ST.age} recipes`}</div></div>
+  <div class="nutr-big-grid">
+    ${[['Calories','cal','kcal'],['Carbohydrates','carbs','g'],['Protein','protein','g'],['Fat','fat','g']].map(([label,key,unit])=>`<div class="nutr-big-card">
+      <div class="nutr-big-label">${label}</div>
+      <div class="nutr-big-val">${avg(key)}<span class="nutr-big-unit"> ${unit}</span></div>
+      <div class="nutr-big-target">Target: ${targets[key]}${unit}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.min(100,Math.round(avg(key)/targets[key]*100))}%;background:${barColors[key]};"></div></div>
+    </div>`).join('')}
+  </div>
+  <div class="tips-card"><div class="tips-title">Tips for ${ST.age==='baby'?'babies':'toddlers'}</div>${tips.map(t=>`<div class="tip-item"><div class="tip-dot"></div><div>${t}</div></div>`).join('')}</div>
+  ${ST.apiKey?`<button class="btn btn-purple" onclick="gotoPage('ai');setTimeout(()=>sendAI('Give me a detailed nutrition guide for my ${ST.age}. My context: ${prefsCtx()}'),200)">✨ Ask Claude for personalised nutrition advice</button>`:''}`;
+}
+
+function renderPrefsPage(){
+  const p=ST.prefs;const ctx=prefsCtx();
+  return`<div class="page-header"><div class="page-title">Preferences</div><div class="page-sub">Used by Claude AI across the app</div></div>
+  <div class="pref-grid">
+    <div class="pref-card">
+      <div class="pref-card-title">Favourite foods</div><div class="pref-card-sub">Claude will suggest these more often</div>
+      <div class="chips-wrap">${p.favFoods.map((f,i)=>`<span class="pref-chip pref-chip-fav">${esc(f)}<button onclick="removePref('favFoods',${i})">×</button></span>`).join('')}</div>
+      <div class="input-row"><input class="pref-input" id="fav-in" type="text" placeholder="e.g. sweet potato, mango…" onkeydown="if(event.key==='Enter')addPref('favFoods','fav-in')"/><button class="btn" onclick="addPref('favFoods','fav-in')">Add</button></div>
+    </div>
+    <div class="pref-card">
+      <div class="pref-card-title">Disliked foods</div><div class="pref-card-sub">Claude will avoid suggesting these</div>
+      <div class="chips-wrap">${p.dislikedFoods.map((f,i)=>`<span class="pref-chip pref-chip-dis">${esc(f)}<button onclick="removePref('dislikedFoods',${i})">×</button></span>`).join('')}</div>
+      <div class="input-row"><input class="pref-input" id="dis-in" type="text" placeholder="e.g. broccoli, peas…" onkeydown="if(event.key==='Enter')addPref('dislikedFoods','dis-in')"/><button class="btn" onclick="addPref('dislikedFoods','dis-in')">Add</button></div>
+    </div>
+    <div class="pref-card pref-card-full">
+      <div class="pref-card-title">Preferred meal types</div><div class="pref-card-sub">Claude will prioritise these in suggestions</div>
+      <div class="meal-type-grid">${MEAL_TYPES.map(t=>`<span class="mt-pill${p.favMealTypes.includes(t)?' active':''}" onclick="togglePrefType('${t}')">${p.favMealTypes.includes(t)?'✓ ':''}${t}</span>`).join('')}</div>
+    </div>
+    <div class="pref-card pref-card-full">
+      <div class="pref-card-title">Additional notes</div><div class="pref-card-sub">Texture stage, feeding style, baby's age, anything for Claude to know</div>
+      <textarea class="pref-textarea" placeholder="e.g. baby is 8 months, at lumpy texture stage, going through a food refusal phase…" onchange="ST.prefs.notes=this.value;save();">${esc(p.notes)}</textarea>
+    </div>
+  </div>
+  ${ctx!=='no preferences set yet'?`<div class="context-box" style="margin-top:14px;"><strong>Claude context:</strong> ${ctx}</div>`:''}
+  ${ST.apiKey?`<button class="btn btn-purple" style="margin-top:1rem;" onclick="gotoPage('ai');setTimeout(()=>sendAI('Based on my preferences (${prefsCtx()}), what 5 recipes from the app would you recommend for my ${ST.age} this week?'),200)">✨ Get Claude recommendations based on these prefs</button>`:''}`;
+}
+
+// ── Actions ───────────────────────────────────────────────────
+function toggleAllergen(a){const i=ST.avoidAllergens.indexOf(a);i>-1?ST.avoidAllergens.splice(i,1):ST.avoidAllergens.push(a);save();renderPage();}
+function toggleType(t){const i=ST.activeTypes.indexOf(t);i>-1?ST.activeTypes.splice(i,1):ST.activeTypes.push(t);save();renderPage();}
+function toggleRecipe(id){const i=ST.selectedRecipes.indexOf(id);if(i>-1){ST.selectedRecipes.splice(i,1);}else{ST.selectedRecipes.push(id);toast('Added to shopping list');}updateBadge();save();renderPage();}
+function toggleShopItem(id){const i=ST.shopChecked.indexOf(id);i>-1?ST.shopChecked.splice(i,1):ST.shopChecked.push(id);save();renderPage();}
+function setAge(a){ST.age=a;document.getElementById('age-baby').className='age-pill'+(a==='baby'?' active-baby':'');document.getElementById('age-toddler').className='age-pill'+(a==='toddler'?' active-toddler':'');save();renderPage();}
+function addPref(key,inputId){const inp=document.getElementById(inputId);const val=inp.value.trim();if(val&&!ST.prefs[key].includes(val)){ST.prefs[key].push(val);inp.value='';save();renderPage();}}
+function removePref(key,i){ST.prefs[key].splice(i,1);save();renderPage();}
+function togglePrefType(t){const i=ST.prefs.favMealTypes.indexOf(t);i>-1?ST.prefs.favMealTypes.splice(i,1):ST.prefs.favMealTypes.push(t);save();renderPage();}
+
+async function saveApiKey(){
+  const inp=document.getElementById('api-key-input');
+  const key=inp?inp.value.trim():'';
+  if(!key){toast('Please enter an API key');return;}
+  const btn=document.querySelector('.setup-btn');
+  if(btn){btn.textContent='Verifying…';btn.disabled=true;}
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:10,messages:[{role:'user',content:'hi'}]})
+    });
+    if(res.ok||res.status===400){
+      ST.apiKey=key;save();updateAIStatus();toast('Claude connected! ✓');gotoPage('ai');
+    }else{
+      const err=await res.json();toast('Invalid key: '+(err.error?.message||'unknown error'));
+      if(btn){btn.textContent='Connect Claude';btn.disabled=false;}
+    }
+  }catch(e){
+    // If CORS etc, just trust the key and save
+    ST.apiKey=key;save();updateAIStatus();toast('Key saved — try sending a message to verify');gotoPage('ai');
+  }
+}
+
+function addWeekToList(){
+  const slots=['Breakfast','Lunch','Dinner','Snack'];
+  const all=RECIPES.filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
+  const wn=Math.floor(Date.now()/(7*24*60*60*1000));
+  const byType={};
+  slots.forEach(s=>{const m=all.filter(r=>{if(s==='Breakfast')return r.type==='Breakfast';if(s==='Lunch')return['Soup','Quick & easy','Finger food','Puree'].includes(r.type);if(s==='Dinner')return['Meat','Fish','Pasta','Vegetarian','Puree'].includes(r.type);return['Snack','Puree','Finger food'].includes(r.type);});byType[s]=m.length?m:all;});
+  const added=new Set();
+  slots.forEach((slot,si)=>{for(let di=0;di<7;di++){const pool=byType[slot];const r=pool[(wn+si*7+di*13+si*3)%pool.length];added.add(r.id);}});
+  added.forEach(id=>{if(!ST.selectedRecipes.includes(id))ST.selectedRecipes.push(id);});
+  updateBadge();save();toast("Week's recipes added to list");gotoPage('shopping');
+}
+
+function buildListText(){
+  const g=getShoppingItems();
+  return Object.entries(g).filter(([,items])=>items.length).map(([cat,items])=>`${cat}:\n${items.map(i=>`• ${i.name} — ${i.qtys.join(', ')}`).join('\n')}`).join('\n\n');
+}
+function exportKeep(){const text=buildListText();window.open(`https://keep.google.com/#NOTE&title=${encodeURIComponent('Tiny Bites Shopping List')}&text=${encodeURIComponent(text)}`,'_blank');toast('Opening Google Keep…');}
+function exportIOS(){
+  const grouped=getShoppingItems();const items=Object.values(grouped).flat();
+  if(/iPad|iPhone|iPod/.test(navigator.userAgent)){items.forEach((item,i)=>setTimeout(()=>{window.location=`x-apple-reminderkit://REMCDReminder/?name=${encodeURIComponent(item.name+' — '+item.qtys.join(', '))}`;},i*200));toast('Opening iOS Reminders…');}
+  else{const blob=new Blob([`Tiny Bites Shopping List\n${'─'.repeat(30)}\n\n${buildListText()}`],{type:'text/plain'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='tiny-bites-shopping.txt';a.click();toast('Saved as text file');}
+}
+function copyList(){const text=`Tiny Bites Shopping List\n\n${buildListText()}`;navigator.clipboard.writeText(text).then(()=>toast('Copied!')).catch(()=>toast('Copy failed — try manually'));}
+
+function openRecipe(id){
+  const r=RECIPES.find(x=>x.id===id);if(!r)return;
+  const added=ST.selectedRecipes.includes(id);
+  document.getElementById('modal-content').innerHTML=`
+    <div class="modal-header"><div class="modal-emoji">${r.emoji}</div><div>
+      <div class="modal-title">${esc(r.name)}</div>
+      <div class="modal-sub">${r.time<60?r.time+' min':Math.round(r.time/60)+' hrs'} · ${r.cal} kcal · ${r.type}</div>
+    </div></div>
+    <p style="font-size:13px;color:var(--text2);line-height:1.6;">${esc(r.desc)}</p>
+    ${r.allergens.length?`<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">${r.allergens.map(a=>`<span class="tag" style="background:var(--red-bg);color:var(--red);font-size:12px;padding:3px 9px;">Contains ${a}</span>`).join('')}</div>`:`<div style="margin-top:10px;"><span class="tag" style="background:var(--green-bg);color:var(--green);font-size:12px;padding:3px 9px;">Free from major allergens</span></div>`}
+    <div class="modal-nutr">${[['Calories',r.cal,'kcal'],['Carbs',r.carbs,'g'],['Protein',r.protein,'g'],['Fat',r.fat,'g']].map(([l,v,u])=>`<div class="modal-nutr-card"><div class="nutr-val">${v}</div><div class="nutr-lbl">${l} ${u}</div></div>`).join('')}</div>
+    <div class="modal-section"><div class="modal-section-title">Ingredients</div>
+      <ul class="ingredient-list">${r.ingredients.map(i=>`<li>${esc(i.name)}<span>${esc(i.qty)}</span></li>`).join('')}</ul>
+    </div>
+    <div class="modal-section"><div class="modal-section-title">Method</div>
+      <ol class="step-list">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+    </div>
+    ${ST.apiKey?`<button class="btn btn-purple" style="width:100%;margin-top:12px;" onclick="document.getElementById('modal-overlay').style.display='none';gotoPage('ai');setTimeout(()=>sendAI('Tell me more about ${esc(r.name).replace(/'/g,"\\'")} — can I adapt it for my ${ST.age}? Any tips or variations?'),200)">✨ Ask Claude about this recipe</button>`:''}
+    <button class="modal-add-btn${added?' added':''}" id="modal-add-btn" onclick="toggleRecipe(${id});const b=document.getElementById('modal-add-btn');b.className='modal-add-btn'+(ST.selectedRecipes.includes(${id})?' added':'');b.textContent=ST.selectedRecipes.includes(${id})?'✓ Added to list':'+ Add to shopping list';">
+      ${added?'✓ Added to list':'+ Add to shopping list'}
+    </button>`;
+  document.getElementById('modal-overlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';}});
+
+// ── Router ────────────────────────────────────────────────────
+function gotoPage(page){
+  ST.page=page;
+  ['discover','ai','week','shopping','nutrition','prefs','apikey'].forEach(id=>{
+    const el=document.getElementById('nav-'+id);if(el)el.className='nav-item'+(id===page?' active':'');
+  });
+  save();renderPage();window.scrollTo(0,0);
+}
+
+function renderPage(){
+  const el=document.getElementById('main-content');
+  if(ST.page==='discover')el.innerHTML=renderDiscoverPage();
+  else if(ST.page==='ai')el.innerHTML=renderAIPage();
+  else if(ST.page==='week')el.innerHTML=renderWeekPage();
+  else if(ST.page==='shopping')el.innerHTML=renderShoppingPage();
+  else if(ST.page==='nutrition')el.innerHTML=renderNutritionPage();
+  else if(ST.page==='prefs')el.innerHTML=renderPrefsPage();
+  else if(ST.page==='apikey')el.innerHTML=renderApiKeyPage();
+  updateBadge();updateAIStatus();
+}
+
+setAge(ST.age);
+gotoPage(ST.page||'discover');
+
+// ── PWA: Inline Manifest ──────────────────────────────────────
+// We build the manifest as a Blob URL so it works for both
+// local file:// usage and hosted https:// usage.
+(function injectManifest() {
+  const icon512 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cmVjdCB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgcng9IjExNCIgZmlsbD0iIzBGNkU1NiIvPjx0ZXh0IHg9IjI1NiIgeT0iMzEwIiBmb250LWZhbWlseT0ic3lzdGVtLXVpLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSI+8J+NvDwvdGV4dD48cmVjdCB4PSI2MCIgeT0iMzc2IiB3aWR0aD0iMzkyIiBoZWlnaHQ9IjUyIiByeD0iMjYiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4xOCkiLz48dGV4dCB4PSIyNTYiIHk9IjQxNCIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjMwIiBmb250LXdlaWdodD0iNzAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSIgbGV0dGVyLXNwYWNpbmc9IjMiPlRJTlkgQklURVM8L3RleHQ+PC9zdmc+';
+  const icon192 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj48cmVjdCB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgcng9IjQyIiBmaWxsPSIjMEY2RTU2Ii8+PHRleHQgeD0iOTYiIHk9IjExNiIgZm9udC1mYW1pbHk9InN5c3RlbS11aSxzYW5zLXNlcmlmIiBmb250LXNpemU9Ijk2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSJ3aGl0ZSI+8J+NvDwvdGV4dD48dGV4dCB4PSI5NiIgeT0iMTU4IiBmb250LWZhbWlseT0ic3lzdGVtLXVpLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTkiIGZvbnQtd2VpZ2h0PSI3MDAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC44NSkiIGxldHRlci1zcGFjaW5nPSIxIj5USU5ZIEJJVEVTPC90ZXh0Pjwvc3ZnPg==';
+
+  const manifest = {
+    name: 'Tiny Bites — AI Meal Planner',
+    short_name: 'Tiny Bites',
+    description: 'AI-powered baby & toddler meal planner with Claude',
+    start_url: '.',
+    display: 'standalone',
+    orientation: 'portrait-primary',
+    background_color: '#f6f5f1',
+    theme_color: '#0F6E56',
+    categories: ['food', 'health', 'lifestyle'],
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+    ],
+    screenshots: [],
+    shortcuts: [
+      { name: 'Discover recipes', short_name: 'Discover', description: 'Browse all recipes', url: '.', icons: [{ src: icon192, sizes: '192x192' }] },
+      { name: 'Shopping list', short_name: 'Shopping', description: 'View your shopping list', url: '.', icons: [{ src: icon192, sizes: '192x192' }] },
+    ],
+  };
+
+  try {
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = url;
+    document.head.appendChild(link);
+  } catch(e) {
+    // Silently fail for file:// if Blob URLs blocked
+  }
+})();
+
+// ── PWA: Service Worker (inline via Blob) ─────────────────────
+// The SW caches the app shell so it works fully offline.
+(function registerSW() {
+  if (!('serviceWorker' in navigator)) return;
+
+  const CACHE = 'tiny-bites-v1';
+
+  // Service worker source as a string — runs in its own scope
+  const swCode = `
+const CACHE_NAME = '${CACHE}';
+const OFFLINE_URL = 'offline';
+
+// On install: cache nothing extra (the app is self-contained in the HTML)
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+});
+
+// On activate: clean old caches
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+// On fetch: cache-first strategy for the app HTML itself
+self.addEventListener('fetch', (e) => {
+  // Skip non-GET and non-http(s) requests
+  if (e.request.method !== 'GET') return;
+  if (!e.request.url.startsWith('http')) return;
+
+  // For Anthropic API calls — always go network, never cache
+  if (e.request.url.includes('anthropic.com')) {
+    return; // let browser handle normally
+  }
+
+  e.respondWith(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      const cached = await cache.match(e.request);
+      if (cached) return cached;
+
+      try {
+        const response = await fetch(e.request);
+        // Cache successful same-origin or CDN responses
+        if (response.ok && (response.type === 'basic' || response.type === 'cors')) {
+          cache.put(e.request, response.clone());
+        }
+        return response;
+      } catch (err) {
+        // Offline fallback: return cached version if available
+        const fallback = await cache.match(e.request);
+        if (fallback) return fallback;
+        // For navigation requests return a simple offline page
+        if (e.request.mode === 'navigate') {
+          return new Response('<html><body style="font-family:system-ui;text-align:center;padding:4rem"><h2>🍼 Tiny Bites</h2><p>You are offline. Open the app when connected.</p></body></html>', { headers: { 'Content-Type': 'text/html' } });
+        }
+      }
+    })
+  );
+});
+
+// Listen for skipWaiting message from the update banner
+self.addEventListener('message', (e) => {
+  if (e.data === 'skipWaiting') self.skipWaiting();
+});
+`;
+
+  try {
+    const blob = new Blob([swCode], { type: 'application/javascript' });
+    const swUrl = URL.createObjectURL(blob);
+
+    navigator.serviceWorker.register(swUrl, { scope: './' })
+      .then(reg => {
+        console.log('[TinyBites] Service worker registered:', reg.scope);
+
+        // Listen for updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateBanner();
+            }
+          });
+        });
+      })
+      .catch(err => console.log('[TinyBites] SW registration failed (normal for file://):', err));
+
+    // Cache the page itself on first load (for offline use)
+    window.addEventListener('load', () => {
+      if (navigator.serviceWorker.controller) {
+        caches.open(CACHE).then(cache => cache.add(window.location.href)).catch(()=>{});
+      }
+    });
+
+  } catch(e) {
+    // Blob URL SW not supported in this context (file://) — silently continue
+  }
+})();
+
+// ── PWA: Install Prompt (Android Chrome) ─────────────────────
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showInstallBanner();
+});
+
+window.addEventListener('appinstalled', () => {
+  hideInstallBanner();
+  deferredInstallPrompt = null;
+  toast('Tiny Bites installed! Find it on your home screen 🎉');
+});
+
+function showInstallBanner() {
+  if (document.getElementById('install-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.style.cssText = `
+    position:fixed;bottom:0;left:0;right:0;z-index:9999;
+    background:#0F6E56;color:white;
+    padding:12px 16px 12px;
+    display:flex;align-items:center;gap:12px;
+    font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    font-size:14px;box-shadow:0 -2px 16px rgba(0,0,0,0.2);
+    padding-bottom:max(12px, env(safe-area-inset-bottom));
+  `;
+  banner.innerHTML = `
+    <div style="font-size:24px;line-height:1;">🍼</div>
+    <div style="flex:1;">
+      <div style="font-weight:600;font-size:14px;">Install Tiny Bites</div>
+      <div style="font-size:12px;opacity:.85;">Add to your home screen for the best experience</div>
+    </div>
+    <button onclick="installApp()" style="background:white;color:#0F6E56;border:none;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">Install</button>
+    <button onclick="hideInstallBanner()" style="background:rgba(255,255,255,0.15);color:white;border:none;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;line-height:1;">×</button>
+  `;
+  document.body.appendChild(banner);
+
+  // Shift main content up so banner doesn't obscure it
+  document.querySelector('.shell').style.paddingBottom = '72px';
+}
+
+function hideInstallBanner() {
+  const b = document.getElementById('install-banner');
+  if (b) b.remove();
+  const shell = document.querySelector('.shell');
+  if (shell) shell.style.paddingBottom = '';
+}
+
+async function installApp() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  if (outcome === 'accepted') {
+    toast('Installing Tiny Bites…');
+  }
+  deferredInstallPrompt = null;
+  hideInstallBanner();
+}
+
+// ── PWA: Update available banner ─────────────────────────────
+function showUpdateBanner() {
+  if (document.getElementById('update-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'update-banner';
+  banner.style.cssText = `
+    position:fixed;top:0;left:0;right:0;z-index:9999;
+    background:#3C3489;color:white;
+    padding:10px 16px;display:flex;align-items:center;gap:10px;
+    font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;font-size:13px;
+  `;
+  banner.innerHTML = `
+    <div style="flex:1;">✨ A new version of Tiny Bites is available</div>
+    <button onclick="applyUpdate()" style="background:white;color:#3C3489;border:none;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">Update now</button>
+    <button onclick="this.parentElement.remove()" style="background:none;border:none;color:white;font-size:16px;cursor:pointer;padding:0 4px;">×</button>
+  `;
+  document.body.appendChild(banner);
+}
+
+function applyUpdate() {
+  if (navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage('skipWaiting');
+  }
+  window.location.reload();
+}
+
+// ── PWA: iOS install instructions ─────────────────────────────
+// Show a one-time tip for iOS Safari users who haven't installed yet
+(function showIOSTip() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isInStandalone = window.navigator.standalone;
+  const tipShown = localStorage.getItem('tb_ios_tip');
+  if (!isIOS || isInStandalone || tipShown) return;
+
+  setTimeout(() => {
+    const tip = document.createElement('div');
+    tip.id = 'ios-tip';
+    tip.style.cssText = `
+      position:fixed;bottom:0;left:0;right:0;z-index:9999;
+      background:#1c1c1e;color:white;border-radius:16px 16px 0 0;
+      padding:20px 20px max(20px,env(safe-area-inset-bottom));
+      font-family:-apple-system,system-ui,sans-serif;
+      box-shadow:0 -4px 24px rgba(0,0,0,0.3);
+    `;
+    tip.innerHTML = `
+      <div style="width:36px;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;margin:0 auto 16px;"></div>
+      <div style="font-size:17px;font-weight:600;margin-bottom:6px;">🍼 Install Tiny Bites</div>
+      <div style="font-size:14px;opacity:.8;line-height:1.5;margin-bottom:16px;">Add this app to your home screen for the full experience — works offline too!</div>
+      <div style="background:rgba(255,255,255,0.08);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;">
+        <div>1. Tap the <strong>Share button</strong> <span style="font-size:16px;">⬆️</span> at the bottom of Safari</div>
+        <div>2. Scroll down and tap <strong>"Add to Home Screen"</strong></div>
+        <div>3. Tap <strong>Add</strong> — done! 🎉</div>
+      </div>
+      <button onclick="document.getElementById('ios-tip').remove();localStorage.setItem('tb_ios_tip','1');" style="width:100%;margin-top:14px;padding:12px;background:#0F6E56;color:white;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;">Got it</button>
+    `;
+    document.body.appendChild(tip);
+    localStorage.setItem('tb_ios_tip', '1');
+  }, 3000); // Show after 3s so the app loads first
+})();
+</script>
+</body>
+</html>
