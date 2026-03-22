@@ -410,6 +410,135 @@ body{min-height:100vh;min-height:100dvh;}
   .main{padding-bottom:max(1.5rem,env(safe-area-inset-bottom));}
 }
 
+/* ── BABY COLOR THEMES ─────────────────────────────────────────── */
+
+/* Theme Color Transitions */
+*{transition:color 0.2s ease,background-color 0.2s ease,border-color 0.2s ease;}
+
+/* Baby Blue Theme (Default) */
+:root[data-theme="baby-blue"],
+:root {
+  --primary: #0D7A69;
+  --primary-bg: #C5E9E5;
+  --primary-mid: #5B9C96;
+  --teal: #0D7A69;
+  --teal-bg: #C5E9E5;
+  --teal-mid: #5B9C96;
+}
+
+/* Baby Pink Theme */
+:root[data-theme="baby-pink"] {
+  --primary: #D97A94;
+  --primary-bg: #FDE8EE;
+  --primary-mid: #E8B4C8;
+  --teal: #D97A94;
+  --teal-bg: #FDE8EE;
+  --teal-mid: #E8B4C8;
+}
+
+/* Baby Orange Theme */
+:root[data-theme="baby-orange"] {
+  --primary: #E8995A;
+  --primary-bg: #FFF0E6;
+  --primary-mid: #F0B88A;
+  --teal: #E8995A;
+  --teal-bg: #FFF0E6;
+  --teal-mid: #F0B88A;
+}
+
+/* Baby Green Theme */
+:root[data-theme="baby-green"] {
+  --primary: #5FBD9A;
+  --primary-bg: #E8F6F1;
+  --primary-mid: #8FD4B4;
+  --teal: #5FBD9A;
+  --teal-bg: #E8F6F1;
+  --teal-mid: #8FD4B4;
+}
+
+/* Baby Purple Theme */
+:root[data-theme="baby-purple"] {
+  --primary: #B89FD9;
+  --primary-bg: #F3EFFE;
+  --primary-mid: #D4BFED;
+  --teal: #B89FD9;
+  --teal-bg: #F3EFFE;
+  --teal-mid: #D4BFED;
+}
+
+/* Baby Yellow Theme */
+:root[data-theme="baby-yellow"] {
+  --primary: #E8C85A;
+  --primary-bg: #FFFDE8;
+  --primary-mid: #F0D98A;
+  --teal: #E8C85A;
+  --teal-bg: #FFFDE8;
+  --teal-mid: #F0D98A;
+}
+
+/* Dark Mode Variants */
+@media(prefers-color-scheme:dark) {
+  :root[data-theme="baby-blue"],
+  :root {
+    --primary: #6FD4C4;
+    --primary-bg: #0D4D46;
+    --primary-mid: #4AA098;
+    --teal: #6FD4C4;
+    --teal-bg: #0D4D46;
+    --teal-mid: #4AA098;
+  }
+  :root[data-theme="baby-pink"] {
+    --primary: #FF9DB5;
+    --primary-bg: #5C2D3E;
+    --primary-mid: #E8B4C8;
+    --teal: #FF9DB5;
+    --teal-bg: #5C2D3E;
+    --teal-mid: #E8B4C8;
+  }
+  :root[data-theme="baby-orange"] {
+    --primary: #FFB88A;
+    --primary-bg: #5C3820;
+    --primary-mid: #F0B88A;
+    --teal: #FFB88A;
+    --teal-bg: #5C3820;
+    --teal-mid: #F0B88A;
+  }
+  :root[data-theme="baby-green"] {
+    --primary: #8FD4B4;
+    --primary-bg: #1F4D3E;
+    --primary-mid: #5FBD9A;
+    --teal: #8FD4B4;
+    --teal-bg: #1F4D3E;
+    --teal-mid: #5FBD9A;
+  }
+  :root[data-theme="baby-purple"] {
+    --primary: #E0CCFF;
+    --primary-bg: #4A3A6F;
+    --primary-mid: #D4BFED;
+    --teal: #E0CCFF;
+    --teal-bg: #4A3A6F;
+    --teal-mid: #D4BFED;
+  }
+  :root[data-theme="baby-yellow"] {
+    --primary: #FFE88A;
+    --primary-bg: #5C4A1A;
+    --primary-mid: #F0D98A;
+    --teal: #FFE88A;
+    --teal-bg: #5C4A1A;
+    --teal-mid: #F0D98A;
+  }
+}
+
+/* Theme Selector UI */
+.theme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-top:12px;}
+.theme-swatch{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;padding:12px;border-radius:var(--rl);border:2px solid transparent;transition:all 0.2s;text-align:center;position:relative;background:var(--bg);}
+.theme-swatch:hover{transform:translateY(-4px);box-shadow:0 8px 16px rgba(0,0,0,0.1);}
+.theme-swatch:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+.theme-swatch.active{border-color:var(--primary);background:var(--primary-bg);}
+.theme-circle{width:80px;height:80px;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.theme-label{font-size:13px;font-weight:500;color:var(--text);}
+.theme-check{position:absolute;top:4px;right:4px;width:24px;height:24px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;}
+
 </style>
 </head>
 <body>
@@ -440,7 +569,7 @@ body{min-height:100vh;min-height:100dvh;}
     </div>
     <div class="nav-section-label">DISCOVER & PLAN</div>
     <div class="nav-item active" onclick="gotoPage('home')" id="nav-home">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="0.8" fill="none"/></svg>
       Home
     </div>
     <div class="nav-item" onclick="gotoPage('favorites')" id="nav-favorites">
@@ -495,7 +624,7 @@ body{min-height:100vh;min-height:100dvh;}
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ST = {
-  age:'baby', page:'home', search:'',
+  age:'baby', page:'home', search:'', theme:'baby-blue',
   avoidAllergens:[], activeTypes:[],
   selectedRecipes:[], shopChecked:[], shopRemoved:[],
   favorites:[],
@@ -711,6 +840,11 @@ function closeDrawer(){
   hamburger.classList.remove('open');
   document.body.style.overflow='';
 }
+
+// ── Theme System ──────────────────────────────────────────────
+function getAvailableThemes(){return['baby-blue','baby-pink','baby-orange','baby-green','baby-purple','baby-yellow'];}
+function getThemeColor(t,v){const c={'baby-blue':{primary:'#0D7A69'},'baby-pink':{primary:'#D97A94'},'baby-orange':{primary:'#E8995A'},'baby-green':{primary:'#5FBD9A'},'baby-purple':{primary:'#B89FD9'},'baby-yellow':{primary:'#E8C85A'}};return(c[t]||c['baby-blue'])[v]||'#999';}
+function applyTheme(t){document.documentElement.setAttribute('data-theme',t);const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',getThemeColor(t,'primary'));ST.theme=t;save();renderPage();}
 
 // ── Claude API ────────────────────────────────────────────────
 async function callClaude(messages, onChunk){
@@ -1088,8 +1222,14 @@ function renderNutritionPage(){
 
 function renderPrefsPage(){
   const p=ST.prefs;const ctx=prefsCtx();
+  const themes=getAvailableThemes();
+  const themeLabels={'baby-blue':'Baby Blue','baby-pink':'Baby Pink','baby-orange':'Baby Orange','baby-green':'Baby Green','baby-purple':'Baby Purple','baby-yellow':'Baby Yellow'};
   return`<div class="page-header"><div class="page-title">Preferences</div><div class="page-sub">Used by Claude AI across the app</div></div>
   <div class="pref-grid">
+    <div class="pref-card pref-card-full">
+      <div class="pref-card-title">Theme</div><div class="pref-card-sub">Choose your preferred color palette</div>
+      <div class="theme-grid">${themes.map(t=>`<div class="theme-swatch${ST.theme===t?' active':''}" onclick="applyTheme('${t}')" tabindex="0"><div class="theme-circle" style="background-color:${getThemeColor(t,'primary')}"></div><div class="theme-label">${themeLabels[t]}</div>${ST.theme===t?'<div class="theme-check">✓</div>':''}</div>`).join('')}</div>
+    </div>
     <div class="pref-card">
       <div class="pref-card-title">Favourite foods</div><div class="pref-card-sub">Claude will suggest these more often</div>
       <div class="chips-wrap">${p.favFoods.map((f,i)=>`<span class="pref-chip pref-chip-fav">${esc(f)}<button onclick="removePref('favFoods',${i})">×</button></span>`).join('')}</div>
@@ -1220,6 +1360,7 @@ function renderPage(){
 }
 
 setAge(ST.age);
+applyTheme(ST.theme||'baby-blue');
 gotoPage(ST.page||'home');
 
 // Mobile navigation event listeners
