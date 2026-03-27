@@ -1208,7 +1208,7 @@ function renderHomePage(){
   </div>
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <input class="search-input" type="text" placeholder="Search recipes, ingredients, meal type…" value="${esc(ST.search)}" oninput="ST.search=this.value;save();renderPage()" id="search-inp"/>
+    <input class="search-input" type="text" placeholder="Search recipes, ingredients, meal type…" value="${esc(ST.search)}" oninput="ST.search=this.value;save();clearTimeout(window._searchT);window._searchT=setTimeout(renderPage,220);" id="search-inp"/>
     ${ST.search?`<button class="search-clear" onclick="ST.search='';save();renderPage()">×</button>`:''}
   </div>
   <div class="filter-row">
