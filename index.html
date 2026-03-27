@@ -1806,6 +1806,10 @@ function gotoPage(page){
 
 function renderPage(){
   const el=document.getElementById('main-content');
+  // Preserve search input focus & cursor before re-render
+  const searchEl=document.getElementById('search-inp');
+  const hadFocus=searchEl&&document.activeElement===searchEl;
+  const cursorPos=hadFocus?searchEl.selectionStart:null;
   if(ST.page==='home')el.innerHTML=renderHomePage();
   else if(ST.page==='favorites')el.innerHTML=renderFavoritesPage();
   else if(ST.page==='ai')el.innerHTML=renderAIPage();
@@ -1814,6 +1818,8 @@ function renderPage(){
   else if(ST.page==='nutrition')el.innerHTML=renderNutritionPage();
   else if(ST.page==='prefs')el.innerHTML=renderPrefsPage();
   else if(ST.page==='apikey')el.innerHTML=renderApiKeyPage();
+  // Restore focus & cursor to search input after re-render
+  if(hadFocus){const s=document.getElementById('search-inp');if(s){s.focus();try{s.setSelectionRange(cursorPos,cursorPos);}catch(e){}}}
   updateBadge();updateFavoriteBadge();updateAIStatus();
 }
 
