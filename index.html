@@ -196,6 +196,23 @@ body{min-height:100vh;min-height:100dvh;}
 .nutr-lbl{font-size:10px;color:var(--text3);}
 .no-results{text-align:center;padding:3rem 1rem;color:var(--text2);}
 
+/* Recipe Tabs */
+.recipe-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
+.recipe-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.recipe-tab:hover{border-color:var(--primary);color:var(--primary);}
+.recipe-tab.active{background:var(--primary);color:white;border-color:var(--primary);}
+.add-recipe-tab{background:var(--teal-bg,#e1f5ee);color:var(--teal,#085041);border-color:transparent;}
+.add-recipe-tab:hover{background:var(--primary);color:white;}
+/* User Recipe Card */
+.user-recipe{border:1.5px solid var(--primary);position:relative;}
+.user-recipe-badge{position:absolute;top:8px;right:8px;background:var(--primary);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.03em;}
+/* Preferences select */
+.pref-select{width:100%;padding:9px 12px;border:1px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);font-size:14px;outline:none;cursor:pointer;}
+/* Drag & Drop */
+.week-cell.drag-over{outline:2px dashed var(--primary);outline-offset:-2px;background:var(--primary-bg,#e1f5ee) !important;}
+.week-cell.draggable-cell{cursor:grab;}
+.week-cell.draggable-cell:active{cursor:grabbing;}
+
 /* Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:center;justify-content:center;}
 .modal{background:var(--bg);border-radius:var(--rxl);width:calc(100% - 2rem);max-width:480px;max-height:90vh;overflow-y:auto;padding:1.5rem;}
@@ -629,10 +646,13 @@ let ST = {
   selectedRecipes:[], shopChecked:[], shopRemoved:[],
   favorites:[],
   customMealPlan:{days:{}}, mealPlanHistory:[], unsavedMealChanges:false,
-  prefs:{favFoods:[], dislikedFoods:[], favMealTypes:[], notes:''},
+  prefs:{favFoods:[], dislikedFoods:[], favMealTypes:[], notes:'', regenerateDay:'', lastRegenDate:0},
   apiKey:'', aiMessages:[], aiSuggestedIds:[],
+  userRecipes:[], recipeTab:'all',
 };
 (()=>{try{const s=localStorage.getItem('tb_v3');if(s)Object.assign(ST,JSON.parse(s));}catch(e){}})();
+function getAllRecipes(){return[...RECIPES,...(ST.userRecipes||[])];}
+function nextUserRecipeId(){return 10000+(ST.userRecipes||[]).length+1;}
 const save=()=>{try{localStorage.setItem('tb_v3',JSON.stringify(ST));}catch(e){}};
 
 // ── Recipe DB (55 recipes) ──────────────────────────────────────
@@ -820,7 +840,7 @@ function initMealPlan(){
 function saveMealToPlan(day,slot,recipeId){
   initMealPlan();
   saveMealPlanHistory();
-  const recipe=RECIPES.find(r=>r.id===recipeId);
+  const recipe=getAllRecipes().find(r=>r.id===recipeId);
   const slotLower=slot.toLowerCase();
   ST.customMealPlan.days[day][slotLower]={id:recipeId,name:recipe?.name||'Unknown'};
   ST.customMealPlan.isCustom=true;
@@ -842,7 +862,7 @@ function getMealFromPlan(day,slot){
   initMealPlan();
   const slotLower=slot.toLowerCase();
   const meal=ST.customMealPlan.days[day]?.[slotLower];
-  if(meal){return RECIPES.find(r=>r.id===meal.id);}
+  if(meal){return getAllRecipes().find(r=>r.id===meal.id);}
   return null;
 }
 function saveMealPlanHistory(){
@@ -955,7 +975,9 @@ async function callClaude(messages, onChunk){
 
 // ── Pages ─────────────────────────────────────────────────────
 function filtered(){
-  return RECIPES.filter(r=>{
+  const tab=ST.recipeTab||'all';
+  const base=tab==='app'?RECIPES:tab==='added'?(ST.userRecipes||[]):getAllRecipes();
+  return base.filter(r=>{
     if(r.age!==ST.age)return false;
     if(ST.avoidAllergens.length&&ST.avoidAllergens.some(a=>r.allergens.includes(a)))return false;
     if(ST.activeTypes.length&&!ST.activeTypes.includes(r.type))return false;
@@ -1109,9 +1131,18 @@ function highlightAISuggestions(text){
 function renderHomePage(){
   const recipes=filtered();
   const aiSuggested=ST.aiSuggestedIds.filter(id=>recipes.some(r=>r.id===id));
+  const userCount=(ST.userRecipes||[]).filter(r=>r.age===ST.age).length;
+  const appCount=RECIPES.filter(r=>r.age===ST.age).length;
+  const tab=ST.recipeTab||'all';
   return`<div class="page-header">
     <div class="page-title">Discover recipes</div>
-    <div class="page-sub">${RECIPES.filter(r=>r.age===ST.age).length} recipes for ${ST.age==='baby'?'babies (6–12m)':'toddlers (1–3y)'}</div>
+    <div class="page-sub">${appCount+userCount} recipes for ${ST.age==='baby'?'babies (6–12m)':'toddlers (1–3y)'}</div>
+  </div>
+  <div class="recipe-tabs">
+    <button class="recipe-tab${tab==='all'?' active':''}" onclick="ST.recipeTab='all';save();renderPage()">All (${appCount+userCount})</button>
+    <button class="recipe-tab${tab==='app'?' active':''}" onclick="ST.recipeTab='app';save();renderPage()">App (${appCount})</button>
+    <button class="recipe-tab${tab==='added'?' active':''}" onclick="ST.recipeTab='added';save();renderPage()">My recipes (${userCount})</button>
+    <button class="recipe-tab add-recipe-tab" onclick="openAddRecipeModal()">+ Add recipe</button>
   </div>
   <div class="search-wrap">
     <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -1139,7 +1170,9 @@ function renderHomePage(){
 function renderCard(r,aiHighlight){
   const added=ST.selectedRecipes.includes(r.id);
   const fav=isFavorited(r.id);
-  return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}" onclick="openRecipe(${r.id})">
+  const isUser=!!r.isUserRecipe;
+  return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}${isUser?' user-recipe':''}" onclick="openRecipe(${r.id})">
+    ${isUser?`<div class="user-recipe-badge">My recipe</div>`:''}
     <div class="recipe-emoji">${r.emoji}</div>
     <div class="recipe-card-top">
       <div><div class="recipe-card-name">${esc(r.name)}</div><div class="recipe-card-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal} kcal</div></div>
@@ -1150,6 +1183,7 @@ function renderCard(r,aiHighlight){
         <button class="add-btn${added?' added':''}" onclick="event.stopPropagation();toggleRecipe(${r.id})">
           ${added?`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`+`}
         </button>
+        ${isUser?`<button class="add-btn" onclick="event.stopPropagation();deleteUserRecipe(${r.id})" title="Delete recipe" style="background:transparent;border:1px solid #ccc;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:14px;color:#e53935;">🗑</button>`:''}
       </div>
     </div>
     <div class="recipe-desc">${r.desc.slice(0,80)}${r.desc.length>80?'…':''}</div>
@@ -1178,7 +1212,8 @@ function renderWeekPage(){
   initMealPlan();
   const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const slots=['Breakfast','Lunch','Dinner','Snack'];
-  const recipes=RECIPES.filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
+  checkAutoRegenerate();
+  const recipes=getAllRecipes().filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
   const byType={};
   slots.forEach(s=>{
     const m=recipes.filter(r=>{
@@ -1218,7 +1253,7 @@ function renderWeekPage(){
       <thead><tr><th></th>${days.map(d=>`<th class="week-th">${d}</th>`).join('')}</tr></thead>
       <tbody>${slots.map((slot,si)=>`<tr>
         <td class="week-label" style="color:${tc[slot]};">${slot}</td>
-        ${days.map((d,di)=>{const r=getMeal(d,slot);return`<td><div class="week-cell" style="background:${colors[slot]};color:${tc[slot]};position:relative;cursor:pointer;padding-right:60px;${r?'':'opacity:0.5;'}" ${r?`onclick="openRecipe(${r.id})"`:''}><div>${r?`${r.emoji} ${r.name}`:'<span style="color:var(--text3);">No meal</span>'}</div><div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:4px;">${r?`<button onclick="event.stopPropagation();openMealSelector('${d}','${slot}')" title="Edit meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">✎</button><button onclick="event.stopPropagation();openDeleteMealConfirm('${d}','${slot}','${esc(r.name)}')" title="Delete meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">×</button>`:`<button onclick="event.stopPropagation();openMealSelector('${d}','${slot}')" title="Add meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">+</button>`}</div></div></td>`;}).join('')}
+        ${days.map((d,di)=>{const r=getMeal(d,slot);return`<td><div class="week-cell${r?' draggable-cell':''}" data-day="${d}" data-slot="${slot}" style="background:${colors[slot]};color:${tc[slot]};position:relative;cursor:pointer;padding-right:60px;${r?'':'opacity:0.5;'}" draggable="${r?'true':'false'}" ondragstart="weekDragStart(event,'${d}','${slot}')" ondragover="weekDragOver(event)" ondrop="weekDrop(event,'${d}','${slot}')" ondragleave="this.classList.remove('drag-over')" ontouchstart="weekTouchStart(event,'${d}','${slot}')" ${r?`onclick="openRecipe(${r.id})"`:''}><div>${r?`${r.emoji} ${r.name}`:'<span style="color:var(--text3);">No meal</span>'}</div><div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:4px;">${r?`<button onclick="event.stopPropagation();openMealSelector('${d}','${slot}')" title="Edit meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">✎</button><button onclick="event.stopPropagation();openDeleteMealConfirm('${d}','${slot}','${esc(r.name)}')" title="Delete meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">×</button>`:`<button onclick="event.stopPropagation();openMealSelector('${d}','${slot}')" title="Add meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">+</button>`}</div></div></td>`;}).join('')}
       </tr>`).join('')}</tbody>
     </table>
   </div>
@@ -1323,6 +1358,13 @@ function renderPrefsPage(){
       <div class="pref-card-title">Preferred meal types</div><div class="pref-card-sub">Claude will prioritise these in suggestions</div>
       <div class="meal-type-grid">${MEAL_TYPES.map(t=>`<span class="mt-pill${p.favMealTypes.includes(t)?' active':''}" onclick="togglePrefType('${t}')">${p.favMealTypes.includes(t)?'✓ ':''}${t}</span>`).join('')}</div>
     </div>
+    <div class="pref-card">
+      <div class="pref-card-title">Auto-regenerate weekly menu</div><div class="pref-card-sub">Automatically generate a fresh meal plan on a chosen day each week</div>
+      <select class="pref-select" onchange="ST.prefs.regenerateDay=this.value;save();toast(this.value?'Will auto-regenerate on '+this.value+'s':'Auto-regenerate disabled')">
+        <option value="" ${!p.regenerateDay?'selected':''}>Off — manual only</option>
+        ${['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d=>`<option value="${d}" ${p.regenerateDay===d?'selected':''}>${d}</option>`).join('')}
+      </select>
+    </div>
     <div class="pref-card pref-card-full">
       <div class="pref-card-title">Additional notes</div><div class="pref-card-sub">Texture stage, feeding style, baby's age, anything for Claude to know</div>
       <textarea class="pref-textarea" placeholder="e.g. baby is 8 months, at lumpy texture stage, going through a food refusal phase…" onchange="ST.prefs.notes=this.value;save();">${esc(p.notes)}</textarea>
@@ -1391,7 +1433,7 @@ function exportIOS(){
 function copyList(){const text=`Tiny Bites Shopping List\n\n${buildListText()}`;navigator.clipboard.writeText(text).then(()=>toast('Copied!')).catch(()=>toast('Copy failed — try manually'));}
 
 function openRecipe(id){
-  const r=RECIPES.find(x=>x.id===id);if(!r)return;
+  const r=getAllRecipes().find(x=>x.id===id);if(!r)return;
   const added=ST.selectedRecipes.includes(id);
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-header"><div class="modal-emoji">${r.emoji}</div><div>
@@ -1416,7 +1458,7 @@ function openRecipe(id){
 }
 
 function openMealSelector(day,slot){
-  const recipes=RECIPES.filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
+  const recipes=getAllRecipes().filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
   const current=getMealFromPlan(day,slot);
   document.getElementById('modal-content').innerHTML=`
     <div class="modal-header">
@@ -1463,6 +1505,171 @@ function openDeleteMealConfirm(day,slot,mealName){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';}});
+
+// ── User Recipes ──────────────────────────────────────────────
+function openAddRecipeModal(){
+  const types=['Puree','Breakfast','Soup','Quick & easy','Finger food','Meat','Fish','Pasta','Vegetarian','Snack'];
+  document.getElementById('modal-content').innerHTML=`
+    <div class="modal-header"><div class="modal-title">Add your recipe</div></div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div><label style="font-size:12px;color:var(--text2);font-weight:600;">Recipe name *</label><input id="ur-name" class="pref-input" style="width:100%;margin-top:4px;" placeholder="e.g. Grandma's lentil soup" /></div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Emoji</label><input id="ur-emoji" class="pref-input" style="width:100%;margin-top:4px;" placeholder="🍲" maxlength="4" value="🍲"/></div>
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Type</label><select id="ur-type" class="pref-select" style="width:100%;margin-top:4px;">${types.map(t=>`<option>${t}</option>`).join('')}</select></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Time (mins)</label><input id="ur-time" class="pref-input" style="width:100%;margin-top:4px;" type="number" placeholder="20" min="1"/></div>
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Calories</label><input id="ur-cal" class="pref-input" style="width:100%;margin-top:4px;" type="number" placeholder="120" min="0"/></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Carbs (g)</label><input id="ur-carbs" class="pref-input" style="width:100%;margin-top:4px;" type="number" placeholder="0" min="0"/></div>
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Protein (g)</label><input id="ur-protein" class="pref-input" style="width:100%;margin-top:4px;" type="number" placeholder="0" min="0"/></div>
+        <div style="flex:1;"><label style="font-size:12px;color:var(--text2);font-weight:600;">Fat (g)</label><input id="ur-fat" class="pref-input" style="width:100%;margin-top:4px;" type="number" placeholder="0" min="0"/></div>
+      </div>
+      <div><label style="font-size:12px;color:var(--text2);font-weight:600;">Ingredients (one per line)</label><textarea id="ur-ingredients" class="pref-textarea" style="margin-top:4px;min-height:80px;" placeholder="1 cup lentils&#10;2 carrots, diced&#10;1 onion"></textarea></div>
+      <div><label style="font-size:12px;color:var(--text2);font-weight:600;">Steps (one per line)</label><textarea id="ur-steps" class="pref-textarea" style="margin-top:4px;min-height:80px;" placeholder="Wash and soak lentils&#10;Dice vegetables&#10;Cook on low heat 20 mins"></textarea></div>
+      <div><label style="font-size:12px;color:var(--text2);font-weight:600;">Description</label><input id="ur-desc" class="pref-input" style="width:100%;margin-top:4px;" placeholder="A nutritious homemade recipe…"/></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn" style="flex:1;" onclick="document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';">Cancel</button>
+        <button class="btn btn-teal" style="flex:1;" onclick="saveUserRecipe()">Save recipe</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-overlay').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function saveUserRecipe(){
+  const name=document.getElementById('ur-name').value.trim();
+  if(!name){toast('Please enter a recipe name');return;}
+  const recipe={
+    id:nextUserRecipeId(),
+    age:ST.age,
+    name,
+    emoji:document.getElementById('ur-emoji').value||'🍲',
+    type:document.getElementById('ur-type').value,
+    time:parseInt(document.getElementById('ur-time').value)||20,
+    cal:parseInt(document.getElementById('ur-cal').value)||0,
+    carbs:parseInt(document.getElementById('ur-carbs').value)||0,
+    protein:parseInt(document.getElementById('ur-protein').value)||0,
+    fat:parseInt(document.getElementById('ur-fat').value)||0,
+    allergens:[],
+    desc:document.getElementById('ur-desc').value||name,
+    ingredients:document.getElementById('ur-ingredients').value.split('\n').filter(Boolean).map(l=>({name:l,qty:''})),
+    steps:document.getElementById('ur-steps').value.split('\n').filter(Boolean),
+    isUserRecipe:true,
+  };
+  if(!ST.userRecipes)ST.userRecipes=[];
+  ST.userRecipes.push(recipe);
+  ST.recipeTab='added';
+  save();
+  document.getElementById('modal-overlay').style.display='none';
+  document.body.style.overflow='';
+  toast('Recipe saved!');
+  renderPage();
+}
+
+function deleteUserRecipe(id){
+  if(!confirm('Delete this recipe?'))return;
+  ST.userRecipes=(ST.userRecipes||[]).filter(r=>r.id!==id);
+  save();
+  renderPage();
+}
+
+// ── Auto-Regenerate ───────────────────────────────────────────
+function checkAutoRegenerate(){
+  const day=ST.prefs?.regenerateDay;
+  if(!day)return;
+  const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const todayName=days[new Date().getDay()];
+  if(todayName!==day)return;
+  const todayDate=new Date();todayDate.setHours(0,0,0,0);
+  const todayMs=todayDate.getTime();
+  if((ST.prefs.lastRegenDate||0)>=todayMs)return;
+  resetMealPlan();
+  ST.prefs.lastRegenDate=todayMs;
+  save();
+  toast('Weekly menu auto-regenerated for '+day+'!');
+}
+
+// ── Drag & Drop (week cells) ──────────────────────────────────
+let _dragSrc=null;
+function weekDragStart(e,day,slot){
+  _dragSrc={day,slot};
+  e.dataTransfer.effectAllowed='move';
+  e.currentTarget.style.opacity='0.5';
+}
+function weekDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  e.currentTarget.classList.add('drag-over');
+}
+function weekDrop(e,day,slot){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if(!_dragSrc||(_dragSrc.day===day&&_dragSrc.slot===slot))return;
+  initMealPlan();
+  saveMealPlanHistory();
+  const src=ST.customMealPlan.days[_dragSrc.day][_dragSrc.slot.toLowerCase()];
+  const dst=ST.customMealPlan.days[day][slot.toLowerCase()];
+  // Need to resolve auto-generated meals for drag if not custom yet
+  if(!ST.customMealPlan.isCustom){
+    const days2=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const slots2=['Breakfast','Lunch','Dinner','Snack'];
+    const recipes2=getAllRecipes().filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
+    const byType2={};
+    slots2.forEach(s=>{const m=recipes2.filter(r=>{if(s==='Breakfast')return r.type==='Breakfast';if(s==='Lunch')return['Soup','Quick & easy','Finger food','Puree'].includes(r.type);if(s==='Dinner')return['Meat','Fish','Pasta','Vegetarian','Puree'].includes(r.type);return['Snack','Puree','Finger food'].includes(r.type);});byType2[s]=m.length?m:recipes2;});
+    const wn=Math.floor(Date.now()/(7*24*60*60*1000));
+    const pick2=(arr,seed)=>arr[seed%arr.length];
+    days2.forEach(d=>{slots2.forEach(s=>{if(!ST.customMealPlan.days[d][s.toLowerCase()]){const r=pick2(byType2[s],wn+slots2.indexOf(s)*7+days2.indexOf(d)*13+slots2.indexOf(s)*3);if(r)ST.customMealPlan.days[d][s.toLowerCase()]={id:r.id,name:r.name};}});});
+  }
+  const srcVal=ST.customMealPlan.days[_dragSrc.day][_dragSrc.slot.toLowerCase()];
+  const dstVal=ST.customMealPlan.days[day][slot.toLowerCase()];
+  ST.customMealPlan.days[_dragSrc.day][_dragSrc.slot.toLowerCase()]=dstVal;
+  ST.customMealPlan.days[day][slot.toLowerCase()]=srcVal;
+  ST.customMealPlan.isCustom=true;
+  ST.unsavedMealChanges=true;
+  _dragSrc=null;
+  save();
+  renderPage();
+}
+// Touch drag support
+let _touchSrc=null,_touchEl=null,_touchClone=null;
+function weekTouchStart(e,day,slot){
+  const r=getMealFromPlan(day,slot);
+  if(!r&&!ST.customMealPlan.isCustom)return;
+  _touchSrc={day,slot};
+  _touchEl=e.currentTarget;
+  let moved=false;
+  const onMove=(ev)=>{
+    moved=true;
+    const t=ev.touches[0];
+    if(!_touchClone){
+      _touchClone=_touchEl.cloneNode(true);
+      _touchClone.style.cssText='position:fixed;opacity:0.8;pointer-events:none;z-index:9999;width:'+_touchEl.offsetWidth+'px;';
+      document.body.appendChild(_touchClone);
+    }
+    _touchClone.style.left=(t.clientX-_touchEl.offsetWidth/2)+'px';
+    _touchClone.style.top=(t.clientY-20)+'px';
+    const el=document.elementFromPoint(t.clientX,t.clientY);
+    document.querySelectorAll('.week-cell').forEach(c=>c.classList.remove('drag-over'));
+    if(el){const cell=el.closest('.week-cell');if(cell)cell.classList.add('drag-over');}
+  };
+  const onEnd=(ev)=>{
+    document.removeEventListener('touchmove',onMove);
+    document.removeEventListener('touchend',onEnd);
+    if(_touchClone){_touchClone.remove();_touchClone=null;}
+    document.querySelectorAll('.week-cell').forEach(c=>c.classList.remove('drag-over'));
+    if(moved&&ev.changedTouches[0]){
+      const t=ev.changedTouches[0];
+      const el=document.elementFromPoint(t.clientX,t.clientY);
+      if(el){const cell=el.closest('[data-day]');if(cell){const td=cell.dataset.day,ts=cell.dataset.slot;if(td&&ts)weekDrop({preventDefault:()=>{}},td,ts);}}
+    }
+    _touchSrc=null;
+  };
+  document.addEventListener('touchmove',onMove,{passive:false});
+  document.addEventListener('touchend',onEnd);
+}
 
 // ── Router ────────────────────────────────────────────────────
 function gotoPage(page){
