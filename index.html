@@ -23,6 +23,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 
 <!-- PWA: Manifest injected via JS below (works for local files + hosted) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -299,13 +301,72 @@ body{min-height:100vh;min-height:100dvh;}
 .tip-item{display:flex;gap:8px;font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
 .tip-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
 
-/* Week plan */
+/* Week plan — legacy table (kept for fallback) */
 .week-grid{overflow-x:auto;}
 .week-table{width:100%;border-collapse:separate;border-spacing:3px;min-width:560px;}
 .week-th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--text3);padding:6px 8px;text-align:center;}
 .week-label{font-size:11px;font-weight:600;padding:6px 8px;white-space:nowrap;}
 .week-cell{border-radius:6px;padding:6px 8px;font-size:11px;line-height:1.4;cursor:pointer;transition:opacity .12s;vertical-align:top;}
 .week-cell:hover{opacity:.8;}
+
+/* ── NEW Column Planner ────────────────────────────────────────── */
+.planner-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:6px;}
+.planner-grid{display:flex;gap:8px;min-width:720px;}
+.planner-col{flex:1;min-width:118px;}
+.planner-day-head{text-align:center;padding:6px 4px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);}
+.planner-day-head strong{display:block;font-size:13px;color:var(--text);letter-spacing:0;font-weight:600;margin-bottom:1px;}
+.planner-card{background:var(--bg);border-radius:10px;box-shadow:var(--shadow);padding:9px 9px 26px;margin-bottom:7px;position:relative;border-left:3px solid transparent;transition:transform .13s,box-shadow .13s;}
+.planner-card.draggable-cell{cursor:grab;}
+.planner-card.draggable-cell:active{cursor:grabbing;}
+.planner-card.draggable-cell:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.11);}
+.planner-card.draggable-cell:hover .planner-swap{opacity:1;}
+.planner-card.drag-over{outline:2px dashed var(--teal);outline-offset:-2px;background:var(--teal-bg) !important;}
+.planner-card.dragging{opacity:.35;}
+.planner-card.breakfast{border-left-color:#F6A228;}
+.planner-card.lunch{border-left-color:var(--teal);}
+.planner-card.dinner{border-left-color:#5B5BD6;}
+.planner-card.snack{border-left-color:#E84393;}
+.planner-card.snack-off{border-left-color:transparent;background:var(--bg2);box-shadow:none;cursor:pointer;opacity:.65;}
+.planner-slot-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;display:flex;align-items:center;gap:3px;}
+.planner-slot-label.breakfast{color:#854F0B;}
+.planner-slot-label.lunch{color:var(--teal);}
+.planner-slot-label.dinner{color:#3C3489;}
+.planner-slot-label.snack{color:#C2415A;}
+.planner-emoji{font-size:20px;margin-bottom:3px;line-height:1;}
+.planner-name{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:2px;}
+.planner-meta{font-size:10px;color:var(--text3);font-family:'DM Sans',sans-serif;}
+.planner-empty{font-size:11px;color:var(--text3);padding:10px 0 6px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.planner-empty:hover{color:var(--teal);}
+.planner-swap{position:absolute;bottom:5px;right:5px;background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:2px 7px;font-size:9px;color:var(--text2);cursor:pointer;opacity:0;transition:opacity .13s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.planner-swap:hover{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-mid);}
+.planner-actions{position:absolute;top:4px;right:4px;display:flex;gap:1px;}
+.planner-btn{background:transparent;border:none;padding:2px 5px;cursor:pointer;font-size:12px;color:var(--text3);opacity:0;transition:opacity .13s;border-radius:4px;}
+.planner-card:hover .planner-btn{opacity:.7;}
+.planner-btn:hover{opacity:1 !important;background:var(--bg2);}
+/* Ingredient tag input */
+.ing-tags-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:38px;padding:6px 10px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);cursor:text;}
+.ing-tag{display:flex;align-items:center;gap:3px;background:var(--teal-bg);border:1px solid var(--teal-mid);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--teal);font-family:'DM Sans',sans-serif;}
+.ing-tag button{background:none;border:none;cursor:pointer;color:var(--teal);font-size:12px;padding:0;opacity:.7;}
+.ing-tag-input{background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;min-width:120px;flex:1;padding:0;}
+.ing-match{background:rgba(246,162,40,.15);color:#854F0B;border:1px solid rgba(246,162,40,.3);font-weight:600;}
+/* Meal selector item */
+.meal-sel-item{display:flex;align-items:flex-start;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1px solid var(--border);background:var(--bg);margin-bottom:6px;transition:all .13s;}
+.meal-sel-item:hover{background:var(--bg2);border-color:var(--teal-mid);}
+.meal-sel-item.current{border-color:var(--teal);background:var(--teal-bg);}
+.meal-sel-emoji{font-size:26px;flex-shrink:0;margin-top:1px;}
+.meal-sel-info{flex:1;min-width:0;}
+.meal-sel-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.meal-sel-meta{font-size:11px;color:var(--text2);font-family:'DM Sans',sans-serif;margin-bottom:5px;}
+.meal-sel-ings{display:flex;flex-wrap:wrap;gap:3px;}
+.meal-sel-ing{font-size:10px;padding:1px 7px;border-radius:20px;background:var(--bg2);color:var(--text3);font-family:'DM Sans',sans-serif;}
+.meal-sel-ing.matched{background:rgba(246,162,40,.15);color:#854F0B;border:1px solid rgba(246,162,40,.25);font-weight:600;}
+@media(max-width:719px){
+  .planner-grid{min-width:560px;}
+  .planner-col{min-width:100px;}
+  .planner-card{padding:7px 7px 24px;}
+  .planner-name{font-size:10px;}
+  .planner-emoji{font-size:18px;}
+}
 
 /* Shared */
 .btn{font-size:13px;padding:8px 16px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;transition:all .12s;font-family:inherit;}
@@ -649,6 +710,7 @@ let ST = {
   prefs:{favFoods:[], dislikedFoods:[], favMealTypes:[], notes:'', regenerateDay:'', lastRegenDate:0},
   apiKey:'', aiMessages:[], aiSuggestedIds:[],
   userRecipes:[], recipeTab:'all',
+  tinyBiteDays:{Mon:true,Tue:true,Wed:true,Thu:true,Fri:true,Sat:true,Sun:true},
 };
 (()=>{try{const s=localStorage.getItem('tb_v3');if(s)Object.assign(ST,JSON.parse(s));}catch(e){}})();
 function getAllRecipes(){return[...RECIPES,...(ST.userRecipes||[])];}
@@ -1226,44 +1288,57 @@ function renderWeekPage(){
   });
   const wn=Math.floor(Date.now()/(7*24*60*60*1000));
   const pick=(arr,seed)=>arr[seed%arr.length];
-  const colors={Breakfast:'#E1F5EE',Lunch:'#FAEEDA',Dinner:'#EEEDFE',Snack:'#EAF3DE'};
-  const tc={Breakfast:'#085041',Lunch:'#633806',Dinner:'#3C3489',Snack:'#27500A'};
+  const slotIcon={Breakfast:'☀️',Lunch:'🌤️',Dinner:'🌙',Snack:'✨'};
+  const tbd=ST.tinyBiteDays||{Mon:true,Tue:true,Wed:true,Thu:true,Fri:true,Sat:true,Sun:true};
+  const dayFull=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const getMeal=(day,slot)=>{
+    if(slot==='Snack'&&!tbd[day])return null;
     const customMeal=getMealFromPlan(day,slot);
     if(ST.customMealPlan.isCustom)return customMeal;
     if(customMeal)return customMeal;
     return pick(byType[slot],wn+slots.indexOf(slot)*7+days.indexOf(day)*13+slots.indexOf(slot)*3);
   };
   return`<div class="page-header">
-    <div class="page-title">Weekly plan ${ST.unsavedMealChanges?'<span style="color:var(--orange);font-size:12px;">●</span>':''}  </div>
-    <div class="page-sub">${ST.customMealPlan.isCustom?'Custom':'Auto-generated'} · Tap meal to ${ST.customMealPlan.isCustom?'edit or delete':'customize'}</div>
+    <div class="page-title">Weekly plan ${ST.unsavedMealChanges?'<span style="color:#E84393;font-size:12px;">●</span>':''}</div>
+    <div class="page-sub">${ST.customMealPlan.isCustom?'Custom':'Auto-generated'} · Drag to swap · tap to edit</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;">
+    <button class="btn btn-teal" onclick="addWeekToList()">Add to list</button>
+    <button class="btn" onclick="resetMealPlan();toast('Week regenerated!')">✦ Regenerate</button>
+    ${ST.unsavedMealChanges?`<button class="btn" style="background:#FF6B6B;color:white;border:none;" onclick="if(confirm('Discard changes?')){resetMealPlan();}">Discard</button>`:''}
+    ${ST.mealPlanHistory?.length>0?`<button class="btn" onclick="undoMealChange()">↶ Undo</button>`:''}
+    ${ST.customMealPlan.isCustom?`<button class="btn" onclick="clearEntireWeek()">Clear</button>`:''}
   </div>
   ${ST.apiKey?`<div class="ai-panel" style="margin-bottom:1.25rem;">
-    <div class="ai-panel-header">
-      <div class="ai-panel-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9l-3 1.5.5-3.5L2 4.5 5.5 4z" stroke="var(--purple)" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>Generate with Claude</div>
-    </div>
+    <div class="ai-panel-header"><div class="ai-panel-title"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9l-3 1.5.5-3.5L2 4.5 5.5 4z" stroke="var(--purple)" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>Generate with Claude</div></div>
     <div class="quick-chips" style="padding:12px 16px;">
-      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('Generate a personalised 7-day meal plan for my ${ST.age}. ${prefsCtx()}'),200)">✨ Personalised week plan</span>
-      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('What new foods should I introduce to my ${ST.age} this week?'),200)">New foods to try</span>
-      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('Create a batch cooking plan for my ${ST.age} for the week'),200)">Batch cooking plan</span>
+      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('Generate a personalised 7-day meal plan for my ${ST.age}. ${prefsCtx()}'),200)">✨ Personalised week</span>
+      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('What new foods should I introduce to my ${ST.age} this week?'),200)">New foods</span>
+      <span class="quick-chip" onclick="gotoPage('ai');setTimeout(()=>sendAI('Create a batch cooking plan for my ${ST.age} for the week'),200)">Batch cook</span>
     </div>
   </div>`:`<div style="background:var(--purple-bg);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--purple);cursor:pointer;" onclick="gotoPage('apikey')">✨ Connect Claude for AI-personalised weekly plans →</div>`}
-  <div class="week-grid">
-    <table class="week-table">
-      <thead><tr><th></th>${days.map(d=>`<th class="week-th">${d}</th>`).join('')}</tr></thead>
-      <tbody>${slots.map((slot,si)=>`<tr>
-        <td class="week-label" style="color:${tc[slot]};">${slot}</td>
-        ${days.map((d,di)=>{const r=getMeal(d,slot);return`<td><div class="week-cell${r?' draggable-cell':''}" data-day="${d}" data-slot="${slot}" style="background:${colors[slot]};color:${tc[slot]};position:relative;cursor:pointer;padding-right:60px;${r?'':'opacity:0.5;'}" draggable="${r?'true':'false'}" ondragstart="weekDragStart(event,'${d}','${slot}')" ondragover="weekDragOver(event)" ondrop="weekDrop(event,'${d}','${slot}')" ondragleave="this.classList.remove('drag-over')" ontouchstart="weekTouchStart(event,'${d}','${slot}')" ${r?`onclick="openRecipe(${r.id})"`:''}><div>${r?`${r.emoji} ${r.name}`:'<span style="color:var(--text3);">No meal</span>'}</div><div style="position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:4px;">${r?`<button onclick="event.stopPropagation();openMealSelector('${d}','${slot}')" title="Edit meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">✎</button><button onclick="event.stopPropagation();openDeleteMealConfirm('${d}','${slot}','${esc(r.name)}')" title="Delete meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">×</button>`:`<button onclick="event.stopPropagation();openMealSelector('${d}','${slot}')" title="Add meal" style="background:transparent;border:none;padding:4px 6px;cursor:pointer;font-size:14px;">+</button>`}</div></div></td>`;}).join('')}
-      </tr>`).join('')}</tbody>
-    </table>
+  <div class="planner-scroll">
+    <div class="planner-grid">
+      ${days.map((day,di)=>`<div class="planner-col">
+        <div class="planner-day-head"><strong>${day}</strong>${dayFull[di]}</div>
+        ${slots.map(slot=>{
+          const isSnack=slot==='Snack';
+          if(isSnack&&!tbd[day])return`<div class="planner-card snack-off" onclick="toggleTinyBiteDay('${day}')"><div class="planner-slot-label snack">${slotIcon[slot]} ${slot}</div><div class="planner-empty" style="padding:4px 0;font-size:10px;">Off · tap on</div></div>`;
+          const r=getMeal(day,slot);
+          return`<div class="planner-card ${slot.toLowerCase()}${r?' draggable-cell':''}" data-day="${day}" data-slot="${slot}" draggable="${r?'true':'false'}" ondragstart="weekDragStart(event,'${day}','${slot}')" ondragover="weekDragOver(event)" ondrop="weekDrop(event,'${day}','${slot}')" ondragleave="this.classList.remove('drag-over')" ontouchstart="weekTouchStart(event,'${day}','${slot}')">
+            <div class="planner-slot-label ${slot.toLowerCase()}">${slotIcon[slot]} ${slot}</div>
+            ${r?`<div class="planner-emoji" onclick="openRecipe(${r.id})" style="cursor:pointer;">${r.emoji}</div>
+            <div class="planner-name" onclick="openRecipe(${r.id})" style="cursor:pointer;">${esc(r.name)}</div>
+            <div class="planner-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal}kcal</div>
+            <button class="planner-swap" onclick="event.stopPropagation();openMealSelector('${day}','${slot}')">🔍 swap</button>
+            <div class="planner-actions"><button class="planner-btn" onclick="event.stopPropagation();openDeleteMealConfirm('${day}','${slot}','${esc(r.name)}')">×</button></div>`
+            :`<div class="planner-empty" onclick="openMealSelector('${day}','${slot}')">+ add meal</div>`}
+          </div>`;
+        }).join('')}
+      </div>`).join('')}
+    </div>
   </div>
-  <div style="margin-top:1rem;display:flex;gap:8px;flex-wrap:wrap;">
-    <button class="btn btn-teal" onclick="addWeekToList()">Add all to shopping list</button>
-    <button class="btn" onclick="renderPage()">Regenerate</button>
-    ${ST.unsavedMealChanges?`<button class="btn" style="background:#FF6B6B;color:white;" onclick="if(confirm('Discard unsaved changes?')){resetMealPlan();}">Discard changes</button>`:''}
-    ${ST.mealPlanHistory?.length>0?`<button class="btn" onclick="undoMealChange()">↶ Undo</button>`:''}
-    ${ST.customMealPlan.isCustom?`<button class="btn" onclick="clearEntireWeek()">Clear week</button>`:''}
-  </div>`;
+  <div style="margin-top:10px;font-size:11px;color:var(--text3);text-align:center;font-family:'DM Sans',sans-serif;">✦ Drag cards to swap · Snack days toggleable in Preferences</div>`;
 }
 
 function renderShoppingPage(){
@@ -1358,6 +1433,12 @@ function renderPrefsPage(){
       <div class="pref-card-title">Preferred meal types</div><div class="pref-card-sub">Claude will prioritise these in suggestions</div>
       <div class="meal-type-grid">${MEAL_TYPES.map(t=>`<span class="mt-pill${p.favMealTypes.includes(t)?' active':''}" onclick="togglePrefType('${t}')">${p.favMealTypes.includes(t)?'✓ ':''}${t}</span>`).join('')}</div>
     </div>
+    <div class="pref-card pref-card-full">
+      <div class="pref-card-title">✨ Snack days</div><div class="pref-card-sub">Choose which days include a snack in the weekly plan</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px;">
+        ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>{const on=(ST.tinyBiteDays||{})[d]!==false;return`<div style="text-align:center;"><div style="font-size:10px;color:var(--text3);margin-bottom:4px;font-weight:600;">${d}</div><div onclick="toggleTinyBiteDay('${d}')" style="width:36px;height:20px;border-radius:20px;background:${on?'var(--teal)':'var(--bg3)'};margin:0 auto;position:relative;cursor:pointer;transition:background .2s;"><div style="position:absolute;top:2px;left:${on?'18':'2'}px;width:16px;height:16px;border-radius:50%;background:white;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);"></div></div></div>`;}).join('')}
+      </div>
+    </div>
     <div class="pref-card">
       <div class="pref-card-title">Auto-regenerate weekly menu</div><div class="pref-card-sub">Automatically generate a fresh meal plan on a chosen day each week</div>
       <select class="pref-select" onchange="ST.prefs.regenerateDay=this.value;save();toast(this.value?'Will auto-regenerate on '+this.value+'s':'Auto-regenerate disabled')">
@@ -1383,6 +1464,7 @@ function setAge(a){ST.age=a;document.getElementById('age-baby').className='age-p
 function addPref(key,inputId){const inp=document.getElementById(inputId);const val=inp.value.trim();if(val&&!ST.prefs[key].includes(val)){ST.prefs[key].push(val);inp.value='';save();renderPage();}}
 function removePref(key,i){ST.prefs[key].splice(i,1);save();renderPage();}
 function togglePrefType(t){const i=ST.prefs.favMealTypes.indexOf(t);i>-1?ST.prefs.favMealTypes.splice(i,1):ST.prefs.favMealTypes.push(t);save();renderPage();}
+function toggleTinyBiteDay(day){if(!ST.tinyBiteDays)ST.tinyBiteDays={Mon:true,Tue:true,Wed:true,Thu:true,Fri:true,Sat:true,Sun:true};ST.tinyBiteDays[day]=!ST.tinyBiteDays[day];save();renderPage();}
 
 async function saveApiKey(){
   const inp=document.getElementById('api-key-input');
@@ -1458,35 +1540,77 @@ function openRecipe(id){
 }
 
 function openMealSelector(day,slot){
-  const recipes=getAllRecipes().filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
+  const slotColor={Breakfast:'#854F0B',Lunch:'var(--teal)',Dinner:'#3C3489',Snack:'#C2415A'};
+  const slotIcon={Breakfast:'☀️',Lunch:'🌤️',Dinner:'🌙',Snack:'✨'};
+  const allR=getAllRecipes().filter(r=>r.age===ST.age&&!ST.avoidAllergens.some(a=>r.allergens.includes(a)));
   const current=getMealFromPlan(day,slot);
+  window._mealSelDay=day;window._mealSelSlot=slot;window._mealSelAll=allR;window._mealSelTags=[];
+  const renderMealList=()=>{
+    const nameQ=(document.getElementById('meal-sel-name')?.value||'').toLowerCase();
+    const tags=window._mealSelTags||[];
+    let pool=allR.filter(r=>{
+      if(nameQ&&!r.name.toLowerCase().includes(nameQ))return false;
+      if(tags.length>0&&!tags.every(t=>(r.ingredients||[]).some(i=>i.name?.toLowerCase().includes(t)||i.toLowerCase?.()?.includes(t))))return false;
+      return true;
+    });
+    if(tags.length>0){
+      pool=[...pool].sort((a,b)=>{
+        const sa=tags.filter(t=>(a.ingredients||[]).some(i=>(i.name||i).toLowerCase().includes(t))).length;
+        const sb=tags.filter(t=>(b.ingredients||[]).some(i=>(i.name||i).toLowerCase().includes(t))).length;
+        return sb-sa;
+      });
+    }
+    const el=document.getElementById('meal-sel-list');
+    if(!el)return;
+    el.innerHTML=pool.length===0?`<div style="text-align:center;padding:32px;color:var(--text3);font-size:13px;">No recipes match — try different filters</div>`:
+    pool.map(r=>{
+      const isCur=current?.id===r.id;
+      const ings=(r.ingredients||[]).map(i=>typeof i==='string'?i:i.name||'');
+      const matched=tags.length>0?ings.filter(i=>tags.some(t=>i.toLowerCase().includes(t))):[];
+      return`<div class="meal-sel-item${isCur?' current':''}" onclick="saveMealToPlan('${day}','${slot}',${r.id});document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';">
+        <span class="meal-sel-emoji">${r.emoji}</span>
+        <div class="meal-sel-info">
+          <div class="meal-sel-name">${esc(r.name)}${isCur?` <span style="font-size:9px;background:var(--teal-bg);color:var(--teal);padding:1px 7px;border-radius:20px;font-weight:700;">current</span>`:''}</div>
+          <div class="meal-sel-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal}kcal · ${r.type}</div>
+          ${ings.length>0?`<div class="meal-sel-ings">${ings.slice(0,6).map(i=>`<span class="meal-sel-ing${matched.includes(i)?' matched':''}">${esc(i)}</span>`).join('')}${ings.length>6?`<span class="meal-sel-ing">+${ings.length-6}</span>`:''}</div>`:''}
+        </div>
+        <span style="color:var(--text3);opacity:.4;">›</span>
+      </div>`;
+    }).join('');
+  };
   document.getElementById('modal-content').innerHTML=`
-    <div class="modal-header">
-      <div class="modal-title">Select meal for ${day} ${slot}</div>
-      ${current?`<div class="modal-sub">Currently: ${current.emoji} ${esc(current.name)}</div>`:''}
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
+      <div>
+        <div style="font-size:10px;font-family:'DM Sans',sans-serif;letter-spacing:2px;text-transform:uppercase;color:${slotColor[slot]||'var(--teal)'};margin-bottom:3px;">${slotIcon[slot]||''} ${slot} · ${day}</div>
+        <div class="modal-title">Select a meal</div>
+      </div>
+      <button onclick="document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);padding:0 4px;">✕</button>
     </div>
-    <div style="padding:12px 0;">
-      <input type="text" placeholder="Search recipes..." id="meal-search" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font-size:14px;" oninput="filterMealRecipes()">
+    <input type="text" id="meal-sel-name" placeholder="Search by name…" style="width:100%;margin-bottom:10px;" oninput="(()=>{const t=window._mealSelTags||[];window._mealSelTags=t;(${renderMealList.toString()})()})()">
+    <div style="font-size:11px;font-family:'DM Sans',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Filter by ingredients</div>
+    <div id="meal-ing-wrap" class="ing-tags-wrap" onclick="document.getElementById('meal-ing-inp').focus()">
+      <input id="meal-ing-inp" class="ing-tag-input" placeholder="Type ingredient, press Enter…"
+        onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();const v=this.value.trim().toLowerCase();if(v&&!(window._mealSelTags||[]).includes(v)){window._mealSelTags=[...(window._mealSelTags||[]),v];this.value='';mealSelRenderTags();(${renderMealList.toString()})();}}" />
     </div>
-    <div id="meal-recipes-list" style="max-height:400px;overflow-y:auto;margin:12px 0;">
-      ${recipes.map(r=>`<div style="padding:12px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;margin-bottom:4px;background:var(--bg);hover:background:var(--bg2);" onclick="saveMealToPlan('${day}','${slot}',${r.id});document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';">
-        <div style="font-weight:600;">${r.emoji} ${esc(r.name)}</div>
-        <div style="font-size:12px;color:var(--text2);">${r.time}min · ${r.cal}kcal · ${r.type}</div>
-      </div>`).join('')}
-    </div>
-    <button class="btn" onclick="document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';" style="width:100%;">Cancel</button>
+    <div id="meal-sel-list" style="max-height:360px;overflow-y:auto;margin-top:12px;"></div>
   `;
+  window.mealSelRenderTags=()=>{
+    const wrap=document.getElementById('meal-ing-wrap');
+    if(!wrap)return;
+    const tags=window._mealSelTags||[];
+    const inp=document.getElementById('meal-ing-inp');
+    wrap.innerHTML='';
+    tags.forEach((t,i)=>{
+      const chip=document.createElement('span');chip.className='ing-tag';
+      chip.innerHTML=`${t}<button onclick="window._mealSelTags.splice(${i},1);window.mealSelRenderTags();(${renderMealList.toString()})()">✕</button>`;
+      wrap.appendChild(chip);
+    });
+    if(inp){wrap.appendChild(inp);inp.focus();}
+    else{const ni=document.createElement('input');ni.id='meal-ing-inp';ni.className='ing-tag-input';ni.placeholder=tags.length===0?'Type ingredient, press Enter…':'';ni.onkeydown=function(event){if(event.key==='Enter'||event.key===','){event.preventDefault();const v=this.value.trim().toLowerCase();if(v&&!(window._mealSelTags||[]).includes(v)){window._mealSelTags=[...(window._mealSelTags||[]),v];this.value='';window.mealSelRenderTags();(renderMealList)();}}};wrap.appendChild(ni);}
+  };
+  renderMealList();
   document.getElementById('modal-overlay').style.display='flex';
   document.body.style.overflow='hidden';
-}
-
-function filterMealRecipes(){
-  const query=document.getElementById('meal-search')?.value.toLowerCase()||'';
-  const items=document.querySelectorAll('#meal-recipes-list>div');
-  items.forEach(item=>{
-    const text=item.textContent.toLowerCase();
-    item.style.display=text.includes(query)?'':'none';
-  });
 }
 
 function openDeleteMealConfirm(day,slot,mealName){
