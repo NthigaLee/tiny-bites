@@ -69,15 +69,7 @@ body{min-height:100vh;min-height:100dvh;}
 .shell{display:flex;min-height:100vh;}
 .sidebar{width:240px;flex-shrink:0;background:var(--bg);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
 .main{flex:1;min-width:0;padding:2rem 2rem 4rem;}
-@media(max-width:720px){
-  .shell{flex-direction:column;}
-  .sidebar{width:100%;height:auto;position:static;flex-direction:row;overflow-x:auto;border-right:none;border-bottom:0.5px solid var(--border);}
-  .sidebar-logo,.nav-section-label{display:none;}
-  .nav-item{padding:10px 14px;border-radius:0;border-bottom:2px solid transparent;white-space:nowrap;}
-  .nav-item.active{border-bottom-color:var(--teal);background:transparent;color:var(--teal);}
-  .main{padding:1.25rem 1rem 3rem;}
-  .sidebar-bottom{display:none;}
-}
+/* legacy mobile sidebar rule removed — replaced by drawer system below */
 
 /* Sidebar */
 .sidebar-logo{padding:1.5rem 1.25rem 1rem;}
@@ -1593,12 +1585,12 @@ function renderPrefsPage(){
     <div class="pref-card">
       <div class="pref-card-title">Favourite foods</div><div class="pref-card-sub">Claude will suggest these more often</div>
       <div class="chips-wrap">${p.favFoods.map((f,i)=>`<span class="pref-chip pref-chip-fav">${esc(f)}<button onclick="removePref('favFoods',${i})">×</button></span>`).join('')}</div>
-      <div class="input-row"><input class="pref-input" id="fav-in" type="text" placeholder="e.g. sweet potato, mango…" onkeydown="if(event.key==='Enter')addPref('favFoods','fav-in')"/><button class="btn" onclick="addPref('favFoods','fav-in')">Add</button></div>
+      <div class="input-row" style="position:relative;"><input class="pref-input" id="fav-in" type="text" placeholder="e.g. sweet potato, mango…" oninput="showPrefSuggestions('fav-in','favFoods')" onblur="setTimeout(hidePrefSuggestions,150)" onkeydown="if(event.key==='Enter')addPref('favFoods','fav-in')"/><button class="btn" onclick="addPref('favFoods','fav-in')">Add</button></div>
     </div>
     <div class="pref-card">
       <div class="pref-card-title">Disliked foods</div><div class="pref-card-sub">Claude will avoid suggesting these</div>
       <div class="chips-wrap">${p.dislikedFoods.map((f,i)=>`<span class="pref-chip pref-chip-dis">${esc(f)}<button onclick="removePref('dislikedFoods',${i})">×</button></span>`).join('')}</div>
-      <div class="input-row"><input class="pref-input" id="dis-in" type="text" placeholder="e.g. broccoli, peas…" onkeydown="if(event.key==='Enter')addPref('dislikedFoods','dis-in')"/><button class="btn" onclick="addPref('dislikedFoods','dis-in')">Add</button></div>
+      <div class="input-row" style="position:relative;"><input class="pref-input" id="dis-in" type="text" placeholder="e.g. broccoli, peas…" oninput="showPrefSuggestions('dis-in','dislikedFoods')" onblur="setTimeout(hidePrefSuggestions,150)" onkeydown="if(event.key==='Enter')addPref('dislikedFoods','dis-in')"/><button class="btn" onclick="addPref('dislikedFoods','dis-in')">Add</button></div>
     </div>
     <div class="pref-card pref-card-full">
       <div class="pref-card-title">Preferred meal types</div><div class="pref-card-sub">Claude will prioritise these in suggestions</div>
@@ -1632,7 +1624,32 @@ function toggleType(t){const i=ST.activeTypes.indexOf(t);i>-1?ST.activeTypes.spl
 function toggleRecipe(id){const i=ST.selectedRecipes.indexOf(id);if(i>-1){ST.selectedRecipes.splice(i,1);}else{ST.selectedRecipes.push(id);toast('Added to shopping list');}updateBadge();save();renderPage();}
 function toggleShopItem(id){const i=ST.shopChecked.indexOf(id);i>-1?ST.shopChecked.splice(i,1):ST.shopChecked.push(id);save();renderPage();}
 function setAge(a){ST.age=a;document.getElementById('age-baby').className='age-pill'+(a==='baby'?' active-baby':'');document.getElementById('age-toddler').className='age-pill'+(a==='toddler'?' active-toddler':'');save();renderPage();}
-function addPref(key,inputId){const inp=document.getElementById(inputId);const val=inp.value.trim();if(val&&!ST.prefs[key].includes(val)){ST.prefs[key].push(val);inp.value='';save();renderPage();}}
+function addPref(key,inputId,val){const inp=document.getElementById(inputId);const v=(val||inp.value).trim();if(v&&!ST.prefs[key].includes(v)){ST.prefs[key].push(v);inp.value='';save();renderPage();hidePrefSuggestions();}}
+function hidePrefSuggestions(){document.querySelectorAll('.pref-suggestions').forEach(el=>el.remove());}
+function showPrefSuggestions(inputId,key){
+  hidePrefSuggestions();
+  const inp=document.getElementById(inputId);
+  if(!inp)return;
+  const q=inp.value.trim().toLowerCase();
+  if(!q)return;
+  // Build ingredient list from all recipes
+  const ingSet=new Set();
+  getAllRecipes().forEach(r=>{if(r.ingredients)r.ingredients.forEach(i=>{const n=(i.name||i).toLowerCase().trim();if(n)ingSet.add(n);});});
+  const matches=[...ingSet].filter(n=>n.includes(q)&&!ST.prefs[key].includes(n)).sort((a,b)=>a.startsWith(q)?-1:b.startsWith(q)?1:a.localeCompare(b)).slice(0,8);
+  if(!matches.length)return;
+  const box=document.createElement('div');
+  box.className='pref-suggestions';
+  box.style.cssText='position:absolute;z-index:200;background:var(--bg);border:1px solid var(--border2);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;width:100%;top:100%;left:0;margin-top:2px;';
+  matches.forEach(m=>{
+    const row=document.createElement('div');
+    row.style.cssText='padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text);border-bottom:0.5px solid var(--border);-webkit-tap-highlight-color:transparent;';
+    row.textContent=m;
+    row.onpointerdown=(e)=>{e.preventDefault();addPref(key,inputId,m);};
+    box.appendChild(row);
+  });
+  inp.parentElement.style.position='relative';
+  inp.parentElement.appendChild(box);
+}
 function removePref(key,i){ST.prefs[key].splice(i,1);save();renderPage();}
 function togglePrefType(t){const i=ST.prefs.favMealTypes.indexOf(t);i>-1?ST.prefs.favMealTypes.splice(i,1):ST.prefs.favMealTypes.push(t);save();renderPage();}
 function toggleTinyBiteDay(day){if(!ST.tinyBiteDays)ST.tinyBiteDays={Mon:true,Tue:true,Wed:true,Thu:true,Fri:true,Sat:true,Sun:true};ST.tinyBiteDays[day]=!ST.tinyBiteDays[day];save();renderPage();}
