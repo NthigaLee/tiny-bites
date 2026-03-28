@@ -1522,8 +1522,6 @@ function renderWeekPage(){
     const weekLabel=isW2?'Week 2':'This week';
     return`<div class="planner-col">
       <div class="planner-day-head${isSelected?' selected':''}" onclick="toggleDaySelection('${dayKey}')" title="Tap to select day for shopping list">
-        ${isW2&&di===0?`<div style="font-size:8px;color:var(--teal);font-weight:700;margin-bottom:2px;">WEEK 2</div>`:''}
-        ${!isW2&&di===0?`<div style="font-size:8px;color:var(--text3);font-weight:600;margin-bottom:2px;">THIS WEEK</div>`:''}
         <strong>${base.toUpperCase()}</strong>${dayFullNames[di]}
         ${isSelected?'<div style="font-size:9px;color:var(--teal);margin-top:2px;">✓ selected</div>':''}
       </div>
