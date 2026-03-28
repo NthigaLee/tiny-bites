@@ -322,7 +322,7 @@ body{min-height:100vh;min-height:100dvh;}
 .planner-day-head.selected{background:var(--teal-bg);}
 .planner-day-head.selected strong{color:var(--teal);}
 .planner-day-head strong{display:block;font-size:14px;color:var(--text);letter-spacing:0;font-weight:700;margin-bottom:1px;}
-.planner-card{background:var(--bg);border-radius:10px;box-shadow:var(--shadow);padding:10px 10px 28px;margin-bottom:8px;position:relative;border-left:3px solid transparent;transition:transform .13s,box-shadow .13s;}
+.planner-card{background:var(--bg);border-radius:10px;box-shadow:var(--shadow);padding:10px 10px 30px;margin-bottom:8px;position:relative;border-left:3px solid transparent;transition:transform .13s,box-shadow .13s;-webkit-tap-highlight-color:transparent;}
 .planner-card.draggable-cell{cursor:grab;}
 .planner-card.draggable-cell:active{cursor:grabbing;}
 .planner-card.draggable-cell:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.11);}
@@ -342,14 +342,20 @@ body{min-height:100vh;min-height:100dvh;}
 .planner-emoji{font-size:20px;margin-bottom:3px;line-height:1;}
 .planner-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:3px;}
 .planner-meta{font-size:11px;color:var(--text2);font-family:'DM Sans',sans-serif;}
-.planner-empty{font-size:11px;color:var(--text3);padding:10px 0 6px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.planner-empty{font-size:11px;color:var(--text3);padding:10px 0 6px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
+.planner-empty:active{color:var(--teal);}
 .planner-empty:hover{color:var(--teal);}
-.planner-swap{position:absolute;bottom:5px;right:5px;background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:2px 7px;font-size:9px;color:var(--text2);cursor:pointer;opacity:0;transition:opacity .13s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
-.planner-swap:hover{background:var(--teal-bg);color:var(--teal);border-color:var(--teal-mid);}
-.planner-actions{position:absolute;top:4px;right:4px;display:flex;gap:1px;}
-.planner-btn{background:transparent;border:none;padding:2px 5px;cursor:pointer;font-size:12px;color:var(--text3);opacity:0;transition:opacity .13s;border-radius:4px;}
-.planner-card:hover .planner-btn{opacity:.7;}
-.planner-btn:hover{opacity:1 !important;background:var(--bg2);}
+.planner-card-actions{position:absolute;bottom:5px;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:0 7px;}
+.planner-swap-btn{background:var(--bg2);border:0.5px solid var(--border);border-radius:6px;padding:3px 8px;font-size:9px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
+.planner-swap-btn:active{background:var(--teal-bg);color:var(--teal);}
+.planner-del-btn{background:transparent;border:none;padding:2px 4px;cursor:pointer;font-size:14px;color:var(--text3);border-radius:4px;line-height:1;-webkit-tap-highlight-color:transparent;}
+.planner-del-btn:active{color:var(--red);}
+/* Desktop: only show on hover */
+@media(hover:hover){
+  .planner-swap-btn{opacity:0;transition:opacity .13s;}
+  .planner-del-btn{opacity:0;transition:opacity .13s;}
+  .planner-card:hover .planner-swap-btn,.planner-card:hover .planner-del-btn{opacity:1;}
+}
 /* Ingredient tag input */
 .ing-tags-wrap{display:flex;flex-wrap:wrap;gap:5px;align-items:center;min-height:38px;padding:6px 10px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg2);cursor:text;}
 .ing-tag{display:flex;align-items:center;gap:3px;background:var(--teal-bg);border:1px solid var(--teal-mid);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--teal);font-family:'DM Sans',sans-serif;}
@@ -1525,14 +1531,16 @@ function renderWeekPage(){
         const isSnack=slot==='Snack';
         if(isSnack&&!tbd[base])return`<div class="planner-card snack-off" onclick="toggleTinyBiteDay('${base}')"><div class="planner-slot-label snack">${slotIcon[slot]} ${slot}</div><div class="planner-empty" style="font-size:10px;">Off · tap on</div></div>`;
         const r=getMeal(dayKey,slot);
-        return`<div class="planner-card ${slot.toLowerCase()}${r?' draggable-cell':''}" data-day="${dayKey}" data-slot="${slot}" draggable="${r?'true':'false'}" ondragstart="weekDragStart(event,'${dayKey}','${slot}')" ondragover="weekDragOver(event)" ondrop="weekDrop(event,'${dayKey}','${slot}')" ondragleave="this.classList.remove('drag-over')" ontouchstart="weekTouchStart(event,'${dayKey}','${slot}')">
+        return`<div class="planner-card ${slot.toLowerCase()}${r?' draggable-cell':''}" data-day="${dayKey}" data-slot="${slot}" draggable="${r?'true':'false'}" ondragstart="weekDragStart(event,'${dayKey}','${slot}')" ondragover="weekDragOver(event)" ondrop="weekDrop(event,'${dayKey}','${slot}')" ondragleave="this.classList.remove('drag-over')">
           <div class="planner-slot-label ${slot.toLowerCase()}">${slotIcon[slot]} ${slot}</div>
           ${r
             ?`<div class="planner-emoji" onclick="openRecipe(${r.id})">${r.emoji}</div>
             <div class="planner-name" onclick="openRecipe(${r.id})">${esc(r.name)}</div>
             <div class="planner-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal}kcal</div>
-            <button class="planner-swap" onclick="event.stopPropagation();openMealSelector('${dayKey}','${slot}')">🔍 swap</button>
-            <div class="planner-actions"><button class="planner-btn" onclick="event.stopPropagation();openDeleteMealConfirm('${dayKey}','${slot}','${esc(r.name)}')">×</button></div>`
+            <div class="planner-card-actions">
+              <button class="planner-swap-btn" onclick="event.stopPropagation();openMealSelector('${dayKey}','${slot}')">swap</button>
+              <button class="planner-del-btn" onclick="event.stopPropagation();openDeleteMealConfirm('${dayKey}','${slot}','${esc(r.name)}')">×</button>
+            </div>`
             :`<div class="planner-empty" onclick="openMealSelector('${dayKey}','${slot}')">+ add meal</div>`}
         </div>`;
       }).join('')}
