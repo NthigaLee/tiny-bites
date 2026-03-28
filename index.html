@@ -532,72 +532,22 @@ body{min-height:100vh;min-height:100dvh;}
 /* Theme Color Transitions — only on elements that actually change theme colors, not on re-render */
 .sidebar,.bottom-tab-bar,.mobile-header,.btn,.btn-teal,.nav-item,.age-pill,.filter-chip,.recipe-tab,.theme-swatch{transition:color 0.2s ease,background-color 0.2s ease,border-color 0.2s ease;}
 
-/* Baby Blue Theme (Default) */
-:root[data-theme="baby-blue"],
-:root {
-  --primary: #0D7A69;
-  --primary-bg: #C5E9E5;
-  --primary-mid: #5B9C96;
-  --teal: #0D7A69;
-  --teal-bg: #C5E9E5;
-  --teal-mid: #5B9C96;
-  /* Blue-tinted page surfaces — light enough for readability */
-  --bg:#FFFFFF;--bg2:#EDF5FF;--bg3:#D8ECFF;
-}
+/* ── Theme accent colours (apply in all colour schemes) ── */
+:root[data-theme="baby-blue"],:root{--primary:#0D7A69;--primary-bg:#C5E9E5;--primary-mid:#5B9C96;--teal:#0D7A69;--teal-bg:#C5E9E5;--teal-mid:#5B9C96;}
+:root[data-theme="baby-pink"]{--primary:#D97A94;--primary-bg:#FDE8EE;--primary-mid:#E8B4C8;--teal:#D97A94;--teal-bg:#FDE8EE;--teal-mid:#E8B4C8;}
+:root[data-theme="baby-orange"]{--primary:#E8995A;--primary-bg:#FFF0E6;--primary-mid:#F0B88A;--teal:#E8995A;--teal-bg:#FFF0E6;--teal-mid:#F0B88A;}
+:root[data-theme="baby-green"]{--primary:#5FBD9A;--primary-bg:#E8F6F1;--primary-mid:#8FD4B4;--teal:#5FBD9A;--teal-bg:#E8F6F1;--teal-mid:#8FD4B4;}
+:root[data-theme="baby-purple"]{--primary:#B89FD9;--primary-bg:#F3EFFE;--primary-mid:#D4BFED;--teal:#B89FD9;--teal-bg:#F3EFFE;--teal-mid:#D4BFED;}
+:root[data-theme="baby-yellow"]{--primary:#E8C85A;--primary-bg:#FFFDE8;--primary-mid:#F0D98A;--teal:#E8C85A;--teal-bg:#FFFDE8;--teal-mid:#F0D98A;}
 
-/* Baby Pink Theme */
-:root[data-theme="baby-pink"] {
-  --primary: #D97A94;
-  --primary-bg: #FDE8EE;
-  --primary-mid: #E8B4C8;
-  --teal: #D97A94;
-  --teal-bg: #FDE8EE;
-  --teal-mid: #E8B4C8;
-  --bg:#FFFAFE;--bg2:#FCEEF4;--bg3:#F8DFE8;
-}
-
-/* Baby Orange Theme */
-:root[data-theme="baby-orange"] {
-  --primary: #E8995A;
-  --primary-bg: #FFF0E6;
-  --primary-mid: #F0B88A;
-  --teal: #E8995A;
-  --teal-bg: #FFF0E6;
-  --teal-mid: #F0B88A;
-  --bg:#FFFCFA;--bg2:#FDF0E6;--bg3:#FAE4D0;
-}
-
-/* Baby Green Theme */
-:root[data-theme="baby-green"] {
-  --primary: #5FBD9A;
-  --primary-bg: #E8F6F1;
-  --primary-mid: #8FD4B4;
-  --teal: #5FBD9A;
-  --teal-bg: #E8F6F1;
-  --teal-mid: #8FD4B4;
-  --bg:#FAFFFD;--bg2:#E6F7F0;--bg3:#D2EFE4;
-}
-
-/* Baby Purple Theme */
-:root[data-theme="baby-purple"] {
-  --primary: #B89FD9;
-  --primary-bg: #F3EFFE;
-  --primary-mid: #D4BFED;
-  --teal: #B89FD9;
-  --teal-bg: #F3EFFE;
-  --teal-mid: #D4BFED;
-  --bg:#FDFAFF;--bg2:#F0EAFD;--bg3:#E5D9FA;
-}
-
-/* Baby Yellow Theme */
-:root[data-theme="baby-yellow"] {
-  --primary: #E8C85A;
-  --primary-bg: #FFFDE8;
-  --primary-mid: #F0D98A;
-  --teal: #E8C85A;
-  --teal-bg: #FFFDE8;
-  --teal-mid: #F0D98A;
-  --bg:#FFFEFA;--bg2:#FFFCE0;--bg3:#FFF8C2;
+/* ── Tinted backgrounds: LIGHT MODE ONLY so dark mode bg & text stay correct ── */
+@media(prefers-color-scheme:light){
+  :root[data-theme="baby-blue"],:root{--bg:#FFFFFF;--bg2:#EDF5FF;--bg3:#D8ECFF;}
+  :root[data-theme="baby-pink"]{--bg:#FFFAFE;--bg2:#FCEEF4;--bg3:#F8DFE8;}
+  :root[data-theme="baby-orange"]{--bg:#FFFCFA;--bg2:#FDF0E6;--bg3:#FAE4D0;}
+  :root[data-theme="baby-green"]{--bg:#FAFFFD;--bg2:#E6F7F0;--bg3:#D2EFE4;}
+  :root[data-theme="baby-purple"]{--bg:#FDFAFF;--bg2:#F0EAFD;--bg3:#E5D9FA;}
+  :root[data-theme="baby-yellow"]{--bg:#FFFEFA;--bg2:#FFFCE0;--bg3:#FFF8C2;}
 }
 
 /* Dark Mode Variants */
