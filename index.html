@@ -162,6 +162,7 @@ body{min-height:100vh;min-height:100dvh;}
 .search-input::placeholder{color:var(--text3);}
 .search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:2px 6px;}
 .filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center;}
+@media(max-width:719px){.filter-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}.filter-row::-webkit-scrollbar{display:none;}}
 .filter-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;}
 .filter-chip{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap;}
 .filter-chip:hover{border-color:var(--teal);color:var(--teal);}
