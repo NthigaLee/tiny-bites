@@ -171,7 +171,9 @@ body{min-height:100vh;min-height:100dvh;}
 
 /* Recipe grid */
 .recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-.recipe-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1rem;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.recipe-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;}
+.recipe-card-img{width:100%;height:140px;object-fit:cover;display:block;}
+.recipe-card-body{padding:1rem;}
 .recipe-card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.10),0 0 0 0.5px rgba(0,0,0,0.08);}
 .recipe-card.selected{box-shadow:0 0 0 2px var(--teal),0 4px 14px rgba(0,0,0,0.08);}
 .recipe-card.ai-suggested{box-shadow:0 0 0 2px var(--purple-mid),0 4px 14px rgba(0,0,0,0.08);}
@@ -895,6 +897,120 @@ const RECIPES=[
 
 const MEAL_TYPES=[...new Set(RECIPES.map(r=>r.type))].sort();
 
+// ── Recipe Images (Unsplash, royalty-free) ────────────────────
+const RECIPE_IMAGES={
+  1:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
+  2:"https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=400&q=80",
+  3:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  4:"https://images.unsplash.com/photo-1506917728037-b6af01a7d403?w=400&q=80",
+  5:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
+  6:"https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
+  7:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  8:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  9:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80",
+  10:"https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80",
+  11:"https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
+  12:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+  13:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  14:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80",
+  15:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  16:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
+  17:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
+  18:"https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=400&q=80",
+  19:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
+  20:"https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=400&q=80",
+  21:"https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=400&q=80",
+  22:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
+  23:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
+  24:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+  25:"https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80",
+  26:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  27:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  28:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  29:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  30:"https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=400&q=80",
+  31:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
+  32:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  33:"https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=400&q=80",
+  34:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  35:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  36:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  37:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  38:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  39:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80",
+  40:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80",
+  41:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+  42:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
+  43:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  44:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
+  45:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
+  46:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
+  47:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  48:"https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=400&q=80",
+  49:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
+  50:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  51:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
+  52:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  53:"https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80",
+  54:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  55:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+  56:"https://images.unsplash.com/photo-1506917728037-b6af01a7d403?w=400&q=80",
+  57:"https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
+  58:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+  59:"https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
+  60:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  61:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+  62:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
+  63:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+  64:"https://images.unsplash.com/photo-1506917728037-b6af01a7d403?w=400&q=80",
+  65:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
+  66:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  67:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  68:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
+  69:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  70:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  71:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  72:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  73:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  74:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
+  75:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  76:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  77:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  78:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
+  79:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80",
+  80:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  81:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  82:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  83:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  84:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
+  85:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  86:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  87:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+  88:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  89:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  90:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80",
+  91:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80",
+  92:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  93:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  94:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  95:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80",
+  96:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  97:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  98:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  99:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
+  100:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+  101:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  102:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
+  103:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
+  104:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
+  105:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
+  106:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
+  107:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
+  108:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
+  109:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
+  110:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
+};
+
 // ── Shopping helpers ──────────────────────────────────────────
 function getShoppingItems(){
   const selected=RECIPES.filter(r=>ST.selectedRecipes.includes(r.id));
@@ -1311,9 +1427,11 @@ function renderCard(r,aiHighlight){
   const added=ST.selectedRecipes.includes(r.id);
   const fav=isFavorited(r.id);
   const isUser=!!r.isUserRecipe;
+  const imgUrl=RECIPE_IMAGES[r.id];
   return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}${isUser?' user-recipe':''}" onclick="openRecipe(${r.id})">
     ${isUser?`<div class="user-recipe-badge">My recipe</div>`:''}
-    <div class="recipe-emoji">${r.emoji}</div>
+    ${imgUrl?`<img class="recipe-card-img" src="${imgUrl}" alt="${esc(r.name)}" loading="lazy" onerror="this.style.display='none'">`:'<div style="padding-top:1rem;padding-left:1rem;font-size:28px;line-height:1;">${r.emoji}</div>'}
+    <div class="recipe-card-body">
     <div class="recipe-card-top">
       <div><div class="recipe-card-name">${esc(r.name)}</div><div class="recipe-card-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal} kcal</div></div>
       <div style="display:flex;gap:6px;">
@@ -1334,6 +1452,7 @@ function renderCard(r,aiHighlight){
     </div>
     <div class="recipe-nutrition">
       ${[['Carbs',r.carbs,'g'],['Protein',r.protein,'g'],['Fat',r.fat,'g']].map(([l,v,u])=>`<div class="nutr-item"><div class="nutr-val">${v}${u}</div><div class="nutr-lbl">${l}</div></div>`).join('')}
+    </div>
     </div>
   </div>`;
 }
