@@ -24,33 +24,38 @@
 
 <!-- PWA: Manifest injected via JS below (works for local files + hosted) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Be+Vietnam+Pro:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;}
 :root{
-  --bg:#fff;--bg2:#f6f5f1;--bg3:#eeece6;
-  --text:#1a1a18;--text2:#666660;--text3:#99998f;
-  --border:rgba(0,0,0,0.10);--border2:rgba(0,0,0,0.18);
-  --teal:#0F6E56;--teal-bg:#E1F5EE;--teal-mid:#5DCAA5;
-  --amber:#854F0B;--amber-bg:#FAEEDA;--amber-mid:#FAC775;
-  --red:#A32D2D;--red-bg:#FCEBEB;
+  --bg:#f7f7f3;--bg2:#e8e9e4;--bg3:#e2e3de;--bg-card:#ffffff;
+  --text:#2d2f2d;--text2:#5a5c59;--text3:#767774;
+  --border:rgba(173,173,170,0.12);--border2:rgba(173,173,170,0.20);
+  --teal:#7b5400;--teal-bg:rgba(254,179,0,0.14);--teal-mid:#feb300;
+  --amber:#8b4b00;--amber-bg:rgba(255,198,153,0.25);--amber-mid:#ffc699;
+  --red:#b02500;--red-bg:rgba(249,86,48,0.12);
   --purple:#3C3489;--purple-bg:#EEEDFE;--purple-mid:#7F77DD;
-  --green:#27500A;--green-bg:#EAF3DE;
-  --r:8px;--rl:12px;--rxl:16px;
-  --shadow:0 1px 4px rgba(0,0,0,0.07),0 0 0 0.5px rgba(0,0,0,0.08);
+  --green:#3a6700;--green-bg:rgba(190,250,127,0.18);
+  --r:1rem;--rl:2rem;--rxl:3rem;
+  --shadow:0 4px 24px rgba(45,47,45,0.06);
+  --font-headline:'Plus Jakarta Sans',system-ui,sans-serif;
+  --font-body:'Be Vietnam Pro',system-ui,sans-serif;
 }
 @media(prefers-color-scheme:dark){:root{
-  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;--bg-card:#2a2a28;
   --text:#f0f0ea;--text2:#aaa9a0;--text3:#66665e;
-  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.18);
-  --teal:#5DCAA5;--teal-bg:#04342C;--teal-mid:#1D9E75;
-  --amber:#EF9F27;--amber-bg:#412402;--amber-mid:#BA7517;
-  --red:#F09595;--red-bg:#501313;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.15);
+  --teal:#feb300;--teal-bg:rgba(254,179,0,0.12);--teal-mid:#eda600;
+  --amber:#ffc699;--amber-bg:rgba(255,198,153,0.12);--amber-mid:#ffb373;
+  --red:#f95630;--red-bg:rgba(249,86,48,0.15);
   --purple:#AFA9EC;--purple-bg:#26215C;--purple-mid:#7F77DD;
-  --green:#97C459;--green-bg:#173404;
-  --shadow:0 1px 4px rgba(0,0,0,0.3),0 0 0 0.5px rgba(255,255,255,0.06);
+  --green:#befa7f;--green-bg:rgba(190,250,127,0.10);
+  --shadow:0 4px 24px rgba(0,0,0,0.25);
 }}
-html{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg2);color:var(--text);font-size:15px;line-height:1.5;}
+html{font-family:var(--font-body);background:var(--bg);color:var(--text);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
 body{min-height:100vh;min-height:100dvh;}
 
 /* PWA safe area support (iPhone notch / home bar) */
@@ -67,23 +72,23 @@ body{min-height:100vh;min-height:100dvh;}
 
 /* Layout */
 .shell{display:flex;min-height:100vh;}
-.sidebar{width:240px;flex-shrink:0;background:var(--bg);border-right:0.5px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
-.main{flex:1;min-width:0;padding:2rem 2rem 4rem;}
+.sidebar{width:260px;flex-shrink:0;background:var(--bg-card);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.main{flex:1;min-width:0;padding:2rem 2rem 4rem;max-width:720px;margin:0 auto;}
 /* legacy mobile sidebar rule removed — replaced by drawer system below */
 
 /* Sidebar */
 .sidebar-logo{padding:1.5rem 1.25rem 1rem;}
-.logo-mark{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em;}
-.logo-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.logo-mark{font-size:22px;font-weight:800;color:var(--teal);letter-spacing:-.02em;font-family:var(--font-headline);}
+.logo-sub{font-size:11px;color:var(--text3);margin-top:2px;}
 .ai-status{display:flex;align-items:center;gap:6px;font-size:11px;margin-top:8px;padding:5px 8px;border-radius:var(--r);background:var(--bg2);}
 .ai-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;}
 .ai-dot.connected{background:#22c55e;}
 .ai-dot.error{background:#ef4444;}
 .nav-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);padding:.75rem 1.25rem .25rem;}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 1.25rem;font-size:13px;color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 1.25rem;font-size:14px;color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;border-radius:var(--rl);margin:2px 12px;font-family:var(--font-headline);font-weight:600;}
 .nav-item svg{flex-shrink:0;opacity:.7;}
 .nav-item:hover{background:var(--bg2);color:var(--text);}
-.nav-item.active{background:var(--teal-bg);color:var(--teal);font-weight:500;}
+.nav-item.active{background:var(--teal-bg);color:var(--teal);font-weight:700;}
 .nav-item.active svg{opacity:1;}
 .nav-badge{margin-left:auto;background:var(--teal);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;min-width:18px;text-align:center;}
 .sidebar-bottom{margin-top:auto;padding:1rem 1.25rem;border-top:0.5px solid var(--border);}
@@ -94,8 +99,8 @@ body{min-height:100vh;min-height:100dvh;}
 
 /* Page header */
 .page-header{margin-bottom:1.5rem;}
-.page-title{font-size:22px;font-weight:600;color:var(--text);letter-spacing:-.01em;}
-.page-sub{font-size:13px;color:var(--text2);margin-top:3px;}
+.page-title{font-size:1.75rem;font-weight:800;color:var(--text);letter-spacing:-.02em;font-family:var(--font-headline);}
+.page-sub{font-size:13px;color:var(--text2);margin-top:4px;}
 
 /* API key setup screen */
 .setup-wrap{max-width:500px;margin:3rem auto;text-align:center;}
@@ -115,7 +120,7 @@ body{min-height:100vh;min-height:100dvh;}
 .setup-security svg{flex-shrink:0;margin-top:1px;}
 
 /* AI Chat panel */
-.ai-panel{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.25rem;}
+.ai-panel{background:var(--bg-card);border-radius:var(--rl);overflow:hidden;margin-bottom:1.25rem;}
 .ai-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid var(--border);background:var(--purple-bg);}
 .ai-panel-title{font-size:13px;font-weight:600;color:var(--purple);display:flex;align-items:center;gap:8px;}
 .ai-panel-actions{display:flex;gap:6px;}
@@ -155,51 +160,74 @@ body{min-height:100vh;min-height:100dvh;}
 @keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 
 /* Search & filter */
-.search-wrap{position:relative;margin-bottom:1.25rem;}
-.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);}
-.search-input{width:100%;padding:10px 12px 10px 38px;border-radius:var(--rl);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);font-size:14px;outline:none;transition:border .15s;}
-.search-input:focus{border-color:var(--teal);}
+.search-wrap{position:relative;margin-bottom:1.5rem;}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--teal);font-weight:700;}
+.search-input{width:100%;padding:14px 50px 14px 44px;border-radius:var(--rl);border:none;background:var(--bg3);color:var(--text);font-size:14px;outline:none;transition:all .2s;font-family:var(--font-headline);}
+.search-input:focus{background:var(--bg-card);box-shadow:0 0 0 2px var(--teal-mid);}
 .search-input::placeholder{color:var(--text3);}
-.search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:2px 6px;}
-.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.25rem;align-items:center;}
-@media(max-width:719px){.filter-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}.filter-row::-webkit-scrollbar{display:none;}}
-.filter-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;}
-.filter-chip{font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .12s;white-space:nowrap;}
-.filter-chip:hover{border-color:var(--teal);color:var(--teal);}
-.filter-chip.active-avoid{border-color:#E24B4A;background:var(--red-bg);color:var(--red);}
-.filter-chip.active-type{border-color:var(--teal-mid);background:var(--teal-bg);color:var(--teal);}
+.search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--teal-mid);border:none;cursor:pointer;color:var(--teal);width:32px;height:32px;border-radius:9999px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;}
+.filter-row{display:flex;gap:8px;margin-bottom:1.25rem;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;flex-wrap:nowrap;}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-right:4px;flex-shrink:0;font-family:var(--font-headline);}
+.filter-chip{font-size:12px;padding:8px 16px;border-radius:9999px;border:none;background:var(--bg2);color:var(--text2);cursor:pointer;transition:all .15s;white-space:nowrap;font-weight:600;font-family:var(--font-headline);}
+.filter-chip:hover{background:var(--teal-bg);color:var(--teal);}
+.filter-chip.active-avoid{background:var(--red-bg);color:var(--red);}
+.filter-chip.active-type{background:var(--teal-bg);color:var(--teal);}
 
 /* Recipe grid */
-.recipe-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;}
-.recipe-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .12s,box-shadow .12s;}
-.recipe-card-img{width:100%;height:140px;object-fit:cover;display:block;}
-.recipe-card-body{padding:1rem;}
-.recipe-card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,0.10),0 0 0 0.5px rgba(0,0,0,0.08);}
-.recipe-card.selected{box-shadow:0 0 0 2px var(--teal),0 4px 14px rgba(0,0,0,0.08);}
-.recipe-card.ai-suggested{box-shadow:0 0 0 2px var(--purple-mid),0 4px 14px rgba(0,0,0,0.08);}
+.recipe-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.recipe-card{background:var(--bg-card);border-radius:var(--rl);overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:none;}
+.recipe-card-img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border-radius:var(--rl);transition:transform .3s;}
+.recipe-card:hover .recipe-card-img{transform:scale(1.05);}
+.recipe-card-img-wrap{overflow:hidden;border-radius:var(--rl);background:var(--bg2);}
+.recipe-card-body{padding:12px 4px 4px;}
+.recipe-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);}
+.recipe-card.selected{outline:2.5px solid var(--teal);outline-offset:-2px;}
+.recipe-card.ai-suggested{outline:2.5px solid var(--purple-mid);outline-offset:-2px;}
 .recipe-emoji{font-size:28px;line-height:1;margin-bottom:4px;}
-.recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
-.recipe-card-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3;}
-.recipe-card-meta{font-size:11px;color:var(--text3);margin-top:2px;}
-.recipe-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px;}
-.tag{font-size:10px;padding:2px 7px;border-radius:999px;font-weight:500;}
-.add-btn{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
-.add-btn:hover{background:var(--teal-bg);border-color:var(--teal);color:var(--teal);}
-.add-btn.added{background:var(--teal);border-color:var(--teal);color:#fff;}
-.recipe-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-top:6px;}
-.recipe-nutrition{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);}
+.recipe-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.recipe-card-name{font-size:15px;font-weight:700;color:var(--text);line-height:1.3;font-family:var(--font-headline);}
+.recipe-card-meta{font-size:12px;color:var(--text3);margin-top:3px;display:flex;align-items:center;gap:4px;}
+.recipe-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;}
+.tag{font-size:10px;padding:3px 10px;border-radius:9999px;font-weight:600;font-family:var(--font-headline);}
+.add-btn{width:32px;height:32px;border-radius:9999px;border:none;background:var(--bg2);color:var(--text2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.add-btn:hover{background:var(--teal-bg);color:var(--teal);}
+.add-btn.added{background:var(--teal);color:#fff;}
+.recipe-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-top:4px;display:none;}
+.recipe-nutrition{display:none;}
 .nutr-item{flex:1;text-align:center;}
 .nutr-val{font-size:13px;font-weight:600;color:var(--text);}
 .nutr-lbl{font-size:10px;color:var(--text3);}
 .no-results{text-align:center;padding:3rem 1rem;color:var(--text2);}
+/* Hero section */
+.hero-card{position:relative;border-radius:var(--rxl);overflow:hidden;min-height:320px;display:flex;flex-direction:column;justify-content:flex-end;padding:2rem;margin-bottom:2rem;}
+.hero-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s;}
+.hero-card:hover img{transform:scale(1.05);}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent 60%);}
+.hero-content{position:relative;z-index:1;}
+.hero-badge{display:inline-block;padding:4px 14px;border-radius:9999px;font-size:11px;font-weight:700;font-family:var(--font-headline);}
+.hero-title{font-family:var(--font-headline);font-size:2rem;font-weight:800;color:#fff;line-height:1.15;margin:8px 0;}
+.hero-desc{color:rgba(255,255,255,0.9);font-size:14px;font-weight:500;max-width:280px;margin-bottom:16px;}
+.hero-btn{background:var(--bg-card);color:var(--teal);font-weight:700;padding:12px 24px;border-radius:9999px;border:none;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font-family:var(--font-headline);transition:transform .15s;}
+.hero-btn:hover{transform:scale(1.04);}
+.hero-btn:active{transform:scale(0.97);}
+/* Category scroll */
+.cat-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 0 4px;margin-bottom:2rem;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.cat-scroll::-webkit-scrollbar{display:none;}
+.cat-btn{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:14px 22px;border-radius:var(--rl);border:none;font-size:14px;font-weight:700;font-family:var(--font-headline);cursor:pointer;transition:all .15s;background:var(--bg2);color:var(--text2);white-space:nowrap;}
+.cat-btn:active{transform:scale(0.95);}
+.cat-btn.active{background:var(--amber-bg);color:var(--amber);}
+/* Section headline */
+.section-title{font-family:var(--font-headline);font-size:1.5rem;font-weight:800;color:var(--teal);margin-bottom:1rem;letter-spacing:-0.02em;}
 
 /* Recipe Tabs */
-.recipe-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem;}
-.recipe-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
-.recipe-tab:hover{border-color:var(--primary);color:var(--primary);}
-.recipe-tab.active{background:var(--primary);color:white;border-color:var(--primary);}
-.add-recipe-tab{background:var(--teal-bg,#e1f5ee);color:var(--teal,#085041);border-color:transparent;}
-.add-recipe-tab:hover{background:var(--primary);color:white;}
+.recipe-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;}
+.recipe-tab{padding:8px 18px;border-radius:9999px;border:none;background:var(--bg2);color:var(--text2);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;font-family:var(--font-headline);}
+.recipe-tab:hover{background:var(--teal-bg);color:var(--teal);}
+.recipe-tab:active{transform:scale(0.95);}
+.recipe-tab.active{background:var(--teal-mid);color:var(--teal);}
+.add-recipe-tab{background:var(--green-bg);color:var(--green);}
+.add-recipe-tab:hover{background:var(--green);color:#fff;}
 /* User Recipe Card */
 .user-recipe{border:1.5px solid var(--primary);position:relative;}
 .user-recipe-badge{position:absolute;top:8px;right:8px;background:var(--primary);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.03em;}
@@ -211,8 +239,8 @@ body{min-height:100vh;min-height:100dvh;}
 .week-cell.draggable-cell:active{cursor:grabbing;}
 
 /* Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;display:flex;align-items:center;justify-content:center;}
-.modal{background:var(--bg);border-radius:var(--rxl);width:calc(100% - 2rem);max-width:480px;max-height:90vh;overflow-y:auto;padding:1.5rem;}
+.modal-overlay{position:fixed;inset:0;background:rgba(45,47,45,0.4);z-index:100;display:flex;align-items:center;justify-content:center;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+.modal{background:var(--bg-card);border-radius:var(--rxl);width:calc(100% - 2rem);max-width:480px;max-height:90vh;overflow-y:auto;padding:1.5rem;}
 .modal-handle{display:none;}
 .modal-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:1rem;}
 .modal-emoji{font-size:40px;line-height:1;}
@@ -245,11 +273,11 @@ body{min-height:100vh;min-height:100dvh;}
 .export-btn.copy:hover{background:var(--teal-bg);}
 .shop-section{margin-bottom:1.5rem;}
 .shop-section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--border);}
-.shop-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r);background:var(--bg);box-shadow:var(--shadow);margin-bottom:6px;cursor:pointer;transition:all .12s;}
+.shop-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--rl);background:var(--bg-card);margin-bottom:8px;cursor:pointer;transition:all .15s;}
 .shop-item:hover{background:var(--bg2);}
 .shop-item.done{opacity:.5;}
-.shop-check{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .12s;}
-.shop-check.done{background:var(--teal);border-color:var(--teal);}
+.shop-check{width:22px;height:22px;border-radius:8px;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.shop-check.done{background:var(--green);border-color:var(--green);}
 .shop-item-name{flex:1;font-size:13px;color:var(--text);}
 .shop-item.done .shop-item-name{text-decoration:line-through;color:var(--text3);}
 .shop-item-qty{font-size:12px;color:var(--text3);}
@@ -263,7 +291,7 @@ body{min-height:100vh;min-height:100dvh;}
 /* Preferences */
 .pref-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 @media(max-width:600px){.pref-grid{grid-template-columns:1fr;}}
-.pref-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.25rem;}
+.pref-card{background:var(--bg-card);border-radius:var(--rl);padding:1.25rem;}
 .pref-card-full{grid-column:1/-1;}
 .pref-card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
 .pref-card-sub{font-size:12px;color:var(--text2);margin-bottom:12px;}
@@ -284,14 +312,14 @@ body{min-height:100vh;min-height:100dvh;}
 
 /* Nutrition */
 .nutr-big-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:1.5rem;}
-.nutr-big-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.25rem;}
+.nutr-big-card{background:var(--bg-card);border-radius:var(--rl);padding:1.25rem;}
 .nutr-big-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:4px;}
 .nutr-big-val{font-size:28px;font-weight:700;color:var(--text);}
 .nutr-big-unit{font-size:13px;font-weight:400;color:var(--text3);}
 .nutr-big-target{font-size:11px;color:var(--text3);margin-top:2px;}
 .bar-track{background:var(--bg2);border-radius:4px;height:6px;margin-top:8px;overflow:hidden;}
 .bar-fill{height:100%;border-radius:4px;transition:width .4s;}
-.tips-card{background:var(--bg);border-radius:var(--rl);box-shadow:var(--shadow);padding:1.25rem;margin-bottom:1rem;}
+.tips-card{background:var(--bg-card);border-radius:var(--rl);padding:1.25rem;margin-bottom:1rem;}
 .tips-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;}
 .tip-item{display:flex;gap:8px;font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
 .tip-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
@@ -312,12 +340,13 @@ body{min-height:100vh;min-height:100dvh;}
 .planner-col{width:170px;flex-shrink:0;}
 .planner-week-sep{width:1px;background:var(--border);flex-shrink:0;margin:0 4px;}
 .planner-week-label{writing-mode:vertical-rl;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);align-self:center;padding:4px 0;}
-.planner-day-head{text-align:center;padding:6px 4px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);cursor:pointer;border-radius:8px;transition:background .12s;}
+.planner-day-head{text-align:center;padding:10px 6px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);cursor:pointer;border-radius:var(--rl);transition:all .15s;font-family:var(--font-headline);}
 .planner-day-head:hover{background:var(--bg3);}
+.planner-day-head:active{transform:scale(0.96);}
 .planner-day-head.selected{background:var(--teal-bg);}
 .planner-day-head.selected strong{color:var(--teal);}
-.planner-day-head strong{display:block;font-size:14px;color:var(--text);letter-spacing:0;font-weight:700;margin-bottom:1px;}
-.planner-card{background:var(--bg);border-radius:10px;box-shadow:var(--shadow);padding:10px 10px 30px;margin-bottom:8px;position:relative;border-left:3px solid transparent;transition:transform .13s,box-shadow .13s;-webkit-tap-highlight-color:transparent;}
+.planner-day-head strong{display:block;font-size:16px;color:var(--text);letter-spacing:0;font-weight:800;margin-bottom:2px;}
+.planner-card{background:var(--bg-card);border-radius:var(--rl);padding:12px 12px 32px;margin-bottom:10px;position:relative;border-left:3px solid transparent;transition:transform .2s,box-shadow .2s;-webkit-tap-highlight-color:transparent;box-shadow:none;}
 .planner-card.draggable-cell{cursor:grab;}
 .planner-card.draggable-cell:active{cursor:grabbing;}
 .planner-card.draggable-cell:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.11);}
@@ -335,8 +364,8 @@ body{min-height:100vh;min-height:100dvh;}
 .planner-slot-label.dinner{color:#3C3489;}
 .planner-slot-label.snack{color:#C2415A;}
 .planner-emoji{font-size:20px;margin-bottom:3px;line-height:1;}
-.planner-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.35;margin-bottom:3px;}
-.planner-meta{font-size:11px;color:var(--text2);font-family:'DM Sans',sans-serif;}
+.planner-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:3px;font-family:var(--font-headline);}
+.planner-meta{font-size:11px;color:var(--text2);font-family:var(--font-body);}
 .planner-empty{font-size:11px;color:var(--text3);padding:10px 0 6px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
 .planner-empty:active{color:var(--teal);}
 .planner-empty:hover{color:var(--teal);}
@@ -374,11 +403,12 @@ body{min-height:100vh;min-height:100dvh;}
 }
 
 /* Shared */
-.btn{font-size:13px;padding:8px 16px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--bg);color:var(--text);cursor:pointer;transition:all .12s;font-family:inherit;}
-.btn:hover{background:var(--bg2);}
-.btn-teal{background:var(--teal);color:#fff;border-color:var(--teal);}
+.btn{font-size:13px;padding:10px 20px;border-radius:9999px;border:none;background:var(--bg2);color:var(--text);cursor:pointer;transition:all .15s;font-family:var(--font-headline);font-weight:600;}
+.btn:hover{background:var(--bg3);}
+.btn:active{transform:scale(0.96);}
+.btn-teal{background:var(--teal-mid);color:var(--teal);border:none;}
 .btn-teal:hover{opacity:.9;}
-.btn-purple{background:var(--purple);color:#fff;border-color:var(--purple);}
+.btn-purple{background:var(--purple);color:#fff;border:none;}
 .btn-purple:hover{opacity:.9;}
 .section-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px;flex-wrap:wrap;}
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(8px);background:var(--text);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:999;white-space:nowrap;}
@@ -388,8 +418,8 @@ body{min-height:100vh;min-height:100dvh;}
 /* ── MOBILE-FIRST OPTIMIZATION ─────────────────────────────────────── */
 
 /* Mobile Header */
-.mobile-header{display:none;position:fixed;top:0;left:0;right:0;height:52px;background:var(--bg);border-bottom:0.5px solid var(--border);z-index:90;align-items:center;justify-content:space-between;padding:0 12px;padding-top:env(safe-area-inset-top);gap:8px;}
-.mobile-header-title{font-size:17px;font-weight:700;color:var(--text);flex:1;text-align:center;letter-spacing:-.01em;}
+.mobile-header{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:var(--bg);z-index:90;align-items:center;justify-content:space-between;padding:0 16px;padding-top:env(safe-area-inset-top);gap:8px;}
+.mobile-header-title{font-size:1.25rem;font-weight:800;color:var(--teal);flex:1;text-align:center;letter-spacing:-.01em;font-family:var(--font-headline);}
 .mobile-header-spacer{width:40px;}
 
 /* Hamburger Button */
@@ -408,17 +438,19 @@ body{min-height:100vh;min-height:100dvh;}
 .sidebar{transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);will-change:transform;}
 
 /* ── BOTTOM TAB BAR ─────────────────────────────────────────── */
-.bottom-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;background:var(--bg);border-top:0.5px solid var(--border);padding-bottom:env(safe-area-inset-bottom);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);}
-.bottom-tab-bar-inner{display:flex;align-items:stretch;height:56px;}
-.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;padding:6px 4px 2px;color:var(--text3);font-family:inherit;transition:color .15s;position:relative;-webkit-tap-highlight-color:transparent;}
-.bottom-tab:active{background:var(--bg2);}
-.bottom-tab.active{color:var(--teal);}
+.bottom-tab-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:90;background:rgba(255,255,255,0.80);border-top:none;padding-bottom:env(safe-area-inset-bottom);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:3rem 3rem 0 0;box-shadow:0 -4px 24px rgba(45,47,45,0.06);}
+@media(prefers-color-scheme:dark){.bottom-tab-bar{background:rgba(28,28,26,0.80);}}
+.bottom-tab-bar-inner{display:flex;align-items:stretch;height:60px;padding:0 8px;}
+.bottom-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;padding:6px 4px 2px;color:var(--text3);font-family:var(--font-headline);transition:all .2s;position:relative;-webkit-tap-highlight-color:transparent;border-radius:9999px;}
+.bottom-tab:active{transform:scale(0.9);}
+.bottom-tab.active{color:var(--teal);background:var(--teal-mid);border-radius:9999px;padding:6px 16px 2px;}
+.bottom-tab .material-symbols-outlined{font-size:24px;}
 .bottom-tab svg{width:22px;height:22px;flex-shrink:0;}
-.bottom-tab-label{font-size:10px;font-weight:600;letter-spacing:.01em;white-space:nowrap;}
-.bottom-tab-badge{position:absolute;top:4px;right:calc(50% - 14px);background:var(--teal);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:999px;min-width:14px;text-align:center;line-height:14px;}
-.bottom-more-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;padding:6px 4px 2px;color:var(--text3);font-family:inherit;-webkit-tap-highlight-color:transparent;}
-.bottom-more-tab:active{background:var(--bg2);}
-.bottom-more-tab-label{font-size:10px;font-weight:600;letter-spacing:.01em;}
+.bottom-tab-label{font-size:11px;font-weight:700;white-space:nowrap;}
+.bottom-tab-badge{position:absolute;top:4px;right:calc(50% - 14px);background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:1px 4px;border-radius:999px;min-width:14px;text-align:center;line-height:14px;}
+.bottom-more-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;background:none;border:none;padding:6px 4px 2px;color:var(--text3);font-family:var(--font-headline);-webkit-tap-highlight-color:transparent;border-radius:9999px;}
+.bottom-more-tab:active{transform:scale(0.9);}
+.bottom-more-tab-label{font-size:11px;font-weight:700;}
 
 /* Mobile (<720px) */
 @media(max-width:719px){
@@ -428,65 +460,64 @@ body{min-height:100vh;min-height:100dvh;}
   .nav-drawer-overlay.open{pointer-events:auto;}
   .bottom-tab-bar{display:block;}
 
-  .sidebar{position:fixed;left:0;top:0;bottom:0;width:80vw;max-width:300px;transform:translateX(-100%);z-index:100;border-right:0.5px solid var(--border);padding-top:max(12px,env(safe-area-inset-top));overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:4px 0 24px rgba(0,0,0,.18);}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:80vw;max-width:300px;transform:translateX(-100%);z-index:100;padding-top:max(12px,env(safe-area-inset-top));overflow-y:auto;-webkit-overflow-scrolling:touch;box-shadow:4px 0 24px rgba(0,0,0,.18);}
   .sidebar.open{transform:translateX(0);}
 
   .shell{display:flex;flex-direction:column;}
-  /* top: mobile header (52px+safe-area), bottom: tab bar (56px+safe-area) */
   .main{
-    padding-top:calc(52px + env(safe-area-inset-top));
-    padding-left:1rem;
-    padding-right:1rem;
-    padding-bottom:calc(56px + env(safe-area-inset-bottom) + 1rem);
+    padding-top:calc(60px + env(safe-area-inset-top));
+    padding-left:1.25rem;
+    padding-right:1.25rem;
+    padding-bottom:calc(70px + env(safe-area-inset-bottom) + 1rem);
+    max-width:100%;
   }
 
   /* Larger touch targets */
-  .nav-item{height:52px;padding:14px 16px;font-size:14px;}
+  .nav-item{height:52px;padding:14px 16px;font-size:15px;margin:2px 8px;}
 
-  /* Recipe grid: 1 col on small, 2 col on larger phones */
-  .recipe-grid{grid-template-columns:1fr;}
+  /* Recipe grid: 2 col asymmetric */
+  .recipe-grid{grid-template-columns:repeat(2,1fr);gap:12px;}
 
-  /* Input optimization - prevent zoom on iOS */
-  .search-input,.pref-input,.setup-input,.ai-input{height:44px;padding:12px;font-size:16px !important;}
-
-  /* Filter chips */
-  .filter-chip{min-height:36px;padding:8px 12px;}
+  /* Input optimization */
+  .search-input{height:50px;padding:14px 50px 14px 48px;font-size:16px !important;border-radius:var(--rl);}
+  .pref-input,.setup-input,.ai-input{height:44px;padding:12px;font-size:16px !important;}
 
   /* Modal: slide up from bottom */
-  .modal{max-height:92vh;padding:20px 16px;border-bottom-left-radius:0;border-bottom-right-radius:0;width:100%;max-width:100%;margin-top:auto;}
+  .modal{max-height:92vh;padding:20px 16px;border-bottom-left-radius:0;border-bottom-right-radius:0;width:100%;max-width:100%;margin-top:auto;border-radius:var(--rxl) var(--rxl) 0 0;}
   .modal-overlay{align-items:flex-end;}
   .modal-handle{display:block;margin-bottom:16px;}
 
   /* Button sizing */
-  .btn{padding:14px 18px;font-size:15px;}
-  .add-btn{width:40px;height:40px;min-width:40px;}
-
-  /* Card adjustments */
-  .recipe-card{padding:0.875rem;}
-  .recipe-emoji{font-size:28px;}
+  .btn{padding:12px 20px;font-size:14px;}
+  .add-btn{width:36px;height:36px;min-width:36px;}
 
   /* Section row on mobile */
   .section-row{flex-direction:column;align-items:flex-start;}
   .section-row>*:last-child{align-self:flex-end;}
 
   /* Toast higher so it clears bottom bar */
-  .toast{bottom:calc(56px + env(safe-area-inset-bottom) + 1rem);}
+  .toast{bottom:calc(70px + env(safe-area-inset-bottom) + 1rem);}
 
   /* Shopping header wrap */
   .shopping-header{flex-direction:column;align-items:flex-start;}
-  .export-btns{width:100%;justify-content:flex-start;}
+  .export-btns{width:100%;justify-content:flex-start;overflow-x:auto;}
 
   /* Planner scroll on mobile */
-  .planner-scroll{margin:0 -1rem;padding:0 1rem 8px;}
+  .planner-scroll{margin:0 -1.25rem;padding:0 1.25rem 8px;}
+
+  /* Hero on mobile */
+  .hero-card{min-height:260px;padding:1.5rem;border-radius:var(--rl);}
+  .hero-title{font-size:1.5rem;}
 }
 
 /* Small phones (320-479px) */
 @media(max-width:479px){
   .sidebar{width:85vw;max-width:280px;}
-  .recipe-card-name{font-size:14px;}
-  .recipe-card-meta{font-size:11px;}
-  .page-title{font-size:20px;}
+  .page-title{font-size:1.5rem;}
   .page-sub{font-size:12px;}
+  .hero-card{min-height:220px;}
+  .hero-title{font-size:1.25rem;}
+  .section-title{font-size:1.25rem;}
 }
 
 /* Medium phones (480-719px): 2-col recipe grid */
@@ -501,20 +532,20 @@ body{min-height:100vh;min-height:100dvh;}
   .nav-drawer-overlay{display:none !important;}
   .bottom-tab-bar{display:none !important;}
 
-  .sidebar{position:fixed;left:0;top:0;bottom:0;width:240px;transform:translateX(0) !important;overflow-y:auto;border-right:0.5px solid var(--border);}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;width:260px;transform:translateX(0) !important;overflow-y:auto;}
   .sidebar.open{transform:translateX(0) !important;}
 
   .shell{display:flex;}
-  .main{padding-left:256px;padding-right:1.5rem;padding-top:1.5rem;padding-bottom:max(1.5rem,env(safe-area-inset-bottom));}
+  .main{padding-left:280px;padding-right:2rem;padding-top:2rem;padding-bottom:max(2rem,env(safe-area-inset-bottom));max-width:960px;}
 
-  .nav-item{height:auto;padding:8px 14px;}
-  .recipe-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr));}
+  .nav-item{height:auto;padding:10px 16px;margin:2px 12px;}
+  .recipe-grid{grid-template-columns:repeat(3,1fr);gap:20px;}
 }
 
 /* Large tablets (1024px+) */
 @media(min-width:1024px){
-  .recipe-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
-  .main{padding-left:256px;padding-right:2rem;}
+  .recipe-grid{grid-template-columns:repeat(4,1fr);gap:24px;}
+  .main{padding-left:280px;padding-right:2rem;max-width:1100px;}
 }
 
 /* Safe area support */
@@ -528,21 +559,21 @@ body{min-height:100vh;min-height:100dvh;}
 .sidebar,.bottom-tab-bar,.mobile-header,.btn,.btn-teal,.nav-item,.age-pill,.filter-chip,.recipe-tab,.theme-swatch{transition:color 0.2s ease,background-color 0.2s ease,border-color 0.2s ease;}
 
 /* ── Theme accent colours (apply in all colour schemes) ── */
-:root[data-theme="baby-blue"],:root{--primary:#0D7A69;--primary-bg:#C5E9E5;--primary-mid:#5B9C96;--teal:#0D7A69;--teal-bg:#C5E9E5;--teal-mid:#5B9C96;}
-:root[data-theme="baby-pink"]{--primary:#D97A94;--primary-bg:#FDE8EE;--primary-mid:#E8B4C8;--teal:#D97A94;--teal-bg:#FDE8EE;--teal-mid:#E8B4C8;}
-:root[data-theme="baby-orange"]{--primary:#E8995A;--primary-bg:#FFF0E6;--primary-mid:#F0B88A;--teal:#E8995A;--teal-bg:#FFF0E6;--teal-mid:#F0B88A;}
-:root[data-theme="baby-green"]{--primary:#5FBD9A;--primary-bg:#E8F6F1;--primary-mid:#8FD4B4;--teal:#5FBD9A;--teal-bg:#E8F6F1;--teal-mid:#8FD4B4;}
-:root[data-theme="baby-purple"]{--primary:#B89FD9;--primary-bg:#F3EFFE;--primary-mid:#D4BFED;--teal:#B89FD9;--teal-bg:#F3EFFE;--teal-mid:#D4BFED;}
-:root[data-theme="baby-yellow"]{--primary:#E8C85A;--primary-bg:#FFFDE8;--primary-mid:#F0D98A;--teal:#E8C85A;--teal-bg:#FFFDE8;--teal-mid:#F0D98A;}
+:root[data-theme="baby-blue"],:root{--primary:#7b5400;--primary-bg:rgba(254,179,0,0.14);--primary-mid:#feb300;--teal:#7b5400;--teal-bg:rgba(254,179,0,0.14);--teal-mid:#feb300;}
+:root[data-theme="baby-pink"]{--primary:#D97A94;--primary-bg:#FDE8EE;--primary-mid:#F8C4D4;--teal:#D97A94;--teal-bg:#FDE8EE;--teal-mid:#F8C4D4;}
+:root[data-theme="baby-orange"]{--primary:#C47A2C;--primary-bg:#FFF0E6;--primary-mid:#F0B88A;--teal:#C47A2C;--teal-bg:#FFF0E6;--teal-mid:#F0B88A;}
+:root[data-theme="baby-green"]{--primary:#3a6700;--primary-bg:rgba(190,250,127,0.18);--primary-mid:#befa7f;--teal:#3a6700;--teal-bg:rgba(190,250,127,0.18);--teal-mid:#befa7f;}
+:root[data-theme="baby-purple"]{--primary:#6B5DAA;--primary-bg:#F3EFFE;--primary-mid:#D4BFED;--teal:#6B5DAA;--teal-bg:#F3EFFE;--teal-mid:#D4BFED;}
+:root[data-theme="baby-yellow"]{--primary:#8b4b00;--primary-bg:rgba(255,198,153,0.2);--primary-mid:#ffc699;--teal:#8b4b00;--teal-bg:rgba(255,198,153,0.2);--teal-mid:#ffc699;}
 
 /* ── Tinted backgrounds: LIGHT MODE ONLY so dark mode bg & text stay correct ── */
 @media(prefers-color-scheme:light){
-  :root[data-theme="baby-blue"],:root{--bg:#FFFFFF;--bg2:#EDF5FF;--bg3:#D8ECFF;}
-  :root[data-theme="baby-pink"]{--bg:#FFFAFE;--bg2:#FCEEF4;--bg3:#F8DFE8;}
-  :root[data-theme="baby-orange"]{--bg:#FFFCFA;--bg2:#FDF0E6;--bg3:#FAE4D0;}
-  :root[data-theme="baby-green"]{--bg:#FAFFFD;--bg2:#E6F7F0;--bg3:#D2EFE4;}
-  :root[data-theme="baby-purple"]{--bg:#FDFAFF;--bg2:#F0EAFD;--bg3:#E5D9FA;}
-  :root[data-theme="baby-yellow"]{--bg:#FFFEFA;--bg2:#FFFCE0;--bg3:#FFF8C2;}
+  :root[data-theme="baby-blue"],:root{--bg:#f7f7f3;--bg2:#e8e9e4;--bg3:#dcddd9;--bg-card:#ffffff;}
+  :root[data-theme="baby-pink"]{--bg:#fef7f9;--bg2:#fceef4;--bg3:#f8dfe8;--bg-card:#ffffff;}
+  :root[data-theme="baby-orange"]{--bg:#fdf8f4;--bg2:#fdf0e6;--bg3:#fae4d0;--bg-card:#ffffff;}
+  :root[data-theme="baby-green"]{--bg:#f5f9f3;--bg2:#e6f7f0;--bg3:#d2efe4;--bg-card:#ffffff;}
+  :root[data-theme="baby-purple"]{--bg:#f9f7fc;--bg2:#f0eafd;--bg3:#e5d9fa;--bg-card:#ffffff;}
+  :root[data-theme="baby-yellow"]{--bg:#faf9f3;--bg2:#fff8e0;--bg3:#fff0c2;--bg-card:#ffffff;}
 }
 
 /* Dark Mode Variants */
@@ -619,8 +650,10 @@ body{min-height:100vh;min-height:100dvh;}
       <span></span>
       <span></span>
     </button>
-    <div class="mobile-header-title">Tiny Bites</div>
-    <div class="mobile-header-spacer"></div>
+    <div class="mobile-header-title">Food Explorer</div>
+    <button onclick="gotoPage('prefs')" style="background:none;border:none;cursor:pointer;color:var(--teal);padding:6px;">
+      <span class="material-symbols-outlined">notifications</span>
+    </button>
   </div>
 
   <!-- Navigation Drawer Overlay -->
@@ -687,27 +720,27 @@ body{min-height:100vh;min-height:100dvh;}
   <!-- Bottom Tab Bar (mobile only) -->
   <div class="bottom-tab-bar" id="bottom-tab-bar">
     <div class="bottom-tab-bar-inner">
-      <button class="bottom-tab active" id="btab-home" onclick="gotoPage('home')" aria-label="Home">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        <span class="bottom-tab-label">Home</span>
+      <button class="bottom-tab active" id="btab-home" onclick="gotoPage('home')" aria-label="Explorer">
+        <span class="material-symbols-outlined">explore</span>
+        <span class="bottom-tab-label">Explorer</span>
       </button>
-      <button class="bottom-tab" id="btab-week" onclick="gotoPage('week')" aria-label="Weekly Plan">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        <span class="bottom-tab-label">Plan</span>
+      <button class="bottom-tab" id="btab-week" onclick="gotoPage('week')" aria-label="Planner">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <span class="bottom-tab-label">Planner</span>
       </button>
-      <button class="bottom-tab" id="btab-favorites" onclick="gotoPage('favorites')" aria-label="Favorites">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <button class="bottom-tab" id="btab-favorites" onclick="gotoPage('favorites')" aria-label="Saved">
+        <span class="material-symbols-outlined">favorite</span>
         <span class="bottom-tab-label">Saved</span>
         <span class="bottom-tab-badge" id="btab-fav-badge" style="display:none"></span>
       </button>
-      <button class="bottom-tab" id="btab-shopping" onclick="gotoPage('shopping')" aria-label="Shopping List">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        <span class="bottom-tab-label">Shop</span>
+      <button class="bottom-tab" id="btab-shopping" onclick="gotoPage('shopping')" aria-label="Grocery">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span class="bottom-tab-label">Grocery</span>
         <span class="bottom-tab-badge" id="btab-shop-badge" style="display:none"></span>
       </button>
       <button class="bottom-more-tab" onclick="toggleDrawer()" aria-label="More">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="5" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="19" r="1.2" fill="currentColor"/></svg>
-        <span class="bottom-more-tab-label">More</span>
+        <span class="material-symbols-outlined">face</span>
+        <span class="bottom-more-tab-label">Profile</span>
       </button>
     </div>
   </div>
@@ -1390,81 +1423,99 @@ function renderHomePage(){
   const userCount=(ST.userRecipes||[]).filter(r=>r.age===ST.age).length;
   const appCount=RECIPES.filter(r=>r.age===ST.age).length;
   const tab=ST.recipeTab||'all';
-  return`<div class="page-header">
-    <div class="page-title">Discover recipes</div>
-    <div class="page-sub">${appCount+userCount} recipes for ${ST.age==='baby'?'babies (6–12m)':'toddlers (1–3y)'}</div>
-  </div>
-  <div class="recipe-tabs">
-    <button class="recipe-tab${tab==='all'?' active':''}" onclick="ST.recipeTab='all';save();renderPage()">All (${appCount+userCount})</button>
-    <button class="recipe-tab${tab==='app'?' active':''}" onclick="ST.recipeTab='app';save();renderPage()">App (${appCount})</button>
-    <button class="recipe-tab${tab==='added'?' active':''}" onclick="ST.recipeTab='added';save();renderPage()">My recipes (${userCount})</button>
-    <button class="recipe-tab add-recipe-tab" onclick="openAddRecipeModal()">+ Add recipe</button>
-  </div>
+
+  // Pick a featured recipe for the hero
+  const heroPool=recipes.filter(r=>RECIPE_IMAGES[r.id]);
+  const heroR=heroPool.length?heroPool[Math.floor(Date.now()/(24*60*60*1000))%heroPool.length]:recipes[0];
+
+  // Categories with material icons
+  const catIcons={Breakfast:'breakfast_dining',Lunch:'lunch_dining',Dinner:'dinner_dining',Snack:'icecream',Puree:'blender',Soup:'soup_kitchen','Finger food':'cookie','Quick & easy':'bolt',Meat:'kebab_dining',Fish:'set_meal',Pasta:'ramen_dining',Vegetarian:'eco'};
+
+  return`
+  <!-- Search -->
   <div class="search-wrap">
-    <svg class="search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M11 11l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-    <input class="search-input" type="text" placeholder="Search recipes, ingredients, meal type…" value="${esc(ST.search)}" oninput="ST.search=this.value;save();clearTimeout(window._searchT);window._searchT=setTimeout(renderPage,220);" id="search-inp"/>
-    ${ST.search?`<button class="search-clear" onclick="ST.search='';save();renderPage()">×</button>`:''}
+    <span class="material-symbols-outlined search-icon" style="font-size:20px;">search</span>
+    <input class="search-input" type="text" placeholder="Find yummy food..." value="${esc(ST.search)}" oninput="ST.search=this.value;save();clearTimeout(window._searchT);window._searchT=setTimeout(renderPage,220);" id="search-inp"/>
+    ${ST.search?`<button class="search-clear" onclick="ST.search='';save();renderPage()"><span class="material-symbols-outlined" style="font-size:18px;">close</span></button>`:''}
   </div>
-  <div class="filter-row">
+
+  ${!ST.search?`
+  <!-- Hero -->
+  ${heroR?`<div class="section-title">Today's Big Find</div>
+  <div class="hero-card" onclick="openRecipe(${heroR.id})">
+    ${RECIPE_IMAGES[heroR.id]?`<img src="${RECIPE_IMAGES[heroR.id]}" alt="${esc(heroR.name)}" loading="lazy">`:''}
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <span class="hero-badge" style="background:var(--teal-mid);color:var(--teal);">POPULAR</span>
+        <span class="hero-badge" style="background:var(--green);color:#d9ffae;">HEALTHY</span>
+      </div>
+      <div class="hero-title">${esc(heroR.name)}</div>
+      <div class="hero-desc">${heroR.desc.slice(0,80)}${heroR.desc.length>80?'...':''}</div>
+      <button class="hero-btn" onclick="event.stopPropagation();openRecipe(${heroR.id})">Start Cooking <span class="material-symbols-outlined">play_circle</span></button>
+    </div>
+  </div>`:''}`:''}
+
+  <!-- Categories -->
+  <div class="cat-scroll">
+    ${MEAL_TYPES.map(t=>`<button class="cat-btn${ST.activeTypes.includes(t)?' active':''}" onclick="toggleType('${t}')"><span class="material-symbols-outlined" style="font-size:20px;">${catIcons[t]||'restaurant'}</span>${t}</button>`).join('')}
+  </div>
+
+  <!-- Filter: Allergens -->
+  <div class="filter-row" style="margin-bottom:1.5rem;">
     <span class="filter-label">Avoid:</span>
     ${ALLERGENS_ALL.map(a=>`<span class="filter-chip${ST.avoidAllergens.includes(a)?' active-avoid':''}" onclick="toggleAllergen('${a}')">${ST.avoidAllergens.includes(a)?'✕ ':'+'}${a}</span>`).join('')}
   </div>
-  <div class="filter-row">
-    <span class="filter-label">Type:</span>
-    ${MEAL_TYPES.map(t=>`<span class="filter-chip${ST.activeTypes.includes(t)?' active-type':''}" onclick="toggleType('${t}')">${t}</span>`).join('')}
-    ${ST.activeTypes.length?`<span class="filter-chip" onclick="ST.activeTypes=[];save();renderPage()" style="opacity:.6">Clear</span>`:''}
+
+  <!-- Tabs -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;">
+    <div class="recipe-tabs" style="margin:0;">
+      <button class="recipe-tab${tab==='all'?' active':''}" onclick="ST.recipeTab='all';save();renderPage()">All (${appCount+userCount})</button>
+      <button class="recipe-tab${tab==='app'?' active':''}" onclick="ST.recipeTab='app';save();renderPage()">App (${appCount})</button>
+      <button class="recipe-tab${tab==='added'?' active':''}" onclick="ST.recipeTab='added';save();renderPage()">My recipes (${userCount})</button>
+    </div>
+    <button class="btn" style="background:var(--green-bg);color:var(--green);" onclick="openAddRecipeModal()"><span class="material-symbols-outlined" style="font-size:16px;vertical-align:middle;">add</span> Add</button>
   </div>
-  ${aiSuggested.length?`<div style="background:var(--purple-bg);border-radius:var(--rl);padding:12px 16px;margin-bottom:1.25rem;font-size:13px;color:var(--purple);display:flex;align-items:center;gap:10px;">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9l-3 1.5.5-3.5L2 4.5 5.5 4z" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/></svg>
-    Claude suggested ${aiSuggested.length} recipe${aiSuggested.length!==1?'s':''} — highlighted in purple below
+
+  ${aiSuggested.length?`<div style="background:var(--purple-bg);border-radius:9999px;padding:10px 18px;margin-bottom:1.25rem;font-size:13px;color:var(--purple);display:inline-flex;align-items:center;gap:8px;font-weight:600;font-family:var(--font-headline);">
+    <span class="material-symbols-outlined" style="font-size:16px;">auto_awesome</span>
+    Claude suggested ${aiSuggested.length} recipe${aiSuggested.length!==1?'s':''}
   </div>`:''}
-  ${recipes.length===0?`<div class="no-results"><div style="font-size:36px;margin-bottom:8px;">🔍</div><div style="font-size:15px;font-weight:600;margin-bottom:4px;">No recipes found</div><div style="font-size:13px;color:var(--text2);">Try adjusting filters or search term</div></div>`:`
-  <div style="font-size:12px;color:var(--text3);margin-bottom:10px;">${recipes.length} recipe${recipes.length!==1?'s':''} shown</div>
-  <div class="recipe-grid">${recipes.map(r=>renderCard(r,aiSuggested.includes(r.id))).join('')}</div>`}`;
+
+  ${recipes.length===0?`<div class="no-results"><div style="font-size:48px;margin-bottom:12px;">🔍</div><div style="font-size:17px;font-weight:700;margin-bottom:6px;font-family:var(--font-headline);">No recipes found</div><div style="font-size:13px;color:var(--text2);">Try adjusting filters or search term</div></div>`:`
+  <div class="recipe-grid">${recipes.map((r,i)=>renderCard(r,aiSuggested.includes(r.id),i)).join('')}</div>`}`;
 }
 
-function renderCard(r,aiHighlight){
+function renderCard(r,aiHighlight,idx){
   const added=ST.selectedRecipes.includes(r.id);
   const fav=isFavorited(r.id);
   const isUser=!!r.isUserRecipe;
   const imgUrl=RECIPE_IMAGES[r.id];
-  return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}${isUser?' user-recipe':''}" onclick="openRecipe(${r.id})">
+  // Asymmetric offset: odd cards in second column shift down
+  const offset=(typeof idx==='number'&&idx%2===1)?'margin-top:2rem;':'';
+  const aspect=(typeof idx==='number'&&idx%4<2)?'aspect-ratio:1/1;':'aspect-ratio:4/5;';
+  return`<div class="recipe-card${added?' selected':''}${aiHighlight?' ai-suggested':''}${isUser?' user-recipe':''}" style="${offset}" onclick="openRecipe(${r.id})">
     ${isUser?`<div class="user-recipe-badge">My recipe</div>`:''}
-    ${imgUrl?`<img class="recipe-card-img" src="${imgUrl}" alt="${esc(r.name)}" loading="lazy" onerror="this.style.display='none'">`:'<div style="padding-top:1rem;padding-left:1rem;font-size:28px;line-height:1;">${r.emoji}</div>'}
+    <div class="recipe-card-img-wrap">
+    ${imgUrl?`<img class="recipe-card-img" style="${aspect}" src="${imgUrl}" alt="${esc(r.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'padding:2rem;font-size:48px;text-align:center;\\'>${r.emoji}</div>'">`:`<div style="padding:2rem;font-size:48px;text-align:center;${aspect}display:flex;align-items:center;justify-content:center;">${r.emoji}</div>`}
+    </div>
     <div class="recipe-card-body">
-    <div class="recipe-card-top">
-      <div><div class="recipe-card-name">${esc(r.name)}</div><div class="recipe-card-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal} kcal</div></div>
-      <div style="display:flex;gap:6px;">
-        <button class="add-btn${fav?' added':''}" onclick="event.stopPropagation();toggleFavorite(${r.id})" title="Add to favorites" style="background:${fav?'#e91e63':'transparent'};border:1px solid ${fav?'#e91e63':'#ccc'};padding:5px 8px;border-radius:6px;cursor:pointer;font-size:14px;">
-          ${fav?'❤️':'🤍'}
-        </button>
-        <button class="add-btn${added?' added':''}" onclick="event.stopPropagation();toggleRecipe(${r.id})">
-          ${added?`<svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`:`+`}
-        </button>
-        ${isUser?`<button class="add-btn" onclick="event.stopPropagation();deleteUserRecipe(${r.id})" title="Delete recipe" style="background:transparent;border:1px solid #ccc;padding:5px 8px;border-radius:6px;cursor:pointer;font-size:14px;color:#e53935;">🗑</button>`:''}
+      <div class="recipe-card-name">${esc(r.name)}</div>
+      <div class="recipe-card-meta">
+        <span class="material-symbols-outlined" style="font-size:14px;font-variation-settings:'FILL' 1;color:var(--green);">star</span>
+        <span style="font-weight:700;color:var(--green);">${(4.5+r.id%5*0.1).toFixed(1)}</span>
+        <span style="color:var(--text3);">· ${r.time<60?r.time+'m':Math.round(r.time/60)+'h'}</span>
       </div>
-    </div>
-    <div class="recipe-desc">${r.desc.slice(0,80)}${r.desc.length>80?'…':''}</div>
-    <div class="recipe-tags">
-      <span class="tag" style="background:var(--bg2);color:var(--text2);border:0.5px solid var(--border);">${r.type}</span>
-      ${r.allergens.length?r.allergens.slice(0,2).map(a=>`<span class="tag" style="background:var(--red-bg);color:var(--red);">${a}</span>`).join(''):`<span class="tag" style="background:var(--green-bg);color:var(--green);">Allergen-free</span>`}
-      ${aiHighlight?`<span class="tag" style="background:var(--purple-bg);color:var(--purple);">✨ Claude pick</span>`:''}
-    </div>
-    <div class="recipe-nutrition">
-      ${[['Carbs',r.carbs,'g'],['Protein',r.protein,'g'],['Fat',r.fat,'g']].map(([l,v,u])=>`<div class="nutr-item"><div class="nutr-val">${v}${u}</div><div class="nutr-lbl">${l}</div></div>`).join('')}
-    </div>
     </div>
   </div>`;
 }
 
 function renderFavoritesPage(){
   const favRecipes=RECIPES.filter(r=>ST.favorites.includes(r.id)&&r.age===ST.age);
-  return`<div class="page-header">
-    <div class="page-title">Your Favorites</div>
-    <div class="page-sub">${favRecipes.length} recipe${favRecipes.length!==1?'s':''} saved</div>
-  </div>
-  ${favRecipes.length===0?`<div style="text-align:center;padding:2rem;color:var(--text2);"><div style="font-size:36px;margin-bottom:12px;">❤️</div><div style="font-size:15px;font-weight:600;margin-bottom:6px;">No favorites yet</div><div style="font-size:13px;">Tap the heart on any recipe to save it here</div><button class="btn btn-teal" onclick="gotoPage('home')" style="margin-top:1.5rem;">Browse recipes</button></div>`:`
-  <div class="recipe-grid">${favRecipes.map(r=>renderCard(r,false)).join('')}</div>`}`;
+  return`<div class="section-title">Your Favorites</div>
+  <div class="page-sub" style="margin-bottom:1.5rem;">${favRecipes.length} recipe${favRecipes.length!==1?'s':''} saved</div>
+  ${favRecipes.length===0?`<div style="text-align:center;padding:3rem 1rem;color:var(--text2);"><div style="font-size:48px;margin-bottom:16px;">❤️</div><div style="font-size:17px;font-weight:700;margin-bottom:8px;font-family:var(--font-headline);">No favorites yet</div><div style="font-size:14px;margin-bottom:1.5rem;">Tap the heart on any recipe to save it here</div><button class="btn btn-teal" onclick="gotoPage('home')">Browse recipes</button></div>`:`
+  <div class="recipe-grid">${favRecipes.map((r,i)=>renderCard(r,false,i)).join('')}</div>`}`;
 }
 
 function renderWeekPage(){
@@ -1482,24 +1533,21 @@ function renderWeekPage(){
 
   // ── Shared page header ──
   const header=`
-  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:1rem;">
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:1.25rem;">
     <div>
-      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--teal);margin-bottom:2px;">WEEKLY</div>
-      <div class="page-title">Meal Planner ${ST.unsavedMealChanges?'<span style="color:#E84393;font-size:12px;">●</span>':''}</div>
+      <div class="section-title" style="margin-bottom:2px;">Meal Planner ${ST.unsavedMealChanges?'<span style="color:#E84393;font-size:12px;">●</span>':''}</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button class="btn" onclick="gotoPage('prefs')" style="display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 12px;">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        Preferences
+      <button class="btn" onclick="gotoPage('prefs')" style="display:flex;align-items:center;gap:6px;">
+        <span class="material-symbols-outlined" style="font-size:18px;">tune</span> Preferences
       </button>
-      <button class="btn btn-teal" onclick="resetMealPlan();toast('Week regenerated!')" style="display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 12px;">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 1 1 8 2.5a5.5 5.5 0 0 1 4 1.7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><polyline points="10.5,1 13.5,4.2 10.5,4.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Regenerate Week
+      <button class="btn btn-teal" onclick="resetMealPlan();toast('Week regenerated!')" style="display:flex;align-items:center;gap:6px;">
+        <span class="material-symbols-outlined" style="font-size:18px;">autorenew</span> Regenerate
       </button>
     </div>
   </div>
-  <div style="display:flex;border-bottom:1.5px solid var(--border);margin-bottom:1.25rem;gap:0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
-    ${tabDefs.map(([id,label,svg])=>`<button type="button" onclick="setWeekTab('${id}')" style="background:none;border:none;border-bottom:${wTab===id?'2.5px solid var(--teal)':'2.5px solid transparent'};padding:10px 14px 9px;font-size:13px;font-weight:${wTab===id?'700':'500'};color:${wTab===id?'var(--teal)':'var(--text2)'};cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;white-space:nowrap;margin-bottom:-1.5px;transition:color .12s;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none">${svg}</svg>${label}</button>`).join('')}
+  <div class="cat-scroll" style="margin-bottom:1.25rem;">
+    ${tabDefs.map(([id,label,svg])=>`<button type="button" class="cat-btn${wTab===id?' active':''}" onclick="setWeekTab('${id}')" style="padding:10px 18px;font-size:13px;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none">${svg}</svg>${label}</button>`).join('')}
   </div>`;
 
   // ── Recipes tab ──
@@ -1522,15 +1570,15 @@ function renderWeekPage(){
       <input class="search-input" id="search-inp" type="search" placeholder="Search recipes, ingredients…" value="${esc(ST.search||'')}" oninput="ST.search=this.value;save();clearTimeout(window._searchT);window._searchT=setTimeout(renderPage,220);">
       ${ST.search?`<button class="search-clear" onclick="ST.search='';save();renderPage()">×</button>`:''}
     </div>
-    ${recipes.length===0?`<div class="no-results"><div style="font-size:36px;margin-bottom:12px;">🔍</div><div style="font-weight:600;margin-bottom:4px;">No recipes found</div><div>Try a different search or filter</div></div>`:`<div class="recipe-grid">${recipes.map(r=>renderCard(r,false)).join('')}</div>`}`;
+    ${recipes.length===0?`<div class="no-results"><div style="font-size:48px;margin-bottom:12px;">🔍</div><div style="font-weight:700;margin-bottom:6px;font-family:var(--font-headline);">No recipes found</div><div>Try a different search or filter</div></div>`:`<div class="recipe-grid">${recipes.map((r,i)=>renderCard(r,false,i)).join('')}</div>`}`;
   }
 
   // ── Favourites tab ──
   if(wTab==='favourites'){
     const favRecipes=getAllRecipes().filter(r=>ST.favorites.includes(r.id)&&r.age===ST.age);
     return header+(favRecipes.length===0
-      ?`<div style="text-align:center;padding:3rem 1rem;color:var(--text2);"><div style="font-size:48px;margin-bottom:12px;">❤️</div><div style="font-size:16px;font-weight:600;margin-bottom:6px;">No favourites yet</div><div style="font-size:13px;margin-bottom:1.5rem;">Tap the heart on any recipe to save it here</div><button class="btn btn-teal" onclick="setWeekTab('recipes')">Browse recipes</button></div>`
-      :`<div class="recipe-grid">${favRecipes.map(r=>renderCard(r,false)).join('')}</div>`);
+      ?`<div style="text-align:center;padding:3rem 1rem;color:var(--text2);"><div style="font-size:48px;margin-bottom:16px;">❤️</div><div style="font-size:17px;font-weight:700;margin-bottom:8px;font-family:var(--font-headline);">No favourites yet</div><div style="font-size:14px;margin-bottom:1.5rem;">Tap the heart on any recipe to save it here</div><button class="btn btn-teal" onclick="setWeekTab('recipes')">Browse recipes</button></div>`
+      :`<div class="recipe-grid">${favRecipes.map((r,i)=>renderCard(r,false,i)).join('')}</div>`);
   }
 
   // ── Shopping tab ──
@@ -1609,19 +1657,19 @@ function renderWeekPage(){
   }).join('');
 
   return header+`
-  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:1rem;">
-    <button type="button" onclick="${hasSelection?'addToListFromSelection()':''}" style="display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--rl);border:none;font-size:13px;font-weight:600;cursor:${hasSelection?'pointer':'default'};font-family:inherit;background:${hasSelection?'var(--teal)':'var(--bg3)'};color:${hasSelection?'#fff':'var(--text3)'};transition:all .2s;flex-shrink:0;">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M2 2h1.5l2 8h7l1.5-5.5H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="13" r="1" fill="currentColor"/><circle cx="11.5" cy="13" r="1" fill="currentColor"/></svg>
-      Add to list${hasSelection?` (${selDays.length+selRecs.length} selected)`:''}
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:1.25rem;">
+    <button type="button" onclick="${hasSelection?'addToListFromSelection()':''}" class="btn${hasSelection?' btn-teal':''}" style="display:flex;align-items:center;gap:8px;${!hasSelection?'opacity:0.5;cursor:default;':''}">
+      <span class="material-symbols-outlined" style="font-size:18px;">shopping_cart</span>
+      Add to list${hasSelection?` (${selDays.length+selRecs.length})`:''}
     </button>
-    <span style="font-size:12px;color:var(--text3);line-height:1.4;">Tap a day or pick from Recipes, then add to list</span>
-    ${ST.customMealPlan.isCustom?`<button class="btn" onclick="clearEntireWeek()" style="font-size:12px;padding:7px 12px;">Clear</button>`:''}
-    ${ST.mealPlanHistory?.length>0?`<button class="btn" onclick="undoMealChange()" style="font-size:12px;padding:7px 10px;">↶ Undo</button>`:''}
+    <span style="font-size:12px;color:var(--text3);line-height:1.4;">Tap a day header to select</span>
+    ${ST.customMealPlan.isCustom?`<button class="btn" onclick="clearEntireWeek()">Clear</button>`:''}
+    ${ST.mealPlanHistory?.length>0?`<button class="btn" onclick="undoMealChange()">↶ Undo</button>`:''}
   </div>
   <div class="planner-scroll" id="planner-scroll-wrap">
     <div class="planner-grid">${dayCols}</div>
   </div>
-  <div style="margin-top:8px;font-size:11px;color:var(--text3);text-align:center;">✦ Swipe to see all 14 days · Drag cards to swap · Tap day to select for shopping</div>`;
+  <div style="margin-top:10px;font-size:12px;color:var(--text3);text-align:center;font-family:var(--font-headline);font-weight:600;">Swipe to see all 14 days · Drag to swap · Tap day to select</div>`;
 }
 
 function renderShoppingPage(){
