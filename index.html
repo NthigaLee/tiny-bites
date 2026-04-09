@@ -642,6 +642,7 @@ body{min-height:100vh;min-height:100dvh;}
 </style>
 </head>
 <body>
+<a href="#main-content" style="position:absolute;left:-9999px;top:0;z-index:9999;background:var(--teal,#0F6E56);color:#fff;padding:8px 16px;font-size:14px;font-weight:600;border-radius:0 0 8px 0;text-decoration:none;" onfocus="this.style.left='0'" onblur="this.style.left='-9999px'">Skip to main content</a>
 <div class="shell">
   <!-- Mobile Header -->
   <div class="mobile-header" id="mobile-header">
@@ -715,7 +716,7 @@ body{min-height:100vh;min-height:100dvh;}
     </div>
   </nav>
 
-  <main class="main" id="main-content"></main>
+  <main class="main" id="main-content" aria-live="polite" aria-atomic="false"></main>
 
   <!-- Bottom Tab Bar (mobile only) -->
   <div class="bottom-tab-bar" id="bottom-tab-bar">
@@ -746,10 +747,11 @@ body{min-height:100vh;min-height:100dvh;}
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this){this.style.display='none';document.body.style.overflow='';}">
+<div class="modal-overlay" id="modal-overlay" style="display:none" onclick="if(event.target===this){closeModal();}" role="dialog" aria-modal="true" aria-labelledby="modal-title-sr">
   <div class="modal"><div class="modal-handle"></div><div id="modal-content"></div></div>
 </div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+<div id="sr-announce" aria-live="assertive" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
 
 <script>
 // ── State ──────────────────────────────────────────────────────
@@ -770,6 +772,54 @@ let ST = {
 function getAllRecipes(){return[...RECIPES,...(ST.userRecipes||[])];}
 function nextUserRecipeId(){return 10000+(ST.userRecipes||[]).length+1;}
 const save=()=>{try{localStorage.setItem('tb_v3',JSON.stringify(ST));}catch(e){}};
+
+// ── Accessibility helpers ─────────────────────────────────────
+function srAnnounce(msg){const el=document.getElementById('sr-announce');if(el){el.textContent='';requestAnimationFrame(()=>{el.textContent=msg;});}}
+function closeModal(){const o=document.getElementById('modal-overlay');if(o){o.style.display='none';document.body.style.overflow='';if(window._modalPrevFocus)window._modalPrevFocus.focus();}}
+function openModalWith(html){window._modalPrevFocus=document.activeElement;const o=document.getElementById('modal-overlay');const c=document.getElementById('modal-content');c.innerHTML=html;o.style.display='flex';document.body.style.overflow='hidden';requestAnimationFrame(()=>{const f=o.querySelector('button,input,select,textarea,[tabindex]');if(f)f.focus();});}
+// Allergen icons/labels for visual+text indicators
+const ALLERGEN_ICONS={'Dairy':'🥛','Eggs':'🥚','Nuts':'🌰','Gluten':'🌾','Soy':'🫘','Fish':'🐟','Shellfish':'🦐'};
+function allergenTag(a){return`<span class="tag" style="background:var(--red-bg);color:var(--red);" title="Contains ${a}" aria-label="Allergen: ${a}">${ALLERGEN_ICONS[a]||'⚠️'} ${a}</span>`;}
+
+// ── Input validation ──────────────────────────────────────────
+function validateUserRecipe(fields){
+  const{name,time,cal,carbs,protein,fat}=fields;
+  if(!name||!name.trim())return'Please enter a recipe name';
+  if(name.trim().length>100)return'Recipe name must be 100 characters or fewer';
+  if(time!==undefined&&(isNaN(time)||time<1||time>999))return'Prep time must be between 1 and 999 minutes';
+  if(cal!==undefined&&(isNaN(cal)||cal<0||cal>2000))return'Calories must be between 0 and 2000 kcal';
+  if([carbs,protein,fat].some(v=>v!==undefined&&(isNaN(v)||v<0||v>500)))return'Macronutrient values must be between 0 and 500 g';
+  return null;
+}
+
+// ── Rate-limiting & Retry ─────────────────────────────────────
+let _aiLastCallMs=0;
+const AI_MIN_INTERVAL_MS=2000;
+const AI_MAX_RETRIES=3;
+async function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+async function callClaudeWithRetry(messages,onChunk){
+  const now=Date.now();
+  const sinceLastCall=now-_aiLastCallMs;
+  if(sinceLastCall<AI_MIN_INTERVAL_MS){await sleep(AI_MIN_INTERVAL_MS-sinceLastCall);}
+  let lastErr;
+  for(let attempt=0;attempt<AI_MAX_RETRIES;attempt++){
+    try{
+      _aiLastCallMs=Date.now();
+      return await callClaude(messages,onChunk);
+    }catch(err){
+      lastErr=err;
+      const msg=(err.message||'').toLowerCase();
+      if(msg.includes('invalid x-api-key')||msg.includes('authentication')||msg.includes('no api key'))throw err;
+      if(attempt<AI_MAX_RETRIES-1){
+        const backoff=1000*Math.pow(2,attempt);
+        const streamText=document.getElementById('ai-stream-text');
+        if(streamText)streamText.innerHTML=`<span style="color:var(--text3);font-size:12px;">Connection issue, retrying in ${backoff/1000}s… (attempt ${attempt+2}/${AI_MAX_RETRIES})</span>`;
+        await sleep(backoff);
+      }
+    }
+  }
+  throw lastErr;
+}
 
 // ── Week tab helpers ────────────────────────────────────────────
 function setWeekTab(id){ST.weekTab=id;save();renderPage();}
@@ -1390,7 +1440,7 @@ async function sendAI(text){
   try{
     const history=ST.aiMessages.map(m=>({role:m.role,content:m.content}));
     let full='';
-    await callClaude(history,(chunk)=>{
+    await callClaudeWithRetry(history,(chunk)=>{
       full=chunk;
       if(streamText)streamText.innerHTML=formatAIText(esc(chunk));
       if(msgs)msgs.scrollTop=msgs.scrollHeight;
@@ -1398,13 +1448,23 @@ async function sendAI(text){
     ST.aiMessages.push({role:'assistant',content:full});
     save();
     renderPage();
+    srAnnounce('Claude replied');
     // Check if Claude mentioned recipes we have — highlight them
     highlightAISuggestions(full);
   }catch(err){
     if(streamEl)streamEl.style.display='none';
-    ST.aiMessages.push({role:'assistant',content:`Sorry, I couldn't connect to Claude. Error: ${err.message}\n\nPlease check your API key in Settings.`});
+    const msg=(err.message||'').toLowerCase();
+    let userFriendly;
+    if(msg.includes('no api key'))userFriendly='No API key found. Please add your Anthropic API key in Settings.';
+    else if(msg.includes('invalid x-api-key')||msg.includes('authentication'))userFriendly='Your API key is invalid or expired. Please check it in Settings → API key.';
+    else if(msg.includes('rate limit')||msg.includes('429'))userFriendly='Claude is busy right now (rate limit reached). Please wait a moment and try again.';
+    else if(msg.includes('overloaded')||msg.includes('529')||msg.includes('503'))userFriendly='Claude\'s servers are temporarily overloaded. Please try again in a few seconds.';
+    else if(msg.includes('failed to fetch')||msg.includes('networkerror')||msg.includes('typeerror'))userFriendly='Network error — please check your connection and try again.';
+    else userFriendly=`Something went wrong: ${err.message}. Please try again.`;
+    ST.aiMessages.push({role:'assistant',content:userFriendly});
     save();
     renderPage();
+    srAnnounce('Error: '+userFriendly);
   }
 }
 
@@ -1464,7 +1524,7 @@ function renderHomePage(){
   <!-- Filter: Allergens -->
   <div class="filter-row" style="margin-bottom:1.5rem;">
     <span class="filter-label">Avoid:</span>
-    ${ALLERGENS_ALL.map(a=>`<span class="filter-chip${ST.avoidAllergens.includes(a)?' active-avoid':''}" onclick="toggleAllergen('${a}')">${ST.avoidAllergens.includes(a)?'✕ ':'+'}${a}</span>`).join('')}
+    ${ALLERGENS_ALL.map(a=>`<button class="filter-chip${ST.avoidAllergens.includes(a)?' active-avoid':''}" onclick="toggleAllergen('${a}')" aria-pressed="${ST.avoidAllergens.includes(a)?'true':'false'}" aria-label="${ST.avoidAllergens.includes(a)?'Stop avoiding':'Avoid'} ${a}">${ALLERGEN_ICONS[a]||''} ${a}</button>`).join('')}
   </div>
 
   <!-- Tabs -->
@@ -1873,26 +1933,25 @@ function copyList(){const text=`Tiny Bites Shopping List\n\n${buildListText()}`;
 function openRecipe(id){
   const r=getAllRecipes().find(x=>x.id===id);if(!r)return;
   const added=ST.selectedRecipes.includes(id);
-  document.getElementById('modal-content').innerHTML=`
-    <div class="modal-header"><div class="modal-emoji">${r.emoji}</div><div>
-      <div class="modal-title">${esc(r.name)}</div>
+  const html=`
+    <div class="modal-header"><div class="modal-emoji" role="img" aria-label="${esc(r.name)}">${r.emoji}</div><div>
+      <div class="modal-title" id="modal-title-sr">${esc(r.name)}</div>
       <div class="modal-sub">${r.time<60?r.time+' min':Math.round(r.time/60)+' hrs'} · ${r.cal} kcal · ${r.type}</div>
     </div></div>
     <p style="font-size:13px;color:var(--text2);line-height:1.6;">${esc(r.desc)}</p>
-    ${r.allergens.length?`<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">${r.allergens.map(a=>`<span class="tag" style="background:var(--red-bg);color:var(--red);font-size:12px;padding:3px 9px;">Contains ${a}</span>`).join('')}</div>`:`<div style="margin-top:10px;"><span class="tag" style="background:var(--green-bg);color:var(--green);font-size:12px;padding:3px 9px;">Free from major allergens</span></div>`}
+    ${r.allergens.length?`<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;" role="list" aria-label="Allergens">${r.allergens.map(a=>`<span class="tag" style="background:var(--red-bg);color:var(--red);font-size:12px;padding:3px 9px;" role="listitem" aria-label="Contains ${a}">${ALLERGEN_ICONS[a]||'⚠️'} Contains ${a}</span>`).join('')}</div>`:`<div style="margin-top:10px;"><span class="tag" style="background:var(--green-bg);color:var(--green);font-size:12px;padding:3px 9px;" aria-label="Free from major allergens">✓ Free from major allergens</span></div>`}
     <div class="modal-nutr">${[['Calories',r.cal,'kcal'],['Carbs',r.carbs,'g'],['Protein',r.protein,'g'],['Fat',r.fat,'g']].map(([l,v,u])=>`<div class="modal-nutr-card"><div class="nutr-val">${v}</div><div class="nutr-lbl">${l} ${u}</div></div>`).join('')}</div>
     <div class="modal-section"><div class="modal-section-title">Ingredients</div>
-      <ul class="ingredient-list">${r.ingredients.map(i=>`<li>${esc(i.name)}<span>${esc(i.qty)}</span></li>`).join('')}</ul>
+      <ul class="ingredient-list" aria-label="Ingredients">${r.ingredients.map(i=>`<li>${esc(i.name)}<span>${esc(i.qty)}</span></li>`).join('')}</ul>
     </div>
     <div class="modal-section"><div class="modal-section-title">Method</div>
-      <ol class="step-list">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
+      <ol class="step-list" aria-label="Steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
     </div>
-    ${ST.apiKey?`<button class="btn btn-purple" style="width:100%;margin-top:12px;" onclick="document.getElementById('modal-overlay').style.display='none';gotoPage('ai');setTimeout(()=>sendAI('Tell me more about ${esc(r.name).replace(/'/g,"\\'")} — can I adapt it for my ${ST.age}? Any tips or variations?'),200)">✨ Ask Claude about this recipe</button>`:''}
-    <button class="modal-add-btn${added?' added':''}" id="modal-add-btn" onclick="toggleRecipe(${id});const b=document.getElementById('modal-add-btn');b.className='modal-add-btn'+(ST.selectedRecipes.includes(${id})?' added':'');b.textContent=ST.selectedRecipes.includes(${id})?'✓ Added to list':'+ Add to shopping list';">
+    ${ST.apiKey?`<button class="btn btn-purple" style="width:100%;margin-top:12px;" onclick="closeModal();gotoPage('ai');setTimeout(()=>sendAI('Tell me more about ${esc(r.name).replace(/'/g,"\\'")} — can I adapt it for my ${ST.age}? Any tips or variations?'),200)">✨ Ask Claude about this recipe</button>`:''}
+    <button class="modal-add-btn${added?' added':''}" id="modal-add-btn" aria-label="${added?'Remove from':'Add to'} shopping list" onclick="toggleRecipe(${id});const b=document.getElementById('modal-add-btn');const now=ST.selectedRecipes.includes(${id});b.className='modal-add-btn'+(now?' added':'');b.textContent=now?'✓ Added to list':'+ Add to shopping list';b.setAttribute('aria-label',(now?'Remove from':'Add to')+' shopping list');">
       ${added?'✓ Added to list':'+ Add to shopping list'}
     </button>`;
-  document.getElementById('modal-overlay').style.display='flex';
-  document.body.style.overflow='hidden';
+  openModalWith(html);
 }
 
 function openMealSelector(day,slot){
@@ -1923,7 +1982,7 @@ function openMealSelector(day,slot){
       const isCur=current?.id===r.id;
       const ings=(r.ingredients||[]).map(i=>typeof i==='string'?i:i.name||'');
       const matched=tags.length>0?ings.filter(i=>tags.some(t=>i.toLowerCase().includes(t))):[];
-      return`<div class="meal-sel-item${isCur?' current':''}" onclick="saveMealToPlan('${day}','${slot}',${r.id});document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';">
+      return`<div class="meal-sel-item${isCur?' current':''}" onclick="saveMealToPlan('${day}','${slot}',${r.id});closeModal();">
         <span class="meal-sel-emoji">${r.emoji}</span>
         <div class="meal-sel-info">
           <div class="meal-sel-name">${esc(r.name)}${isCur?` <span style="font-size:9px;background:var(--teal-bg);color:var(--teal);padding:1px 7px;border-radius:20px;font-weight:700;">current</span>`:''}</div>
@@ -1940,7 +1999,7 @@ function openMealSelector(day,slot){
         <div style="font-size:10px;font-family:'DM Sans',sans-serif;letter-spacing:2px;text-transform:uppercase;color:${slotColor[slot]||'var(--teal)'};margin-bottom:3px;">${slotIcon[slot]||''} ${slot} · ${day}</div>
         <div class="modal-title">Select a meal</div>
       </div>
-      <button onclick="document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);padding:0 4px;">✕</button>
+      <button onclick="closeModal();" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--text3);padding:0 4px;">✕</button>
     </div>
     <input type="text" id="meal-sel-name" placeholder="Search by name…" style="width:100%;margin-bottom:10px;" oninput="(()=>{const t=window._mealSelTags||[];window._mealSelTags=t;(${renderMealList.toString()})()})()">
     <div style="font-size:11px;font-family:'DM Sans',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">Filter by ingredients</div>
@@ -1965,8 +2024,10 @@ function openMealSelector(day,slot){
     else{const ni=document.createElement('input');ni.id='meal-ing-inp';ni.className='ing-tag-input';ni.placeholder=tags.length===0?'Type ingredient, press Enter…':'';ni.onkeydown=function(event){if(event.key==='Enter'||event.key===','){event.preventDefault();const v=this.value.trim().toLowerCase();if(v&&!(window._mealSelTags||[]).includes(v)){window._mealSelTags=[...(window._mealSelTags||[]),v];this.value='';window.mealSelRenderTags();(renderMealList)();}}};wrap.appendChild(ni);}
   };
   renderMealList();
+  window._modalPrevFocus=document.activeElement;
   document.getElementById('modal-overlay').style.display='flex';
   document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>{const o=document.getElementById('modal-overlay');const f=o.querySelector('button,input,select,textarea,[tabindex]');if(f)f.focus();});
 }
 
 function openDeleteMealConfirm(day,slot,mealName){
@@ -1976,15 +2037,23 @@ function openDeleteMealConfirm(day,slot,mealName){
     </div>
     <p style="font-size:14px;color:var(--text2);margin:16px 0;">Remove <strong>${mealName}</strong> from ${day} ${slot}?</p>
     <div style="display:flex;gap:8px;margin-top:20px;">
-      <button class="btn" onclick="document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';" style="flex:1;">Cancel</button>
-      <button class="btn" style="flex:1;background:#FF6B6B;color:white;border:none;" onclick="deleteMealFromPlan('${day}','${slot}');document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';">Delete</button>
+      <button class="btn" onclick="closeModal();" style="flex:1;">Cancel</button>
+      <button class="btn" style="flex:1;background:#FF6B6B;color:white;border:none;" onclick="deleteMealFromPlan('${day}','${slot}');closeModal();">Delete</button>
     </div>
   `;
+  window._modalPrevFocus=document.activeElement;
   document.getElementById('modal-overlay').style.display='flex';
   document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>{const o=document.getElementById('modal-overlay');const f=o.querySelector('button,input,select,textarea,[tabindex]');if(f)f.focus();});
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';}});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    const modal=document.getElementById('modal-overlay');
+    if(modal&&modal.style.display!=='none')closeModal();
+    else closeDrawer();
+  }
+});
 
 // ── User Recipes ──────────────────────────────────────────────
 function openAddRecipeModal(){
@@ -2010,29 +2079,33 @@ function openAddRecipeModal(){
       <div><label style="font-size:12px;color:var(--text2);font-weight:600;">Steps (one per line)</label><textarea id="ur-steps" class="pref-textarea" style="margin-top:4px;min-height:80px;" placeholder="Wash and soak lentils&#10;Dice vegetables&#10;Cook on low heat 20 mins"></textarea></div>
       <div><label style="font-size:12px;color:var(--text2);font-weight:600;">Description</label><input id="ur-desc" class="pref-input" style="width:100%;margin-top:4px;" placeholder="A nutritious homemade recipe…"/></div>
       <div style="display:flex;gap:8px;margin-top:8px;">
-        <button class="btn" style="flex:1;" onclick="document.getElementById('modal-overlay').style.display='none';document.body.style.overflow='';">Cancel</button>
+        <button class="btn" style="flex:1;" onclick="closeModal();">Cancel</button>
         <button class="btn btn-teal" style="flex:1;" onclick="saveUserRecipe()">Save recipe</button>
       </div>
     </div>
   `;
+  window._modalPrevFocus=document.activeElement;
   document.getElementById('modal-overlay').style.display='flex';
   document.body.style.overflow='hidden';
+  requestAnimationFrame(()=>{const o=document.getElementById('modal-overlay');const f=o.querySelector('button,input,select,textarea,[tabindex]');if(f)f.focus();});
 }
 
 function saveUserRecipe(){
   const name=document.getElementById('ur-name').value.trim();
-  if(!name){toast('Please enter a recipe name');return;}
+  const time=parseInt(document.getElementById('ur-time').value)||20;
+  const cal=parseInt(document.getElementById('ur-cal').value)||0;
+  const carbs=parseInt(document.getElementById('ur-carbs').value)||0;
+  const protein=parseInt(document.getElementById('ur-protein').value)||0;
+  const fat=parseInt(document.getElementById('ur-fat').value)||0;
+  const validationError=validateUserRecipe({name,time,cal,carbs,protein,fat});
+  if(validationError){toast(validationError);srAnnounce(validationError);return;}
   const recipe={
     id:nextUserRecipeId(),
     age:ST.age,
     name,
     emoji:document.getElementById('ur-emoji').value||'🍲',
     type:document.getElementById('ur-type').value,
-    time:parseInt(document.getElementById('ur-time').value)||20,
-    cal:parseInt(document.getElementById('ur-cal').value)||0,
-    carbs:parseInt(document.getElementById('ur-carbs').value)||0,
-    protein:parseInt(document.getElementById('ur-protein').value)||0,
-    fat:parseInt(document.getElementById('ur-fat').value)||0,
+    time,cal,carbs,protein,fat,
     allergens:[],
     desc:document.getElementById('ur-desc').value||name,
     ingredients:document.getElementById('ur-ingredients').value.split('\n').filter(Boolean).map(l=>({name:l,qty:''})),

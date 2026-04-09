@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tiny Bites — Test Suite</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;background:#f6f5f1;color:#1a1a18;padding:2rem;font-size:14px;line-height:1.5;}
+h1{font-size:22px;font-weight:700;margin-bottom:4px;}
+.subtitle{color:#666;margin-bottom:2rem;}
+.suite{background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:1.5rem;overflow:hidden;}
+.suite-header{padding:12px 16px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;background:#f0f0ea;color:#555;}
+.test{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-top:0.5px solid #eee;}
+.test-icon{width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
+.test-icon.pass{background:#22c55e;color:#fff;}
+.test-icon.fail{background:#ef4444;color:#fff;}
+.test-name{flex:1;font-size:13px;}
+.test-detail{font-size:11px;color:#888;margin-top:2px;}
+.test-detail.err{color:#ef4444;}
+.summary{display:flex;gap:1rem;padding:1rem 0;margin-bottom:1rem;font-size:14px;}
+.summary .pass{color:#22c55e;font-weight:700;}
+.summary .fail{color:#ef4444;font-weight:700;}
+.summary .total{color:#888;}
+</style>
+</head>
+<body>
+<h1>🍼 Tiny Bites — Test Suite</h1>
+<p class="subtitle">Unit tests for core app logic</p>
+
+<div id="summary" class="summary"></div>
+<div id="results"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Minimal test runner
+// ─────────────────────────────────────────────────────────────
+const suites = [];
+let currentSuite = null;
+
+function describe(name, fn) {
+  currentSuite = { name, tests: [] };
+  suites.push(currentSuite);
+  fn();
+}
+
+function it(name, fn) {
+  try {
+    fn();
+    currentSuite.tests.push({ name, pass: true });
+  } catch(e) {
+    currentSuite.tests.push({ name, pass: false, error: e.message });
+  }
+}
+
+function expect(val) {
+  return {
+    toBe(expected) {
+      if (val !== expected) throw new Error(`Expected ${JSON.stringify(expected)}, got ${JSON.stringify(val)}`);
+    },
+    toEqual(expected) {
+      const a = JSON.stringify(val), b = JSON.stringify(expected);
+      if (a !== b) throw new Error(`Expected ${b}, got ${a}`);
+    },
+    toContain(item) {
+      if (Array.isArray(val)) {
+        if (!val.includes(item)) throw new Error(`Expected array to contain ${JSON.stringify(item)}`);
+      } else {
+        if (!String(val).includes(item)) throw new Error(`Expected "${val}" to contain "${item}"`);
+      }
+    },
+    not: {
+      toContain(item) {
+        if (Array.isArray(val)) {
+          if (val.includes(item)) throw new Error(`Expected array NOT to contain ${JSON.stringify(item)}`);
+        } else {
+          if (String(val).includes(item)) throw new Error(`Expected "${val}" NOT to contain "${item}"`);
+        }
+      },
+      toBe(expected) {
+        if (val === expected) throw new Error(`Expected value NOT to be ${JSON.stringify(expected)}`);
+      },
+    },
+    toBeTruthy() {
+      if (!val) throw new Error(`Expected truthy value, got ${JSON.stringify(val)}`);
+    },
+    toBeFalsy() {
+      if (val) throw new Error(`Expected falsy value, got ${JSON.stringify(val)}`);
+    },
+    toBeGreaterThan(n) {
+      if (!(val > n)) throw new Error(`Expected ${val} > ${n}`);
+    },
+    toBeLessThan(n) {
+      if (!(val < n)) throw new Error(`Expected ${val} < ${n}`);
+    },
+    toBeGreaterThanOrEqual(n) {
+      if (!(val >= n)) throw new Error(`Expected ${val} >= ${n}`);
+    },
+    toBeLessThanOrEqual(n) {
+      if (!(val <= n)) throw new Error(`Expected ${val} <= ${n}`);
+    },
+    toBeNull() {
+      if (val !== null) throw new Error(`Expected null, got ${JSON.stringify(val)}`);
+    },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// Minimal stubs for app functions under test
+// (Pure logic extracted/replicated from index.html)
+// ─────────────────────────────────────────────────────────────
+
+// ------ Recipe data stubs ------
+const SAMPLE_RECIPES = [
+  { id: 1, age: 'baby', name: 'Sweet potato purée', emoji: '🍠', type: 'Puree', time: 20, cal: 90, carbs: 18, protein: 2, fat: 0, allergens: [], desc: 'Simple sweet potato purée', ingredients: [{ name: 'sweet potato', qty: '1 cup' }], steps: ['Cook sweet potato', 'Blend smooth'] },
+  { id: 2, age: 'baby', name: 'Banana oat mash', emoji: '🍌', type: 'Puree', time: 5, cal: 70, carbs: 16, protein: 2, fat: 1, allergens: ['Gluten'], desc: 'Banana with oat cereal', ingredients: [{ name: 'banana', qty: '1/2' }, { name: 'oats', qty: '2 tbsp' }], steps: ['Mash banana', 'Stir in oats'] },
+  { id: 3, age: 'baby', name: 'Avocado mash', emoji: '🥑', type: 'Puree', time: 5, cal: 120, carbs: 6, protein: 1, fat: 11, allergens: [], desc: 'Creamy avocado', ingredients: [{ name: 'avocado', qty: '1/2' }], steps: ['Mash avocado'] },
+  { id: 4, age: 'toddler', name: 'Mini pancakes', emoji: '🥞', type: 'Breakfast', time: 20, cal: 180, carbs: 28, protein: 5, fat: 6, allergens: ['Gluten', 'Eggs', 'Dairy'], desc: 'Fluffy mini pancakes', ingredients: [{ name: 'flour', qty: '1 cup' }, { name: 'egg', qty: '1' }, { name: 'milk', qty: '1/2 cup' }], steps: ['Mix ingredients', 'Cook on pan'] },
+  { id: 5, age: 'toddler', name: 'Fish fingers', emoji: '🐟', type: 'Fish', time: 25, cal: 200, carbs: 12, protein: 18, fat: 8, allergens: ['Gluten', 'Fish'], desc: 'Crispy fish fingers', ingredients: [{ name: 'white fish', qty: '200g' }, { name: 'breadcrumbs', qty: '1/2 cup' }], steps: ['Coat fish', 'Bake 25 min'] },
+  { id: 6, age: 'baby', name: 'Lentil soup', emoji: '🍲', type: 'Soup', time: 30, cal: 110, carbs: 20, protein: 7, fat: 1, allergens: [], desc: 'Iron-rich lentil soup', ingredients: [{ name: 'lentils', qty: '1/2 cup' }, { name: 'carrot', qty: '1 medium' }, { name: 'onion', qty: '1/2' }], steps: ['Cook lentils', 'Add vegetables', 'Blend'] },
+];
+
+// ------ filtered() replica ------
+function makeFiltered(ST, recipes = SAMPLE_RECIPES) {
+  return function filtered() {
+    const tab = ST.recipeTab || 'all';
+    const base = tab === 'app' ? recipes : tab === 'added' ? (ST.userRecipes || []) : [...recipes, ...(ST.userRecipes || [])];
+    return base.filter(r => {
+      if (r.age !== ST.age) return false;
+      if (ST.avoidAllergens.length && ST.avoidAllergens.some(a => r.allergens.includes(a))) return false;
+      if (ST.activeTypes.length && !ST.activeTypes.includes(r.type)) return false;
+      if (ST.search) {
+        const q = ST.search.toLowerCase();
+        if (!r.name.toLowerCase().includes(q) && !r.desc.toLowerCase().includes(q) &&
+            !r.type.toLowerCase().includes(q) && !r.ingredients.some(i => i.name.toLowerCase().includes(q))) return false;
+      }
+      return true;
+    });
+  };
+}
+
+// ------ getShoppingItems() replica ------
+function makeGetShoppingItems(ST, recipes = SAMPLE_RECIPES) {
+  return function getShoppingItems() {
+    const selected = recipes.filter(r => ST.selectedRecipes.includes(r.id));
+    const map = {};
+    selected.forEach(r => r.ingredients.forEach(ing => {
+      const k = ing.name.toLowerCase();
+      if (!map[k]) map[k] = { name: ing.name, qtys: [], recipes: [] };
+      map[k].qtys.push(ing.qty);
+      if (!map[k].recipes.includes(r.name)) map[k].recipes.push(r.name);
+    }));
+    const cats = {
+      Produce: ['apple','banana','pear','mango','carrot','sweet potato','spinach','pea','avocado','broccoli','courgette','zucchini','tomato','potato','butternut','squash','onion','garlic','leek','celery','pepper','cucumber'],
+      Protein: ['chicken','beef','lamb','pork','salmon','cod','tuna','fish','egg','lentil','chickpea','bean','tofu'],
+      Dairy: ['milk','cheese','yogurt','butter','cream','formula'],
+      Grains: ['oat','pasta','rice','bread','flour','quinoa','couscous','barley','cereal','cracker','breadcrumb'],
+      Pantry: ['oil','olive oil','coconut','stock','broth','soy sauce','tahini','nut butter','almond','cashew','lemon','lime','spice','herb','cinnamon','cumin','salt','sugar','honey','maple','vinegar'],
+    };
+    const grouped = { Produce: [], Protein: [], Dairy: [], Grains: [], Pantry: [], Other: [] };
+    Object.values(map).forEach(item => {
+      let placed = false;
+      for (const [cat, kws] of Object.entries(cats)) {
+        if (cat === 'Other') continue;
+        if (kws.some(k => item.name.toLowerCase().includes(k))) { grouped[cat].push(item); placed = true; break; }
+      }
+      if (!placed) grouped.Other.push(item);
+    });
+    return grouped;
+  };
+}
+
+// ------ validateUserRecipe() ------
+function validateUserRecipe(fields) {
+  const { name, time, cal, carbs, protein, fat } = fields;
+  if (!name || !name.trim()) return 'Please enter a recipe name';
+  if (name.trim().length > 100) return 'Recipe name must be 100 characters or fewer';
+  if (time !== undefined && (isNaN(time) || time < 1 || time > 999)) return 'Prep time must be between 1 and 999 minutes';
+  if (cal !== undefined && (isNaN(cal) || cal < 0 || cal > 2000)) return 'Calories must be between 0 and 2000 kcal';
+  if ([carbs, protein, fat].some(v => v !== undefined && (isNaN(v) || v < 0 || v > 500))) return 'Macronutrient values must be between 0 and 500 g';
+  return null;
+}
+
+// ------ exponential backoff sleep helper ------
+function calcBackoffMs(attempt, base = 1000) {
+  return base * Math.pow(2, attempt);
+}
+
+// ------ buildListText() replica ------
+function buildListText(grouped) {
+  return Object.entries(grouped).filter(([, items]) => items.length)
+    .map(([cat, items]) => `${cat}:\n${items.map(i => `• ${i.name} — ${i.qtys.join(', ')}`).join('\n')}`)
+    .join('\n\n');
+}
+
+// ─────────────────────────────────────────────────────────────
+// Tests
+// ─────────────────────────────────────────────────────────────
+
+// ── Recipe filtering ────────────────────────────────────────
+describe('Recipe filtering — age', () => {
+  it('returns only baby recipes when age is baby', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.every(r => r.age === 'baby')).toBe(true);
+  });
+
+  it('returns only toddler recipes when age is toddler', () => {
+    const filtered = makeFiltered({ age: 'toddler', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.every(r => r.age === 'toddler')).toBe(true);
+  });
+
+  it('returns correct count for baby age', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    expect(filtered().length).toBe(4); // ids 1,2,3,6 are baby
+  });
+
+  it('returns correct count for toddler age', () => {
+    const filtered = makeFiltered({ age: 'toddler', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    expect(filtered().length).toBe(2); // ids 4,5 are toddler
+  });
+});
+
+describe('Recipe filtering — allergens', () => {
+  it('excludes recipes containing avoided allergens', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: ['Gluten'], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.some(r => r.allergens.includes('Gluten'))).toBe(false);
+  });
+
+  it('includes allergen-free recipes when filtering allergens', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: ['Gluten'], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBeGreaterThan(0);
+  });
+
+  it('shows all recipes when no allergens are avoided', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(4);
+  });
+
+  it('returns empty when all baby recipes contain avoided allergen', () => {
+    // All baby recipes that contain Eggs — none in sample, so result should equal filtered without allergen
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: ['Shellfish'], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(4); // no baby recipes have shellfish
+  });
+
+  it('can avoid multiple allergens at once', () => {
+    const filtered = makeFiltered({ age: 'toddler', avoidAllergens: ['Gluten', 'Fish'], activeTypes: [], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(0); // both toddler recipes have Gluten or Fish
+  });
+});
+
+describe('Recipe filtering — meal types', () => {
+  it('filters by active type', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: ['Soup'], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.every(r => r.type === 'Soup')).toBe(true);
+    expect(result.length).toBe(1);
+  });
+
+  it('returns all types when activeTypes is empty', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    expect(filtered().length).toBe(4);
+  });
+
+  it('can filter by multiple types', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: ['Puree', 'Soup'], search: '', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.every(r => ['Puree', 'Soup'].includes(r.type))).toBe(true);
+  });
+});
+
+describe('Recipe filtering — search', () => {
+  it('searches by recipe name (case-insensitive)', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: 'BANANA', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe(2);
+  });
+
+  it('searches by ingredient name', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: 'lentil', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe(6);
+  });
+
+  it('searches by meal type', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: 'soup', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(1);
+    expect(result[0].type).toBe('Soup');
+  });
+
+  it('searches by description', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: 'iron-rich', recipeTab: 'all' });
+    const result = filtered();
+    expect(result.length).toBe(1);
+    expect(result[0].id).toBe(6);
+  });
+
+  it('returns empty array for no matches', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: 'zzznomatch', recipeTab: 'all' });
+    expect(filtered().length).toBe(0);
+  });
+
+  it('returns all recipes for empty search', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all' });
+    expect(filtered().length).toBe(4);
+  });
+});
+
+describe('Recipe filtering — tabs', () => {
+  const userRecipes = [{ id: 9999, age: 'baby', name: 'Custom recipe', emoji: '🍜', type: 'Puree', time: 10, cal: 80, carbs: 15, protein: 3, fat: 1, allergens: [], desc: 'Custom', ingredients: [{ name: 'custom', qty: '1 cup' }], steps: ['Step 1'], isUserRecipe: true }];
+
+  it('app tab shows only built-in recipes', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'app', userRecipes });
+    const result = filtered();
+    expect(result.every(r => !r.isUserRecipe)).toBe(true);
+  });
+
+  it('added tab shows only user recipes', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'added', userRecipes });
+    const result = filtered();
+    expect(result.every(r => !!r.isUserRecipe)).toBe(true);
+    expect(result.length).toBe(1);
+  });
+
+  it('all tab shows both built-in and user recipes', () => {
+    const filtered = makeFiltered({ age: 'baby', avoidAllergens: [], activeTypes: [], search: '', recipeTab: 'all', userRecipes });
+    const result = filtered();
+    expect(result.some(r => !!r.isUserRecipe)).toBe(true);
+    expect(result.some(r => !r.isUserRecipe)).toBe(true);
+  });
+});
+
+// ── Shopping list grouping ───────────────────────────────────
+describe('Shopping list — categorisation', () => {
+  it('groups produce items correctly', () => {
+    const ST = { selectedRecipes: [1, 6] }; // sweet potato purée + lentil soup
+    const getShoppingItems = makeGetShoppingItems(ST);
+    const grouped = getShoppingItems();
+    const produceNames = grouped.Produce.map(i => i.name.toLowerCase());
+    expect(produceNames.some(n => n.includes('sweet potato') || n.includes('carrot') || n.includes('onion'))).toBe(true);
+  });
+
+  it('groups protein items correctly', () => {
+    const ST = { selectedRecipes: [6] }; // lentil soup
+    const getShoppingItems = makeGetShoppingItems(ST);
+    const grouped = getShoppingItems();
+    expect(grouped.Protein.some(i => i.name.toLowerCase().includes('lentil'))).toBe(true);
+  });
+
+  it('groups grain items correctly', () => {
+    const ST = { selectedRecipes: [2] }; // banana oat mash
+    const getShoppingItems = makeGetShoppingItems(ST);
+    const grouped = getShoppingItems();
+    expect(grouped.Grains.some(i => i.name.toLowerCase().includes('oat'))).toBe(true);
+  });
+
+  it('returns empty groups when nothing is selected', () => {
+    const ST = { selectedRecipes: [] };
+    const getShoppingItems = makeGetShoppingItems(ST);
+    const grouped = getShoppingItems();
+    const total = Object.values(grouped).reduce((s, g) => s + g.length, 0);
+    expect(total).toBe(0);
+  });
+
+  it('deduplicates ingredients across recipes', () => {
+    // Create two recipes sharing an ingredient
+    const recipes = [
+      { id: 10, age: 'baby', name: 'R1', emoji: '🥕', type: 'Puree', time: 10, cal: 50, carbs: 5, protein: 1, fat: 0, allergens: [], desc: 'R1', ingredients: [{ name: 'carrot', qty: '1 cup' }], steps: [] },
+      { id: 11, age: 'baby', name: 'R2', emoji: '🥕', type: 'Soup', time: 15, cal: 60, carbs: 6, protein: 2, fat: 0, allergens: [], desc: 'R2', ingredients: [{ name: 'carrot', qty: '2 cups' }], steps: [] },
+    ];
+    const ST = { selectedRecipes: [10, 11] };
+    const getShoppingItems = makeGetShoppingItems(ST, recipes);
+    const grouped = getShoppingItems();
+    const allCarrots = Object.values(grouped).flat().filter(i => i.name.toLowerCase() === 'carrot');
+    expect(allCarrots.length).toBe(1);
+    expect(allCarrots[0].qtys.length).toBe(2); // both quantities listed
+  });
+
+  it('aggregates quantities from multiple recipes', () => {
+    const recipes = [
+      { id: 20, age: 'baby', name: 'A', emoji: '🍎', type: 'Puree', time: 5, cal: 40, carbs: 8, protein: 0, fat: 0, allergens: [], desc: 'A', ingredients: [{ name: 'apple', qty: '1 small' }], steps: [] },
+      { id: 21, age: 'baby', name: 'B', emoji: '🍎', type: 'Puree', time: 5, cal: 50, carbs: 10, protein: 0, fat: 0, allergens: [], desc: 'B', ingredients: [{ name: 'apple', qty: '2 small' }], steps: [] },
+    ];
+    const ST = { selectedRecipes: [20, 21] };
+    const getShoppingItems = makeGetShoppingItems(ST, recipes);
+    const grouped = getShoppingItems();
+    const apples = Object.values(grouped).flat().filter(i => i.name.toLowerCase() === 'apple');
+    expect(apples[0].qtys).toEqual(['1 small', '2 small']);
+  });
+});
+
+describe('Shopping list — text output', () => {
+  it('builds plain text with category headers', () => {
+    const grouped = {
+      Produce: [{ name: 'sweet potato', qtys: ['1 cup'], recipes: ['Sweet potato purée'] }],
+      Protein: [],
+      Dairy: [],
+      Grains: [],
+      Pantry: [],
+      Other: [],
+    };
+    const text = buildListText(grouped);
+    expect(text).toContain('Produce:');
+    expect(text).toContain('sweet potato');
+    expect(text).not.toContain('Protein:'); // empty categories omitted
+  });
+
+  it('lists multiple quantities separated by comma', () => {
+    const grouped = {
+      Produce: [{ name: 'carrot', qtys: ['1 cup', '2 cups'], recipes: ['R1', 'R2'] }],
+      Protein: [], Dairy: [], Grains: [], Pantry: [], Other: [],
+    };
+    const text = buildListText(grouped);
+    expect(text).toContain('1 cup, 2 cups');
+  });
+});
+
+// ── Input validation ─────────────────────────────────────────
+describe('User recipe validation', () => {
+  it('rejects empty name', () => {
+    expect(validateUserRecipe({ name: '', time: 20, cal: 100, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects whitespace-only name', () => {
+    expect(validateUserRecipe({ name: '   ', time: 20, cal: 100, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects name over 100 characters', () => {
+    const long = 'A'.repeat(101);
+    expect(validateUserRecipe({ name: long, time: 20, cal: 100, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('accepts name of exactly 100 characters', () => {
+    const exactly100 = 'A'.repeat(100);
+    expect(validateUserRecipe({ name: exactly100, time: 20, cal: 100, carbs: 10, protein: 5, fat: 3 })).toBeNull();
+  });
+
+  it('rejects prep time of 0', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 0, cal: 100, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects negative prep time', () => {
+    expect(validateUserRecipe({ name: 'Test', time: -5, cal: 100, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects prep time over 999', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 1000, cal: 100, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('accepts prep time of 1', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 1, cal: 100, carbs: 10, protein: 5, fat: 3 })).toBeNull();
+  });
+
+  it('accepts prep time of 999', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 999, cal: 100, carbs: 10, protein: 5, fat: 3 })).toBeNull();
+  });
+
+  it('rejects negative calories', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: -1, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects calories over 2000', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: 2001, carbs: 10, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('accepts 0 calories (unlisted)', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: 0, carbs: 0, protein: 0, fat: 0 })).toBeNull();
+  });
+
+  it('accepts maximum valid values', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 999, cal: 2000, carbs: 500, protein: 500, fat: 500 })).toBeNull();
+  });
+
+  it('rejects negative carbs', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: 100, carbs: -1, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects carbs over 500', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: 100, carbs: 501, protein: 5, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects negative protein', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: 100, carbs: 10, protein: -1, fat: 3 })).not.toBeNull();
+  });
+
+  it('rejects fat over 500', () => {
+    expect(validateUserRecipe({ name: 'Test', time: 20, cal: 100, carbs: 10, protein: 5, fat: 501 })).not.toBeNull();
+  });
+
+  it('accepts a perfectly valid recipe', () => {
+    expect(validateUserRecipe({ name: 'Grandma lentil soup', time: 30, cal: 110, carbs: 20, protein: 7, fat: 1 })).toBeNull();
+  });
+});
+
+// ── Exponential backoff ──────────────────────────────────────
+describe('Retry backoff timing', () => {
+  it('first retry waits 1s (2^0 × base)', () => {
+    expect(calcBackoffMs(0, 1000)).toBe(1000);
+  });
+
+  it('second retry waits 2s (2^1 × base)', () => {
+    expect(calcBackoffMs(1, 1000)).toBe(2000);
+  });
+
+  it('third retry waits 4s (2^2 × base)', () => {
+    expect(calcBackoffMs(2, 1000)).toBe(4000);
+  });
+
+  it('fourth retry waits 8s (2^3 × base)', () => {
+    expect(calcBackoffMs(3, 1000)).toBe(8000);
+  });
+
+  it('backoff grows exponentially', () => {
+    const delays = [0, 1, 2, 3].map(a => calcBackoffMs(a, 1000));
+    for (let i = 1; i < delays.length; i++) {
+      expect(delays[i]).toBe(delays[i - 1] * 2);
+    }
+  });
+});
+
+// ── Meal plan helpers ────────────────────────────────────────
+describe('Meal plan — recipe slot assignment', () => {
+  // Replicate the slot-to-type mapping used in addWeekToList / week planning
+  function getSlotTypes(slot) {
+    if (slot === 'Breakfast') return ['Breakfast'];
+    if (slot === 'Lunch') return ['Soup', 'Quick & easy', 'Finger food', 'Puree'];
+    if (slot === 'Dinner') return ['Meat', 'Fish', 'Pasta', 'Vegetarian', 'Puree'];
+    return ['Snack', 'Puree', 'Finger food'];
+  }
+
+  it('breakfast slot only accepts Breakfast type', () => {
+    const types = getSlotTypes('Breakfast');
+    expect(types).toContain('Breakfast');
+    expect(types).not.toContain('Fish');
+    expect(types).not.toContain('Puree');
+  });
+
+  it('lunch slot accepts Soup type', () => {
+    expect(getSlotTypes('Lunch')).toContain('Soup');
+  });
+
+  it('dinner slot accepts Fish type', () => {
+    expect(getSlotTypes('Dinner')).toContain('Fish');
+  });
+
+  it('snack slot does not accept Breakfast type', () => {
+    expect(getSlotTypes('Snack')).not.toContain('Breakfast');
+  });
+
+  it('puree is valid for lunch, dinner, and snack slots', () => {
+    expect(getSlotTypes('Lunch')).toContain('Puree');
+    expect(getSlotTypes('Dinner')).toContain('Puree');
+    expect(getSlotTypes('Snack')).toContain('Puree');
+  });
+});
+
+describe('Meal plan — deterministic recipe picking', () => {
+  // pick(arr, seed) = arr[seed % arr.length] — deterministic
+  function pick(arr, seed) { return arr[seed % arr.length]; }
+
+  it('same seed always picks same item', () => {
+    const arr = ['a', 'b', 'c', 'd'];
+    expect(pick(arr, 7)).toBe(pick(arr, 7));
+  });
+
+  it('different seeds can pick different items', () => {
+    const arr = ['a', 'b', 'c', 'd'];
+    const results = new Set([0, 1, 2, 3, 4, 5, 6, 7].map(s => pick(arr, s)));
+    expect(results.size).toBeGreaterThan(1);
+  });
+
+  it('seed wraps around for large values', () => {
+    const arr = ['a', 'b', 'c'];
+    expect(pick(arr, 3)).toBe('a'); // 3 % 3 = 0
+    expect(pick(arr, 4)).toBe('b'); // 4 % 3 = 1
+  });
+
+  it('handles single-item array', () => {
+    const arr = ['only'];
+    expect(pick(arr, 999)).toBe('only');
+  });
+});
+
+// ── State persistence helpers ────────────────────────────────
+describe('State management — localStorage', () => {
+  it('save() serialises state to JSON without throwing', () => {
+    const state = { age: 'baby', page: 'home', favorites: [1, 2, 3] };
+    let saved;
+    const save = () => { saved = JSON.stringify(state); };
+    expect(() => save()).not.toBe(undefined);
+    expect(JSON.parse(saved).age).toBe('baby');
+  });
+
+  it('restores state from JSON with Object.assign', () => {
+    const defaults = { age: 'baby', page: 'home', search: '', avoidAllergens: [] };
+    const stored = JSON.stringify({ age: 'toddler', page: 'week' });
+    Object.assign(defaults, JSON.parse(stored));
+    expect(defaults.age).toBe('toddler');
+    expect(defaults.page).toBe('week');
+    expect(defaults.search).toBe(''); // unchanged default preserved
+  });
+
+  it('gracefully handles corrupted localStorage string', () => {
+    let result = null;
+    try {
+      result = JSON.parse('not valid json }{');
+    } catch(e) {
+      result = null;
+    }
+    expect(result).toBeNull();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────
+// Render results
+// ─────────────────────────────────────────────────────────────
+let totalPass = 0, totalFail = 0;
+const container = document.getElementById('results');
+
+suites.forEach(suite => {
+  const div = document.createElement('div');
+  div.className = 'suite';
+  const header = document.createElement('div');
+  header.className = 'suite-header';
+  header.textContent = suite.name;
+  div.appendChild(header);
+
+  suite.tests.forEach(t => {
+    if (t.pass) totalPass++; else totalFail++;
+    const row = document.createElement('div');
+    row.className = 'test';
+    row.innerHTML = `
+      <div class="test-icon ${t.pass ? 'pass' : 'fail'}">${t.pass ? '✓' : '✕'}</div>
+      <div>
+        <div class="test-name">${t.name}</div>
+        ${!t.pass ? `<div class="test-detail err">${t.error}</div>` : ''}
+      </div>`;
+    div.appendChild(row);
+  });
+  container.appendChild(div);
+});
+
+const summary = document.getElementById('summary');
+summary.innerHTML = `
+  <span class="pass">✓ ${totalPass} passed</span>
+  ${totalFail > 0 ? `<span class="fail">✕ ${totalFail} failed</span>` : ''}
+  <span class="total">${totalPass + totalFail} total</span>`;
+
+document.title = `Tests — ${totalPass}/${totalPass + totalFail} passed`;
+</script>
+</body>
+</html>
