@@ -323,6 +323,20 @@ body{min-height:100vh;min-height:100dvh;}
 .tips-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;}
 .tip-item{display:flex;gap:8px;font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.5;}
 .tip-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px;}
+/* Tips for Mums page */
+.tips-hero{background:var(--teal-bg);border-radius:var(--rxl);padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;}
+.tips-hero-icon{width:72px;height:72px;border-radius:50%;background:var(--bg-card);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 18px rgba(45,47,45,0.08);}
+.tips-hero-title{font-family:var(--font-headline);font-size:1.6rem;font-weight:800;color:var(--teal);margin-bottom:6px;}
+.tips-hero-sub{font-size:14px;color:var(--text2);max-width:320px;margin:0 auto;line-height:1.55;}
+.tips-list{display:flex;flex-direction:column;gap:14px;}
+.tip-panel{background:var(--bg-card);border-radius:var(--rl);padding:1.25rem 1.25rem 1.1rem;}
+.tip-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.tip-panel-icon{width:40px;height:40px;border-radius:14px;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tip-panel-title{font-family:var(--font-headline);font-size:1.05rem;font-weight:800;color:var(--text);line-height:1.3;}
+.tip-panel-body{font-size:14px;color:var(--text2);line-height:1.6;}
+.tip-panel-list{margin:10px 0 0;padding:0;list-style:none;}
+.tip-panel-list li{position:relative;padding:6px 0 6px 20px;font-size:13.5px;color:var(--text2);line-height:1.55;}
+.tip-panel-list li:before{content:'';position:absolute;left:4px;top:14px;width:6px;height:6px;border-radius:50%;background:var(--teal-mid);}
 
 /* Week plan — legacy table (kept for fallback) */
 .week-grid{overflow-x:auto;}
@@ -693,6 +707,10 @@ body{min-height:100vh;min-height:100dvh;}
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3-4 3 2 3-5 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       Nutrition
     </div>
+    <div class="nav-item" onclick="gotoPage('tips')" id="nav-tips">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5c-2.5 0-4.5 2-4.5 4.5 0 1.8 1 3 2 4v2h5v-2c1-1 2-2.2 2-4 0-2.5-2-4.5-4.5-4.5z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M6 14.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Tips for mums
+    </div>
     <div class="nav-section-label">SETTINGS</div>
     <div class="nav-item" onclick="gotoPage('prefs')" id="nav-prefs">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -980,119 +998,50 @@ const RECIPES=[
 
 const MEAL_TYPES=[...new Set(RECIPES.map(r=>r.type))].sort();
 
-// ── Recipe Images (Unsplash, royalty-free) ────────────────────
-const RECIPE_IMAGES={
-  1:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
-  2:"https://images.unsplash.com/photo-1517673400267-0251440c45dc?w=400&q=80",
-  3:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  4:"https://images.unsplash.com/photo-1506917728037-b6af01a7d403?w=400&q=80",
-  5:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
-  6:"https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
-  7:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  8:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  9:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80",
-  10:"https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80",
-  11:"https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
-  12:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
-  13:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  14:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80",
-  15:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  16:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
-  17:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
-  18:"https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=400&q=80",
-  19:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
-  20:"https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=400&q=80",
-  21:"https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=400&q=80",
-  22:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
-  23:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
-  24:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
-  25:"https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80",
-  26:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  27:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  28:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  29:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  30:"https://images.unsplash.com/photo-1541519227354-08fa5d50c820?w=400&q=80",
-  31:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
-  32:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  33:"https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=400&q=80",
-  34:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  35:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  36:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  37:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  38:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  39:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80",
-  40:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80",
-  41:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
-  42:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
-  43:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  44:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
-  45:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
-  46:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
-  47:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  48:"https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=400&q=80",
-  49:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
-  50:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  51:"https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
-  52:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  53:"https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=400&q=80",
-  54:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  55:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
-  56:"https://images.unsplash.com/photo-1506917728037-b6af01a7d403?w=400&q=80",
-  57:"https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
-  58:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
-  59:"https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&q=80",
-  60:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  61:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
-  62:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
-  63:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
-  64:"https://images.unsplash.com/photo-1506917728037-b6af01a7d403?w=400&q=80",
-  65:"https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&q=80",
-  66:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  67:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  68:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
-  69:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  70:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  71:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  72:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  73:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  74:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
-  75:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  76:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  77:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  78:"https://images.unsplash.com/photo-1525351484163-7529414344d8?w=400&q=80",
-  79:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80",
-  80:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  81:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  82:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  83:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  84:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
-  85:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  86:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  87:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
-  88:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  89:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  90:"https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?w=400&q=80",
-  91:"https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=400&q=80",
-  92:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  93:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  94:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  95:"https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400&q=80",
-  96:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  97:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  98:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  99:"https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
-  100:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-  101:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  102:"https://images.unsplash.com/photo-1601039641847-7857b994d704?w=400&q=80",
-  103:"https://images.unsplash.com/photo-1473093295043-cdd812d0e601?w=400&q=80",
-  104:"https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&q=80",
-  105:"https://images.unsplash.com/photo-1574484284002-952d92456975?w=400&q=80",
-  106:"https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80",
-  107:"https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&q=80",
-  108:"https://images.unsplash.com/photo-1547592180-85f173990554?w=400&q=80",
-  109:"https://images.unsplash.com/photo-1604152135912-04a022e23696?w=400&q=80",
-  110:"https://images.unsplash.com/photo-1529059997568-3d847b1154f0?w=400&q=80",
-};
+// ── Baby-food Image Pool (Pexels, royalty-free) ──────────────
+// Hand-curated after visual review. Every image here is a bowl of
+// purée, porridge, mash, fruit compote or yogurt — unambiguously baby
+// food. No adult plated meals, no gourmet garnishes.
+const BABY_IMG_POOL=[
+  // Savoury purées & mashes
+  'https://images.pexels.com/photos/5440958/pexels-photo-5440958.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/8896835/pexels-photo-8896835.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/13422423/pexels-photo-13422423.jpeg?auto=compress&cs=tinysrgb&w=500',
+  // Porridge, oatmeal, baby cereal
+  'https://images.pexels.com/photos/5652188/pexels-photo-5652188.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/7352790/pexels-photo-7352790.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/10877314/pexels-photo-10877314.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/13370361/pexels-photo-13370361.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/11532336/pexels-photo-11532336.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/19870708/pexels-photo-19870708.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/19745775/pexels-photo-19745775.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/28792769/pexels-photo-28792769.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/4488082/pexels-photo-4488082.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/7655878/pexels-photo-7655878.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/4725754/pexels-photo-4725754.jpeg?auto=compress&cs=tinysrgb&w=500',
+  // Banana mash
+  'https://images.pexels.com/photos/6156967/pexels-photo-6156967.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/30265685/pexels-photo-30265685.jpeg?auto=compress&cs=tinysrgb&w=500',
+  // Berry compote / smoothie bowls
+  'https://images.pexels.com/photos/36363475/pexels-photo-36363475.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/12101206/pexels-photo-12101206.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/7937333/pexels-photo-7937333.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/11294835/pexels-photo-11294835.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/10593894/pexels-photo-10593894.jpeg?auto=compress&cs=tinysrgb&w=500',
+  // Yogurt & fruit
+  'https://images.pexels.com/photos/35663668/pexels-photo-35663668.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/6823331/pexels-photo-6823331.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/128865/pexels-photo-128865.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/4397245/pexels-photo-4397245.jpeg?auto=compress&cs=tinysrgb&w=500',
+  'https://images.pexels.com/photos/3035261/pexels-photo-3035261.jpeg?auto=compress&cs=tinysrgb&w=500',
+];
+
+// Stable baby-food image per recipe (deterministic by id).
+const RECIPE_IMAGES=(function(){
+  const out={};
+  RECIPES.forEach(r=>{out[r.id]=BABY_IMG_POOL[r.id%BABY_IMG_POOL.length];});
+  return out;
+})();
 
 // ── Shopping helpers ──────────────────────────────────────────
 function getShoppingItems(){
@@ -1800,6 +1749,45 @@ function renderNutritionPage(){
   ${ST.apiKey?`<button class="btn btn-purple" onclick="gotoPage('ai');setTimeout(()=>sendAI('Give me a detailed nutrition guide for my ${ST.age}. My context: ${prefsCtx()}'),200)">✨ Ask Claude for personalised nutrition advice</button>`:''}`;
 }
 
+// ── Tips for Mums ─────────────────────────────────────────────
+// Adapted from "Recipe Book — For babies who need to get the most out of
+// every mouthful" by Dr Luise Marino (RD, PhD), Southampton Children's Hospital.
+const MUM_TIPS=[
+  {icon:'child_care',title:'Is my baby ready to wean?',body:'Weaning can start from 17 weeks and by 6 months, depending on your baby. Look for these signs of readiness:',bullets:['Good head and neck control — can hold head up steadily','Can sit with support in a high chair','Mouth closes around the spoon and food stays in','Watches you eat and reaches for food','Leans forward and opens mouth when food approaches']},
+  {icon:'spa',title:'Your first feeds — set the scene',body:'Pick a calm mid-morning or lunchtime when neither of you is rushed. Use a small soft-flat weaning spoon, offer a tiny amount, and sit with your baby the whole time — never leave them alone with food.',bullets:['Start with 1 teaspoon, build up to 1–3 measured tablespoons over days/weeks','Baby rice, puréed carrot, parsnip, apple or pear are perfect first foods','Babies should get messy! Try not to wipe after every mouthful','Smiles and sounds reassure them they’re doing well','If you can, eat at the same time so they see you enjoying food too']},
+  {icon:'visibility',title:'It can take 15–20 tries',body:'Don’t give up if your little one pulls a face or spits food out — that’s completely normal. It can take 15–20 exposures to a new food before they accept it. Change one thing at a time (texture OR flavour) so they’re not overwhelmed.'},
+  {icon:'palette',title:'Think of a rainbow',body:'Offer a variety of colours to widen their palate and expose them to different nutrients.',bullets:['🟣 PURPLE — plum, aubergine, blueberry','🔴 RED — beetroot, apple, red pepper','🟠 ORANGE — sweet potato, butternut, carrot','🟡 YELLOW — mango, yellow courgette, sweetcorn','🟢 GREEN — pea, kale, pear, avocado','⚪ WHITE — apple, cauliflower, celeriac']},
+  {icon:'layers',title:'Texture stages',body:'Move through textures gradually, every 2–3 days, one small step at a time:',bullets:['Stage 1 — Smooth purée that drops easily off a spoon (around 6 months)','Stage 2 — Thicker purée with tiny soft lumps the size of half a 5p piece','Stage 3 — Mashed with small moist lumps, less sauce','Stage 4 — Fork-mashed with some tender finger-food pieces']},
+  {icon:'energy_savings_leaf',title:'Making every mouthful count',body:'Babies have tiny tummies (about the size of their fist), so it’s tricky to fit a lot in. Instead of adding oil or cream, boost calories and nutrients gently:',bullets:['Add ½–1 tsp smooth nut butter (almond, cashew, peanut) to porridge or purées','Use your baby’s usual breast milk or formula instead of water to thin purées','Offer protein + starch + veg at both main meals','After 10 months, a tsp of grated cheese can replace nut butter in some meals','Follow meals with full-cream yogurt, custard, rice pudding or mashed avocado']},
+  {icon:'pan_tool',title:'Finger foods from 7 months',body:'Once your baby can pick things up, offer soft finger foods alongside purées. Expect most of it to end up on the floor — that’s learning!',bullets:['Start with foods that dissolve easily: baby puffs, rusks','Soft-cooked veg batons — carrot, sweet potato, broccoli, courgette','Soft fruit strips — ripe banana, peach, pear, melon','Always cut lengthways into thin sticks, never round chunks','Strips of cooked meat from around 10 months']},
+  {icon:'waving_hand',title:'Knowing when they’ve had enough',body:'Take your baby’s lead — they’ll let you know.',bullets:['They turn their head away, close their mouth or bat the spoon away','Amounts vary hugely day to day — five teaspoons one meal, almost nothing the next','Some babies only eat well once every couple of days — still normal','Most nutrients still come from milk, so focus on new tastes, not quantity']},
+  {icon:'block',title:'Foods to avoid before 12 months',body:'Keep these off the menu while your baby is under 1:',bullets:['Salt — babies’ kidneys can’t handle it','Added sugar — not needed for growth','Honey — can contain spores that cause infant botulism','Whole nuts and hard raw veg/fruit — choking hazards','Shark, swordfish or marlin — mercury levels can affect brain development','Raw or undercooked eggs, raw shellfish']},
+  {icon:'clean_hands',title:'Safety & hygiene',body:'A baby’s immune system is still developing, so simple habits matter:',bullets:['Wash your hands and your baby’s hands before every meal','Cool cooked food within 1–2 hours; fridge food should be eaten within 1–2 days','Always thoroughly defrost frozen food — ideally in the fridge overnight','Reheat food until piping hot, then cool before serving','Never reheat the same food more than once','All foods are a potential choking hazard — always stay with your baby while they eat']},
+  {icon:'favorite',title:'HELP! — my baby is gagging',body:'Gagging is a normal, protective reflex while babies learn to eat — it’s not the same as choking. It’s new to them, and some take longer than others. If you’re struggling, don’t suffer in silence — speak to your health visitor, dietitian or speech & language therapist. Consider a paediatric first-aid course so you feel confident if your baby ever does choke.'},
+  {icon:'info',title:'A note on this advice',body:'These tips are adapted from the NHS/Southampton Children’s Hospital recipe book for babies who need to make the most of every mouthful (Dr Luise Marino, RD, PhD). They are not a substitute for personalised medical advice — if your baby has allergies, reflux, CHD, CF, was born prematurely, or isn’t gaining weight well, please check in with your paediatric dietitian or healthcare team.'},
+];
+
+function renderTipsPage(){
+  return `<div class="page-header"><div class="page-title">Tips for mums</div><div class="page-sub">Gentle, evidence-based weaning advice — from first spoonfuls to finger foods</div></div>
+  <div class="tips-hero">
+    <div class="tips-hero-icon"><span class="material-symbols-outlined" style="font-size:44px;color:var(--teal);font-variation-settings:'FILL' 1;">restaurant</span></div>
+    <div class="tips-hero-title">You’ve got this.</div>
+    <div class="tips-hero-sub">Weaning can feel daunting, but every tiny bite is a win. Take it slow, follow your baby’s lead, and celebrate the mess.</div>
+  </div>
+  <div class="tips-list">
+    ${MUM_TIPS.map((t,i)=>`<div class="tip-panel">
+      <div class="tip-panel-head">
+        <div class="tip-panel-icon"><span class="material-symbols-outlined" style="font-size:22px;color:var(--teal);font-variation-settings:'FILL' 1;">${t.icon}</span></div>
+        <div class="tip-panel-title">${t.title}</div>
+      </div>
+      <div class="tip-panel-body">${t.body}</div>
+      ${t.bullets?`<ul class="tip-panel-list">${t.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`:''}
+    </div>`).join('')}
+  </div>
+  ${ST.apiKey?`<button class="btn btn-purple" style="width:100%;margin-top:1rem;" onclick="gotoPage('ai');setTimeout(()=>sendAI('Based on my baby’s context (${prefsCtx()}), give me 3 personalised weaning tips for this week.'),200)">✨ Ask Claude for personalised weaning tips</button>`:''}
+  <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:1.5rem;padding:0 1rem;">Adapted from Southampton Children’s Hospital recipe book by Dr Luise Marino (RD, PhD).</div>`;
+}
+
 function renderPrefsPage(){
   const p=ST.prefs;const ctx=prefsCtx();
   const themes=getAvailableThemes();
@@ -2227,7 +2215,7 @@ function weekTouchStart(e,day,slot){
 // ── Router ────────────────────────────────────────────────────
 function gotoPage(page){
   ST.page=page;
-  ['home','favorites','ai','week','shopping','nutrition','prefs','apikey'].forEach(id=>{
+  ['home','favorites','ai','week','shopping','nutrition','tips','prefs','apikey'].forEach(id=>{
     const el=document.getElementById('nav-'+id);if(el)el.className='nav-item'+(id===page?' active':'');
   });
   // Update bottom tab bar active state
@@ -2250,6 +2238,7 @@ function renderPage(){
   else if(ST.page==='week')el.innerHTML=renderWeekPage();
   else if(ST.page==='shopping')el.innerHTML=renderShoppingPage();
   else if(ST.page==='nutrition')el.innerHTML=renderNutritionPage();
+  else if(ST.page==='tips')el.innerHTML=renderTipsPage();
   else if(ST.page==='prefs')el.innerHTML=renderPrefsPage();
   else if(ST.page==='apikey')el.innerHTML=renderApiKeyPage();
   // Restore focus & cursor to search input after re-render
