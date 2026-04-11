@@ -378,6 +378,9 @@ body{min-height:100vh;min-height:100dvh;}
 .planner-slot-label.dinner{color:#3C3489;}
 .planner-slot-label.snack{color:#C2415A;}
 .planner-emoji{font-size:20px;margin-bottom:3px;line-height:1;}
+.planner-thumb{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:8px;margin-bottom:6px;display:block;cursor:pointer;}
+.planner-thumb-wrap{position:relative;margin-bottom:6px;}
+.planner-thumb-emoji{position:absolute;bottom:4px;right:4px;font-size:16px;background:rgba(255,255,255,.85);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.12);}
 .planner-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.35;margin-bottom:3px;font-family:var(--font-headline);}
 .planner-meta{font-size:11px;color:var(--text2);font-family:var(--font-body);}
 .planner-empty{font-size:11px;color:var(--text3);padding:10px 0 6px;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;}
@@ -1652,7 +1655,7 @@ function renderWeekPage(){
         return`<div class="planner-card ${slot.toLowerCase()}${r?' draggable-cell':''}" data-day="${dayKey}" data-slot="${slot}" draggable="${r?'true':'false'}" ondragstart="weekDragStart(event,'${dayKey}','${slot}')" ondragover="weekDragOver(event)" ondrop="weekDrop(event,'${dayKey}','${slot}')" ondragleave="this.classList.remove('drag-over')">
           <div class="planner-slot-label ${slot.toLowerCase()}">${slotIcon[slot]} ${slot}</div>
           ${r
-            ?`<div class="planner-emoji" onclick="openRecipe(${r.id})">${r.emoji}</div>
+            ?`${RECIPE_IMAGES[r.id]?`<div class="planner-thumb-wrap" onclick="openRecipe(${r.id})"><img class="planner-thumb" src="${RECIPE_IMAGES[r.id]}" alt="${esc(r.name)}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'planner-emoji\\' onclick=\\'openRecipe(${r.id})\\'>${r.emoji}</div>'"><div class="planner-thumb-emoji">${r.emoji}</div></div>`:`<div class="planner-emoji" onclick="openRecipe(${r.id})">${r.emoji}</div>`}
             <div class="planner-name" onclick="openRecipe(${r.id})">${esc(r.name)}</div>
             <div class="planner-meta">${r.time<60?r.time+'m':Math.round(r.time/60)+'h'} · ${r.cal}kcal</div>
             <div class="planner-card-actions">
