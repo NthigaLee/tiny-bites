@@ -1001,48 +1001,81 @@ const RECIPES=[
 
 const MEAL_TYPES=[...new Set(RECIPES.map(r=>r.type))].sort();
 
-// ── Baby-food Image Pool (Pexels, royalty-free) ──────────────
-// Hand-curated after visual review. Every image here is a bowl of
-// purée, porridge, mash, fruit compote or yogurt — unambiguously baby
-// food. No adult plated meals, no gourmet garnishes.
-const BABY_IMG_POOL=[
-  // Savoury purées & mashes
-  'https://images.pexels.com/photos/5440958/pexels-photo-5440958.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/8896835/pexels-photo-8896835.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/13422423/pexels-photo-13422423.jpeg?auto=compress&cs=tinysrgb&w=500',
-  // Porridge, oatmeal, baby cereal
-  'https://images.pexels.com/photos/5652188/pexels-photo-5652188.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/7352790/pexels-photo-7352790.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/10877314/pexels-photo-10877314.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/13370361/pexels-photo-13370361.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/11532336/pexels-photo-11532336.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/19870708/pexels-photo-19870708.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/19745775/pexels-photo-19745775.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/28792769/pexels-photo-28792769.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/4488082/pexels-photo-4488082.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/7655878/pexels-photo-7655878.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/4725754/pexels-photo-4725754.jpeg?auto=compress&cs=tinysrgb&w=500',
-  // Banana mash
-  'https://images.pexels.com/photos/6156967/pexels-photo-6156967.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/30265685/pexels-photo-30265685.jpeg?auto=compress&cs=tinysrgb&w=500',
-  // Berry compote / smoothie bowls
-  'https://images.pexels.com/photos/36363475/pexels-photo-36363475.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/12101206/pexels-photo-12101206.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/7937333/pexels-photo-7937333.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/11294835/pexels-photo-11294835.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/10593894/pexels-photo-10593894.jpeg?auto=compress&cs=tinysrgb&w=500',
-  // Yogurt & fruit
-  'https://images.pexels.com/photos/35663668/pexels-photo-35663668.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/6823331/pexels-photo-6823331.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/128865/pexels-photo-128865.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/4397245/pexels-photo-4397245.jpeg?auto=compress&cs=tinysrgb&w=500',
-  'https://images.pexels.com/photos/3035261/pexels-photo-3035261.jpeg?auto=compress&cs=tinysrgb&w=500',
-];
+// ── Categorised Baby-food Image Pools (Pexels, royalty-free) ──
+// Each pool is visually verified to match its food category.
+const _px=id=>`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=500`;
+const IMG_CATS={
+  puree_orange:[5440958,5421510,36949234],                        // orange/yellow purée bowls
+  puree_green:[7785366,4519015,4519016],                          // green purée/mash
+  fruit:[6156967,7194966,4114115],                                // banana/fruit mash
+  porridge:[4488082,4725729,4725748,10877314,11532336,28792769,19745775], // oats/porridge
+  eggs:[13599631,192319,26576013,35989075],                       // scrambled eggs
+  toast:[10504673,34840270,34158496,6955642],                     // toast/bruschetta
+  pancakes:[7144320,4725660,4725663,11358749],                    // pancakes/banana pancakes
+  yogurt:[128865,4397245,6823331,5945660],                        // yogurt bowls
+  soup:[13422406,1703272,34326228,6646159,6120511,34821965,34389369], // soups
+  pasta:[6060750,3832350,8799498,3214159,13548807],               // pasta dishes
+  fish:[10432702,5670958,31043029,31372386,5175525,8951035],      // baked/simple fish
+  meat:[34985104,5419345,17308548,18330394,15985538,5836771],     // meatballs/chicken/meat
+  veggie:[6911885,5863613,13365026,9557673,8360215],              // fritters/patties/veggie mains
+  snack:[4051546,4051559,4051588,30803609,33468832,5847177],      // muffins/bars/bites
+  finger:[5266096,1893555,1259999,5507573,6072035,3872351],       // broccoli/fries/sticks
+  rice:[12916868,6621278,11668704,8956718],                       // rice bowls
+  curry:[12120312,6544380,35267278,9167470],                      // curries
+  cheese:[14941252,5419221,29173115,5840091],                     // grilled cheese/quesadilla
+  hummus:[5852251,5852261,6252722,6541637,9134586],               // hummus/dip
+};
 
-// Stable baby-food image per recipe (deterministic by id).
+// Map recipe → visual category by name keywords + type fallback
+function _imgCat(r){
+  const n=r.name.toLowerCase();
+  const t=r.type;
+  // Purées
+  if(t==='Puree'&&/banana|mango|papaya|apple|pear|peach|prune|berry/.test(n)) return 'fruit';
+  if(t==='Puree'&&/avocado|pea|spinach|broccoli|courgette|green bean/.test(n)) return 'puree_green';
+  if(t==='Puree') return 'puree_orange';
+  // Breakfast sub-types
+  if(/scrambled|egg fried/.test(n)) return 'eggs';
+  if(/toast|soldiers/.test(n)) return 'toast';
+  if(/pancake/.test(n)) return 'pancakes';
+  if(/smoothie|oat|porridge|millet/.test(n)&&t==='Breakfast') return 'porridge';
+  if(t==='Breakfast'&&!/yogurt|yoghurt/.test(n)) return 'porridge';
+  // Snack before veggie (so "baked oat bites" → snack, not veggie via "bake")
+  if(/muffin|bar |bite/.test(n)||t==='Snack') return 'snack';
+  if(/hummus/.test(n)) return 'hummus';
+  // Finger food
+  if(/fries|wedge|floret|finger/.test(n)||t==='Finger food') return 'finger';
+  // Mains by type
+  if(t==='Soup') return 'soup';
+  if(t==='Pasta') return 'pasta';
+  if(t==='Fish') return 'fish';
+  if(t==='Meat') return 'meat';
+  if(/curry|dhal|chickpea/.test(n)) return 'curry';
+  if(/quesadilla|grilled cheese|pizza/.test(n)) return 'cheese';
+  // Veggie mains (fritters before yogurt keyword)
+  if(/fritter|pattie|burrito|taco|rice cake|bake|polenta/.test(n)) return 'veggie';
+  // Yogurt (after fritter check so "fritters with yogurt" → veggie)
+  if(/yogurt|yoghurt/.test(n)) return 'yogurt';
+  if(t==='Vegetarian') return 'veggie';
+  // Quick & easy with rice → rice, otherwise cheese
+  if(t==='Quick & easy'&&/rice/.test(n)) return 'rice';
+  if(t==='Quick & easy') return 'cheese';
+  // Rice dishes
+  if(/rice/.test(n)) return 'rice';
+  return 'porridge'; // safe fallback
+}
+
+// Build BABY_IMG_POOL as flat array for backward compat (hero carousel etc.)
+const BABY_IMG_POOL=Object.values(IMG_CATS).flat().map(_px);
+
+// Stable category-aware image per recipe (deterministic by id within pool).
 const RECIPE_IMAGES=(function(){
   const out={};
-  RECIPES.forEach(r=>{out[r.id]=BABY_IMG_POOL[r.id%BABY_IMG_POOL.length];});
+  RECIPES.forEach(r=>{
+    const cat=_imgCat(r);
+    const pool=IMG_CATS[cat];
+    out[r.id]=_px(pool[r.id%pool.length]);
+  });
   return out;
 })();
 
