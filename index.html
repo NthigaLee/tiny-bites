@@ -715,6 +715,10 @@ body{min-height:100vh;min-height:100dvh;}
       Tips for mums
     </div>
     <div class="nav-section-label">SETTINGS</div>
+    <div class="nav-item" onclick="gotoPage('account')" id="nav-account">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M2.5 14c.8-2.8 3-4 5.5-4s4.7 1.2 5.5 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Account
+    </div>
     <div class="nav-item" onclick="gotoPage('prefs')" id="nav-prefs">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
       Preferences
@@ -774,6 +778,7 @@ body{min-height:100vh;min-height:100dvh;}
 <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 <div id="sr-announce" aria-live="assertive" aria-atomic="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" onerror="window._sbLoadFailed=true"></script>
 <script>
 // ── State ──────────────────────────────────────────────────────
 let ST = {
@@ -792,7 +797,97 @@ let ST = {
 (()=>{try{const s=localStorage.getItem('tb_v3');if(s)Object.assign(ST,JSON.parse(s));}catch(e){}})();
 function getAllRecipes(){return[...RECIPES,...(ST.userRecipes||[])];}
 function nextUserRecipeId(){return 10000+(ST.userRecipes||[]).length+1;}
-const save=()=>{try{localStorage.setItem('tb_v3',JSON.stringify(ST));}catch(e){}};
+const save=()=>{try{localStorage.setItem('tb_v3',JSON.stringify(ST));}catch(e){} scheduleCloudPush();};
+
+// ── Tiny Bites Cloud (Supabase): accounts, sync, hosted AI ───
+const TB_SUPABASE_URL='https://wbehmdmhgsyjbmgmzsyj.supabase.co';
+const TB_SUPABASE_KEY='sb_publishable_z0p0Dj6qUmEu4YSWmcLycg_ytQNOr50';
+const TB_UPGRADE_URL='https://buy.stripe.com/3cIdR29wB2Kg2ah2iz6g800';
+const TB_SYNC_KEYS=['age','theme','avoidAllergens','activeTypes','selectedRecipes','shopChecked','shopRemoved','favorites','customMealPlan','mealPlanHistory','prefs','aiMessages','aiSuggestedIds','userRecipes','tinyBiteDays','selectedDays'];
+let sb=null,TB_USER=null,TB_PREMIUM=false,_cloudPushT=null,_cloudApplying=false,_lastSyncedAt=null;
+try{if(window.supabase&&!window._sbLoadFailed)sb=window.supabase.createClient(TB_SUPABASE_URL,TB_SUPABASE_KEY);}catch(e){}
+function aiOn(){return !!(ST.apiKey||TB_USER);}
+
+function pickSyncState(){const o={};TB_SYNC_KEYS.forEach(k=>o[k]=ST[k]);return o;}
+function scheduleCloudPush(){
+  if(!sb||!TB_USER||_cloudApplying)return;
+  clearTimeout(_cloudPushT);
+  _cloudPushT=setTimeout(async()=>{
+    try{
+      await sb.from('user_state').upsert({user_id:TB_USER.id,state:pickSyncState(),updated_at:new Date().toISOString()});
+      _lastSyncedAt=new Date();
+      const el=document.getElementById('sync-status');if(el)el.textContent='Synced just now';
+    }catch(e){console.warn('Cloud sync failed',e);}
+  },1500);
+}
+async function pullCloudState(){
+  if(!sb||!TB_USER)return;
+  try{
+    const{data}=await sb.from('user_state').select('state,updated_at').eq('user_id',TB_USER.id).maybeSingle();
+    if(data&&data.state&&Object.keys(data.state).length){
+      _cloudApplying=true;
+      TB_SYNC_KEYS.forEach(k=>{if(data.state[k]!==undefined)ST[k]=data.state[k];});
+      try{localStorage.setItem('tb_v3',JSON.stringify(ST));}catch(e){}
+      _cloudApplying=false;
+      _lastSyncedAt=new Date(data.updated_at);
+      setAge(ST.age);applyTheme(ST.theme||'baby-blue');renderPage();
+    }else{
+      scheduleCloudPush();
+    }
+  }catch(e){_cloudApplying=false;console.warn('Cloud pull failed',e);}
+}
+async function refreshProfile(){
+  if(!sb||!TB_USER)return;
+  try{
+    const{data}=await sb.from('profiles').select('premium').eq('id',TB_USER.id).maybeSingle();
+    TB_PREMIUM=!!(data&&data.premium);
+    if(ST.page==='account')renderPage();
+    updateAIStatus();
+  }catch(e){}
+}
+async function sendMagicLink(){
+  const inp=document.getElementById('account-email');
+  if(!inp)return;
+  const email=inp.value.trim();
+  if(!email||!email.includes('@')){toast('Please enter a valid email');return;}
+  if(!sb){toast('Cloud features need an internet connection');return;}
+  const btn=document.getElementById('magic-link-btn');
+  if(btn){btn.disabled=true;btn.textContent='Sending…';}
+  const{error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});
+  if(error){toast('Could not send link: '+error.message);if(btn){btn.disabled=false;btn.textContent='Email me a sign-in link';}}
+  else{const card=document.getElementById('account-card');if(card)card.innerHTML='<div style="text-align:center;padding:1rem;"><div style="font-size:32px;margin-bottom:8px;">📬</div><div style="font-weight:700;margin-bottom:6px;">Check your email</div><div style="font-size:13px;color:var(--text2);">We sent a sign-in link to <b>'+esc(email)+'</b>. Open it on this device and you\'ll be signed in automatically.</div></div>';}
+}
+async function signOutCloud(){
+  if(sb)await sb.auth.signOut();
+  TB_USER=null;TB_PREMIUM=false;
+  toast('Signed out');
+  renderPage();updateAIStatus();
+}
+function upgradeToPremium(){
+  if(!TB_USER){toast('Sign in first to upgrade');return;}
+  const url=TB_UPGRADE_URL+'?client_reference_id='+encodeURIComponent(TB_USER.id)+'&prefilled_email='+encodeURIComponent(TB_USER.email||'');
+  window.open(url,'_blank');
+}
+if(sb){
+  sb.auth.onAuthStateChange((event,session)=>{
+    const wasUser=!!TB_USER;
+    TB_USER=session?.user||null;
+    if(TB_USER&&!wasUser){refreshProfile();pullCloudState();}
+    if(event==='SIGNED_IN'&&!wasUser)toast('Signed in ✓');
+    updateAIStatus();
+    if(ST.page==='account'||ST.page==='ai')renderPage();
+  });
+  // Returning from Stripe checkout
+  if(new URLSearchParams(location.search).get('upgraded')==='1'){
+    history.replaceState({},'',location.pathname);
+    toast('Welcome to Premium! 🎉 Activating…');
+    let tries=0;
+    const poll=setInterval(async()=>{
+      tries++;await refreshProfile();
+      if(TB_PREMIUM||tries>10)clearInterval(poll);
+    },3000);
+  }
+}
 
 // ── Accessibility helpers ─────────────────────────────────────
 function srAnnounce(msg){const el=document.getElementById('sr-announce');if(el){el.textContent='';requestAnimationFrame(()=>{el.textContent=msg;});}}
@@ -830,7 +925,7 @@ async function callClaudeWithRetry(messages,onChunk){
     }catch(err){
       lastErr=err;
       const msg=(err.message||'').toLowerCase();
-      if(msg.includes('invalid x-api-key')||msg.includes('authentication')||msg.includes('no api key'))throw err;
+      if(msg.includes('invalid x-api-key')||msg.includes('authentication')||msg.includes('no api key')||msg.includes('free_limit_reached'))throw err;
       if(attempt<AI_MAX_RETRIES-1){
         const backoff=1000*Math.pow(2,attempt);
         const streamText=document.getElementById('ai-stream-text');
@@ -1225,7 +1320,8 @@ function updateAIStatus(){
   const txt=document.getElementById('ai-status-text');
   if(!dot)return;
   if(ST.apiKey){dot.className='ai-dot connected';txt.textContent='Claude connected';}
-  else{dot.className='ai-dot';txt.textContent='No API key';}
+  else if(TB_USER){dot.className='ai-dot connected';txt.textContent=TB_PREMIUM?'Premium AI ⭐':'Tiny Bites AI (free)';}
+  else{dot.className='ai-dot';txt.textContent='AI off — sign in';}
 }
 
 // ── Mobile Navigation ──────────────────────────────────────────
@@ -1260,20 +1356,10 @@ function getThemeColor(t,v){const c={'baby-blue':{primary:'#0D7A69'},'baby-pink'
 function applyTheme(t){document.documentElement.setAttribute('data-theme',t);const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',getThemeColor(t,'primary'));ST.theme=t;save();renderPage();}
 
 // ── Claude API ────────────────────────────────────────────────
-async function callClaude(messages, onChunk){
-  if(!ST.apiKey)throw new Error('No API key');
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':ST.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:2048,
-      system:`You are a friendly expert in baby and toddler nutrition. You help parents create personalised, safe, nutritious meal plans. You know the user's current context: ${prefsCtx()}. The child is ${ST.age==='baby'?'a baby aged 6–12 months':'a toddler aged 1–3 years'}. Keep responses concise and practical. When suggesting recipes from the app's library, mention them by name exactly. When listing a meal plan, use clear day-by-day formatting. Never recommend honey for babies under 1. Always flag any allergen concerns.`,
-      messages,
-      stream:true,
-    })
-  });
-  if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'API error');}
+function tbSystemPrompt(){
+  return `You are a friendly expert in baby and toddler nutrition. You help parents create personalised, safe, nutritious meal plans. You know the user's current context: ${prefsCtx()}. The child is ${ST.age==='baby'?'a baby aged 6–12 months':'a toddler aged 1–3 years'}. Keep responses concise and practical. When suggesting recipes from the app's library, mention them by name exactly. When listing a meal plan, use clear day-by-day formatting. Never recommend honey for babies under 1. Always flag any allergen concerns.`;
+}
+async function parseClaudeStream(res,onChunk){
   const reader=res.body.getReader();
   const dec=new TextDecoder();
   let full='';
@@ -1296,6 +1382,38 @@ async function callClaude(messages, onChunk){
   }
   return full;
 }
+async function callClaudeHosted(messages,onChunk){
+  const{data:{session}}=await sb.auth.getSession();
+  if(!session)throw new Error('No API key');
+  const res=await fetch(TB_SUPABASE_URL+'/functions/v1/claude-proxy',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':TB_SUPABASE_KEY},
+    body:JSON.stringify({messages,system:tbSystemPrompt(),max_tokens:2048})
+  });
+  if(!res.ok){
+    let err={};try{err=await res.json();}catch(e){}
+    if(err.error==='free_limit_reached')throw new Error('free_limit_reached');
+    throw new Error(err.message||err.error||'API error');
+  }
+  return parseClaudeStream(res,onChunk);
+}
+async function callClaude(messages, onChunk){
+  if(!ST.apiKey&&TB_USER&&sb)return callClaudeHosted(messages,onChunk);
+  if(!ST.apiKey)throw new Error('No API key');
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':ST.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:2048,
+      system:tbSystemPrompt(),
+      messages,
+      stream:true,
+    })
+  });
+  if(!res.ok){const err=await res.json();throw new Error(err.error?.message||'API error');}
+  return parseClaudeStream(res,onChunk);
+}
 
 // ── Pages ─────────────────────────────────────────────────────
 function filtered(){
@@ -1310,12 +1428,52 @@ function filtered(){
   });
 }
 
+function renderAccountPage(){
+  if(!sb)return`<div class="setup-wrap">
+    <div class="setup-icon">☁️</div>
+    <div class="setup-title">Cloud features unavailable</div>
+    <div class="setup-sub">Tiny Bites Cloud needs an internet connection. You can still use the full app offline — your data is saved on this device.</div>
+  </div>`;
+  if(!TB_USER)return`<div class="setup-wrap">
+    <div class="setup-icon">👤</div>
+    <div class="setup-title">Tiny Bites account</div>
+    <div class="setup-sub">Sign in free to sync favourites, meal plans and preferences across devices — and use Tiny Bites AI without needing your own API key (10 free messages a day).</div>
+    <div class="setup-card" id="account-card">
+      <div class="setup-label">Email address</div>
+      <input class="setup-input" type="email" id="account-email" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')sendMagicLink()"/>
+      <div class="setup-hint">No password needed — we'll email you a magic sign-in link.</div>
+      <button class="setup-btn" id="magic-link-btn" onclick="sendMagicLink()" style="margin-top:10px;">Email me a sign-in link</button>
+    </div>
+    <div class="setup-security">
+      <span>Your data is stored securely and is only accessible by you. No spam, ever.</span>
+    </div>
+  </div>`;
+  return`<div class="setup-wrap">
+    <div class="setup-icon">${TB_PREMIUM?'⭐':'👤'}</div>
+    <div class="setup-title">${TB_PREMIUM?'Premium account':'Your account'}</div>
+    <div class="setup-sub">Signed in as <b>${esc(TB_USER.email||'')}</b></div>
+    <div class="setup-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <span style="font-weight:700;">Plan</span>
+        <span class="tag" style="background:${TB_PREMIUM?'var(--green-bg)':'var(--bg2)'};color:${TB_PREMIUM?'var(--green)':'var(--text2)'};">${TB_PREMIUM?'⭐ Premium — unlimited AI':'Free — 10 AI messages/day'}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;">Cloud sync</span>
+        <span id="sync-status" style="font-size:12px;color:var(--text2);">${_lastSyncedAt?'Synced '+_lastSyncedAt.toLocaleTimeString():'On'}</span>
+      </div>
+    </div>
+    ${TB_PREMIUM?'':`<button class="setup-btn" onclick="upgradeToPremium()">⭐ Upgrade to Premium — $4.99/mo</button>
+    <div class="setup-hint" style="text-align:center;margin-top:6px;">Unlimited AI meal planning. Cancel anytime. <a href="#" onclick="refreshProfile();toast('Checking…');return false;">Already paid? Refresh status</a></div>`}
+    <button class="btn" onclick="signOutCloud()" style="width:100%;margin-top:12px;color:var(--red);">Sign out</button>
+  </div>`;
+}
+
 function renderApiKeyPage(){
   const connected=!!ST.apiKey;
   return`<div class="setup-wrap">
     <div class="setup-icon"><svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="11" cy="16" r="7" stroke="var(--purple)" stroke-width="2"/><path d="M17 10l8 8M22 8l2.5-2.5M20 10l2-2" stroke="var(--purple)" stroke-width="2" stroke-linecap="round"/></svg></div>
     <div class="setup-title">${connected?'Claude is connected':'Connect your Claude account'}</div>
-    <div class="setup-sub">${connected?'Your Anthropic API key is saved. Claude will generate personalised meal plans, recipe suggestions and shopping tips based on your child\'s preferences.':'Add your Anthropic API key to enable Claude AI — personalised meal plans, smart recipe suggestions and conversational help, all powered by your own Claude account.'}</div>
+    <div class="setup-sub">${connected?'Your Anthropic API key is saved. Claude will generate personalised meal plans, recipe suggestions and shopping tips based on your child\'s preferences.':'Optional: add your own Anthropic API key for unlimited AI. (Prefer the easy way? Just sign in under Settings → Account — no key needed.)'}</div>
     <div class="setup-card">
       <div class="setup-label">Anthropic API key</div>
       <input class="setup-input" type="password" id="api-key-input" placeholder="sk-ant-api03-…" value="${esc(ST.apiKey)}" autocomplete="off"/>
@@ -1331,12 +1489,13 @@ function renderApiKeyPage(){
 }
 
 function renderAIPage(){
-  if(!ST.apiKey)return`<div class="page-header"><div class="page-title">Claude AI</div></div>
+  if(!aiOn())return`<div class="page-header"><div class="page-title">Claude AI</div></div>
     <div style="text-align:center;padding:3rem 1rem;">
       <div style="font-size:40px;margin-bottom:12px;">✨</div>
-      <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Connect Claude to get started</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;">Add your Anthropic API key to unlock personalised AI meal planning</div>
-      <button class="btn btn-purple" onclick="gotoPage('apikey')">Add API key →</button>
+      <div style="font-size:16px;font-weight:600;margin-bottom:8px;">Unlock AI meal planning</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;">Sign in free for 10 AI messages a day — no API key needed.<br>Or connect your own Anthropic API key for unlimited use.</div>
+      <button class="btn btn-purple" onclick="gotoPage('account')">Sign in free →</button>
+      <div style="margin-top:10px;"><button class="btn" onclick="gotoPage('apikey')">I have my own API key</button></div>
     </div>`;
 
   const msgs=ST.aiMessages;
@@ -1407,7 +1566,7 @@ async function sendAIFromInput(){
 }
 
 async function sendAI(text){
-  if(!ST.apiKey){toast('Add your API key first');gotoPage('apikey');return;}
+  if(!aiOn()){toast('Sign in or add an API key first');gotoPage('account');return;}
   ST.aiMessages.push({role:'user',content:text});
   save();
   renderPage();
@@ -1440,7 +1599,8 @@ async function sendAI(text){
     if(streamEl)streamEl.style.display='none';
     const msg=(err.message||'').toLowerCase();
     let userFriendly;
-    if(msg.includes('no api key'))userFriendly='No API key found. Please add your Anthropic API key in Settings.';
+    if(msg.includes('free_limit_reached'))userFriendly='You\'ve used your 10 free AI messages for today. ⭐ Upgrade to Premium in Settings → Account for unlimited meal planning, or come back tomorrow!';
+    else if(msg.includes('no api key'))userFriendly='Please sign in (Settings → Account) or add your Anthropic API key in Settings.';
     else if(msg.includes('invalid x-api-key')||msg.includes('authentication'))userFriendly='Your API key is invalid or expired. Please check it in Settings → API key.';
     else if(msg.includes('rate limit')||msg.includes('429'))userFriendly='Claude is busy right now (rate limit reached). Please wait a moment and try again.';
     else if(msg.includes('overloaded')||msg.includes('529')||msg.includes('503'))userFriendly='Claude\'s servers are temporarily overloaded. Please try again in a few seconds.';
@@ -1741,7 +1901,7 @@ function renderShoppingPage(){
       <button class="btn" onclick="ST.shopChecked=[];save();renderPage()" style="font-size:12px;padding:6px 12px;">Clear checked</button>
     </div>
   </div>
-  ${ST.apiKey?`<div style="margin-bottom:1rem;">
+  ${aiOn()?`<div style="margin-bottom:1rem;">
     <span class="quick-chip" style="cursor:pointer;" onclick="gotoPage('ai');setTimeout(()=>sendAI('I have these ingredients: ${Object.values(grouped).flat().map(i=>i.name).join(', ')}. Can you suggest extra meals I can make for my ${ST.age}?'),200)">✨ Ask Claude for meal ideas with these ingredients</span>
   </div>`:''}
   ${Object.entries(grouped).filter(([,items])=>items.length).map(([cat,items])=>`<div class="shop-section">
@@ -1782,7 +1942,7 @@ function renderNutritionPage(){
     </div>`).join('')}
   </div>
   <div class="tips-card"><div class="tips-title">Tips for ${ST.age==='baby'?'babies':'toddlers'}</div>${tips.map(t=>`<div class="tip-item"><div class="tip-dot"></div><div>${t}</div></div>`).join('')}</div>
-  ${ST.apiKey?`<button class="btn btn-purple" onclick="gotoPage('ai');setTimeout(()=>sendAI('Give me a detailed nutrition guide for my ${ST.age}. My context: ${prefsCtx()}'),200)">✨ Ask Claude for personalised nutrition advice</button>`:''}`;
+  ${aiOn()?`<button class="btn btn-purple" onclick="gotoPage('ai');setTimeout(()=>sendAI('Give me a detailed nutrition guide for my ${ST.age}. My context: ${prefsCtx()}'),200)">✨ Ask Claude for personalised nutrition advice</button>`:''}`;
 }
 
 // ── Tips for Mums ─────────────────────────────────────────────
@@ -1820,7 +1980,7 @@ function renderTipsPage(){
       ${t.bullets?`<ul class="tip-panel-list">${t.bullets.map(b=>`<li>${b}</li>`).join('')}</ul>`:''}
     </div>`).join('')}
   </div>
-  ${ST.apiKey?`<button class="btn btn-purple" style="width:100%;margin-top:1rem;" onclick="gotoPage('ai');setTimeout(()=>sendAI('Based on my baby’s context (${prefsCtx()}), give me 3 personalised weaning tips for this week.'),200)">✨ Ask Claude for personalised weaning tips</button>`:''}
+  ${aiOn()?`<button class="btn btn-purple" style="width:100%;margin-top:1rem;" onclick="gotoPage('ai');setTimeout(()=>sendAI('Based on my baby’s context (${prefsCtx()}), give me 3 personalised weaning tips for this week.'),200)">✨ Ask Claude for personalised weaning tips</button>`:''}
   <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:1.5rem;padding:0 1rem;">Adapted from Southampton Children’s Hospital recipe book by Dr Luise Marino (RD, PhD).</div>`;
 }
 
@@ -1867,7 +2027,7 @@ function renderPrefsPage(){
     </div>
   </div>
   ${ctx!=='no preferences set yet'?`<div class="context-box" style="margin-top:14px;"><strong>Claude context:</strong> ${ctx}</div>`:''}
-  ${ST.apiKey?`<button class="btn btn-purple" style="margin-top:1rem;" onclick="gotoPage('ai');setTimeout(()=>sendAI('Based on my preferences (${prefsCtx()}), what 5 recipes from the app would you recommend for my ${ST.age} this week?'),200)">✨ Get Claude recommendations based on these prefs</button>`:''}`;
+  ${aiOn()?`<button class="btn btn-purple" style="margin-top:1rem;" onclick="gotoPage('ai');setTimeout(()=>sendAI('Based on my preferences (${prefsCtx()}), what 5 recipes from the app would you recommend for my ${ST.age} this week?'),200)">✨ Get Claude recommendations based on these prefs</button>`:''}`;
 }
 
 // ── Actions ───────────────────────────────────────────────────
@@ -1971,7 +2131,7 @@ function openRecipe(id){
     <div class="modal-section"><div class="modal-section-title">Method</div>
       <ol class="step-list" aria-label="Steps">${r.steps.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>
     </div>
-    ${ST.apiKey?`<button class="btn btn-purple" style="width:100%;margin-top:12px;" onclick="closeModal();gotoPage('ai');setTimeout(()=>sendAI('Tell me more about ${esc(r.name).replace(/'/g,"\\'")} — can I adapt it for my ${ST.age}? Any tips or variations?'),200)">✨ Ask Claude about this recipe</button>`:''}
+    ${aiOn()?`<button class="btn btn-purple" style="width:100%;margin-top:12px;" onclick="closeModal();gotoPage('ai');setTimeout(()=>sendAI('Tell me more about ${esc(r.name).replace(/'/g,"\\'")} — can I adapt it for my ${ST.age}? Any tips or variations?'),200)">✨ Ask Claude about this recipe</button>`:''}
     <button class="modal-add-btn${added?' added':''}" id="modal-add-btn" aria-label="${added?'Remove from':'Add to'} shopping list" onclick="toggleRecipe(${id});const b=document.getElementById('modal-add-btn');const now=ST.selectedRecipes.includes(${id});b.className='modal-add-btn'+(now?' added':'');b.textContent=now?'✓ Added to list':'+ Add to shopping list';b.setAttribute('aria-label',(now?'Remove from':'Add to')+' shopping list');">
       ${added?'✓ Added to list':'+ Add to shopping list'}
     </button>`;
@@ -2251,7 +2411,7 @@ function weekTouchStart(e,day,slot){
 // ── Router ────────────────────────────────────────────────────
 function gotoPage(page){
   ST.page=page;
-  ['home','favorites','ai','week','shopping','nutrition','tips','prefs','apikey'].forEach(id=>{
+  ['home','favorites','ai','week','shopping','nutrition','tips','prefs','apikey','account'].forEach(id=>{
     const el=document.getElementById('nav-'+id);if(el)el.className='nav-item'+(id===page?' active':'');
   });
   // Update bottom tab bar active state
@@ -2277,6 +2437,7 @@ function renderPage(){
   else if(ST.page==='tips')el.innerHTML=renderTipsPage();
   else if(ST.page==='prefs')el.innerHTML=renderPrefsPage();
   else if(ST.page==='apikey')el.innerHTML=renderApiKeyPage();
+  else if(ST.page==='account')el.innerHTML=renderAccountPage();
   // Restore focus & cursor to search input after re-render
   if(hadFocus){const s=document.getElementById('search-inp');if(s){s.focus();try{s.setSelectionRange(cursorPos,cursorPos);}catch(e){}}}
   updateBadge();updateFavoriteBadge();updateAIStatus();
@@ -2339,7 +2500,7 @@ document.addEventListener('keydown',(e)=>{if(e.key==='Escape')closeDrawer();});
 (function registerSW() {
   if (!('serviceWorker' in navigator)) return;
 
-  const CACHE = 'tiny-bites-v3';
+  const CACHE = 'tiny-bites-v4';
 
   // Service worker source as a string — runs in its own scope
   const swCode = `
@@ -2554,6 +2715,7 @@ function applyUpdate() {
     localStorage.setItem('tb_ios_tip', '1');
   }, 3000); // Show after 3s so the app loads first
 })();
+// Tiny Bites Cloud build — Supabase sync + hosted AI + Stripe premium
 </script>
 </body>
 </html>
